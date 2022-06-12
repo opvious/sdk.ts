@@ -18,9 +18,7 @@
     "build": "tsc -p src",
     "clean": "rm -rf lib node_modules out",
     "prepare": "pnpm run build",
-    "test": "jest",
-    "test-debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand --testTimeout=1000000",
-    "watch": "tsc -b -w src test"
+    "watch": "tsc -b -w src"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
