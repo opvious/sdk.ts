@@ -54,17 +54,17 @@ jobs:
           tag: v${{ steps.extract-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Create tag
-      #   if: steps.check-version.outputs.exists == 'false'
-      #   uses: pkgdeps/git-tag-action@v2
-      #   with:
-      #     git_commit_sha: ${{ github.sha }}
-      #     git_tag_prefix: v
-      #     github_repo: ${{ github.repository }}
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     version: ${{ steps.extract-version.outputs.version }}
-      # - name: Publish to GPR
-      #   if: steps.check-version.outputs.exists == 'false'
-      #   run: git status && pnpm -r exec pnpm publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create tag
+        if: steps.check-version.outputs.exists == 'false'
+        uses: pkgdeps/git-tag-action@v2
+        with:
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: v
+          github_repo: ${{ github.repository }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ steps.extract-version.outputs.version }}
+      - name: Publish to NPM
+        if: steps.check-version.outputs.exists == 'false'
+        run: pnpm -r exec pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
