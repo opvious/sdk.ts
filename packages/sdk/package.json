@@ -1,0 +1,32 @@
+{
+  "name": "opvious",
+  "version": "0.1.0",
+  "repository": "github:opvious/sdk.ts",
+  "description": "Opvious SDK",
+  "keywords": [
+    "optimization",
+    "opvious",
+    "sdk"
+  ],
+  "author": "Opvious engineering <eng@opvious.ai>",
+  "license": "Apache-2.0",
+  "main": "lib/",
+  "files": [
+    "lib/"
+  ],
+  "scripts": {
+    "build": "tsc -p src",
+    "clean": "rm -rf lib node_modules out",
+    "prepare": "pnpm run build",
+    "watch": "tsc -b -w src"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.7",
+    "jest": "^27.4.5",
+    "jest-extended": "^1.1.0",
+    "ts-jest": "^27.1.2",
+    "typescript": "^4.1.5"
+  },
+  "typedocMain": "src/index.ts"
+}
