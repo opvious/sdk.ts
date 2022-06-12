@@ -1,0 +1,34 @@
+{
+  "name": "@opvious/template-packages",
+  "version": "0.1.0",
+  "private": true,
+  "repository": "github:opvious/template.ts",
+  "author": "Opvious engineering <eng@opvious.ai>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "bump": "pnpm exec opvious-manage-versions update -b ${BUMP:-patch}",
+    "clean": "pnpm -r -F !. run clean && rm -rf docs node_modules out",
+    "docs": "pnpm exec typedoc --entryPointStrategy packages packages/* --readme none --categorizeByGroup false --sort alphabetical",
+    "fix": "prettier --write 'packages/*/{src,test}/**/*.{ts,tsx}' && pnpm run lint --fix",
+    "lint": "eslint 'packages/*/{src,test}/**/*.{ts,tsx}'",
+    "test": "pnpm -r run test --coverage"
+  },
+  "devDependencies": {
+    "@opvious/eslint-plugin": "^0.1.7",
+    "@opvious/prettier-typescript": "^0.1.6",
+    "@opvious/stl": "^0.5.28",
+    "eslint": "^8.12.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.4",
+    "prettier": "^2.6.1",
+    "typedoc": "^0.22.15",
+    "typescript": "^4.1.5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "prettier": "@opvious/prettier-typescript"
+}

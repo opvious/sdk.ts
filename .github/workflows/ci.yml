@@ -1,0 +1,70 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+jobs:
+  publish-packages:
+    name: Test
+    timeout-minutes: 3
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ format(steps.check-version.outputs.exists == 'false') }}
+      version: ${{ steps.extract-version.outputs.version }}
+      major_version: ${{ steps.extract-version.outputs.major_version }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+      - name: Setup protoc
+        uses: arduino/setup-protoc@v1
+      - name: Install
+        run: pnpm i
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
+      - name: Lint
+        run: pnpm run lint
+      - name: Test
+        run: pnpm t
+      - name: Upload coverage
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: out/coverage
+      - name: Extract version
+        id: extract-version
+        run: |
+          PACKAGE_VERSION="$(node -p 'require("./package.json").version')"
+          echo "::set-output name=version::$PACKAGE_VERSION"
+          echo "::set-output name=major_version::${PACKAGE_VERSION%%.*}"
+      - name: Check if tag exists
+        uses: mukunku/tag-exists-action@v1.0.0
+        id: check-version
+        with:
+          tag: v${{ steps.extract-version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Create tag
+      #   if: steps.check-version.outputs.exists == 'false'
+      #   uses: pkgdeps/git-tag-action@v2
+      #   with:
+      #     git_commit_sha: ${{ github.sha }}
+      #     git_tag_prefix: v
+      #     github_repo: ${{ github.repository }}
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     version: ${{ steps.extract-version.outputs.version }}
+      # - name: Publish to GPR
+      #   if: steps.check-version.outputs.exists == 'false'
+      #   run: git status && pnpm -r exec pnpm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
