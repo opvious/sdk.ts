@@ -30,7 +30,7 @@ jobs:
         # Ideally we'd use the setup node for everything here but it doesn't
         # look like it supports setting two separate tokens.
         run: |
-          cat >>.npmrc <<EOF
+          cat >>${{ github.workspace }}/.npmrc <<EOF
           //registry.npmjs.org/:_authToken=\${NPM_NODE_AUTH_TOKEN}
           EOF
       - name: Install
@@ -73,7 +73,7 @@ jobs:
           version: ${{ steps.extract-version.outputs.version }}
       - name: Publish to NPM
         if: steps.check-version.outputs.exists == 'false'
-        run: pnpm -r exec pnpm publish
+        run: git status && pnpm -r exec pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
           NPM_NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
