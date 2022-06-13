@@ -31,6 +31,7 @@ jobs:
         # look like it supports setting two separate tokens.
         run: |
           cat >>$NPM_CONFIG_USERCONFIG <<EOF
+
           //registry.npmjs.org/:_authToken=\${NPM_NODE_AUTH_TOKEN}
           EOF
           cat $NPM_CONFIG_USERCONFIG
