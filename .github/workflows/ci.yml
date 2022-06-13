@@ -33,6 +33,7 @@ jobs:
           cat >>$NPM_CONFIG_USERCONFIG <<EOF
           //registry.npmjs.org/:_authToken=\${NPM_NODE_AUTH_TOKEN}
           EOF
+          cat $NPM_CONFIG_USERCONFIG
       - name: Install
         run: pnpm i
         env:
