@@ -26,12 +26,20 @@ jobs:
         with:
           cache: pnpm
           registry-url: https://npm.pkg.github.com
-      - name: Setup protoc
-        uses: arduino/setup-protoc@v1
+      - name: Add NPM credentials
+        # Ideally we'd use the setup node for everything here but it doesn't
+        # look like it supports setting two separate tokens.
+        run: |
+          cat >>.npmrc <<EOF
+          //registry.npmjs.org/:_authToken=\${NPM_NODE_AUTH_TOKEN}
+          EOF
       - name: Install
-        run: pnpm i
+        run: pnpm i --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
+          NPM_NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build
+        run: pnpm rebuild && pnpm run -r prepare
       - name: Lint
         run: pnpm run lint
       - name: Test
@@ -67,4 +75,5 @@ jobs:
         if: steps.check-version.outputs.exists == 'false'
         run: pnpm -r exec pnpm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
+          NPM_NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

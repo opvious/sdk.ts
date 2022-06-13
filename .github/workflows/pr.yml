@@ -22,8 +22,6 @@ jobs:
         with:
           cache: pnpm
           registry-url: https://npm.pkg.github.com
-      - name: Setup protoc
-        uses: arduino/setup-protoc@v1
       - name: Install
         run: pnpm i
         env:
