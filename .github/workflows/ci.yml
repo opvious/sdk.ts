@@ -34,12 +34,10 @@ jobs:
           //registry.npmjs.org/:_authToken=\${NPM_NODE_AUTH_TOKEN}
           EOF
       - name: Install
-        run: pnpm i --ignore-scripts
+        run: pnpm i
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
           NPM_NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Build
-        run: pnpm rebuild && pnpm run -r prepare
       - name: Lint
         run: pnpm run lint
       - name: Test
