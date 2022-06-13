@@ -30,7 +30,7 @@ jobs:
         # Ideally we'd use the setup node for everything here but it doesn't
         # look like it supports setting two separate tokens.
         run: |
-          cat >>${{ github.workspace }}/.npmrc <<EOF
+          cat >>$NPM_CONFIG_USERCONFIG <<EOF
           //registry.npmjs.org/:_authToken=\${NPM_NODE_AUTH_TOKEN}
           EOF
       - name: Install
