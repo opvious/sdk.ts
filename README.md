@@ -5,6 +5,7 @@
 ### NPM packages
 
 + [`opvious`](packages/sdk)
++ [`opvious-specifications`](packages/specifications)
 
 ## Developing
 
