@@ -10,10 +10,6 @@ jobs:
     name: Test
     timeout-minutes: 3
     runs-on: ubuntu-latest
-    outputs:
-      published: ${{ format(steps.check-version.outputs.exists == 'false') }}
-      version: ${{ steps.extract-version.outputs.version }}
-      major_version: ${{ steps.extract-version.outputs.major_version }}
     steps:
       - name: Check out
         uses: actions/checkout@v2
@@ -53,7 +49,6 @@ jobs:
         run: |
           PACKAGE_VERSION="$(node -p 'require("./package.json").version')"
           echo "::set-output name=version::$PACKAGE_VERSION"
-          echo "::set-output name=major_version::${PACKAGE_VERSION%%.*}"
       - name: Check if tag exists
         uses: mukunku/tag-exists-action@v1.0.0
         id: check-version
