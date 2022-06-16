@@ -1,17 +1,16 @@
 {
-  "name": "opvious",
+  "name": "opvious-specifications",
   "version": "0.1.6",
   "repository": "github:opvious/sdk.ts",
-  "description": "Opvious SDK",
+  "description": "Sample model specifications for use with the Opvious SDK",
   "keywords": [
-    "opvious",
-    "sdk"
+    "opvious"
   ],
   "author": "Opvious engineering <eng@opvious.ai>",
   "license": "Apache-2.0",
-  "main": "lib/",
   "files": [
-    "lib/"
+    "lib/",
+    "resources/"
   ],
   "scripts": {
     "build": "tsc -p src",
