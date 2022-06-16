@@ -2,7 +2,7 @@
   "name": "opvious-specifications",
   "version": "0.1.6",
   "repository": "github:opvious/sdk.ts",
-  "description": "Sample model specifications for use with Opvious SDK",
+  "description": "Sample model specifications for use with the Opvious SDK",
   "keywords": [
     "opvious"
   ],

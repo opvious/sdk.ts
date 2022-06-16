@@ -4,7 +4,6 @@
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "keywords": [
-    "optimization",
     "opvious",
     "sdk"
   ],
