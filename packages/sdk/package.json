@@ -1,8 +1,9 @@
 {
   "name": "opvious",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
+  "homepage": "https://www.opvious.io",
   "keywords": [
     "opvious",
     "sdk"
