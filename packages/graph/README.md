@@ -1,5 +1,7 @@
-# Opvious SDK
+# Opvious GraphQL API types
 
-https://www.opvious.ai
+https://www.opvious.io
 
-WIP
+```sh
+npm i opvious-graphql
+```

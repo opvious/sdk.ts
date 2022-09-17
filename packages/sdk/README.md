@@ -1,5 +1,7 @@
 # Opvious SDK
 
-https://www.opvious.ai
+https://www.opvious.io
 
-WIP
+```sh
+npm i opvious
+```
