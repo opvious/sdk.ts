@@ -1,6 +1,6 @@
 {
   "name": "opvious-graph",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious GraphQL API types",
   "homepage": "https://www.opvious.io",

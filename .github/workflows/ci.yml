@@ -90,5 +90,4 @@ jobs:
       - name: Install
         run: pnpm i
       - name: Publish to NPM
-        if: steps.check-version.outputs.exists == 'false'
         run: git status && pnpm -r exec pnpm publish
