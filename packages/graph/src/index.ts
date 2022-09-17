@@ -18,16 +18,6 @@ import {getSdk, Requester, Sdk} from './api.gen';
 
 export * from './api.gen';
 
-type Syncify<F> = F extends (...args: infer A) => infer R
-  ? R extends Promise<infer V>
-    ? (...args: A) => V
-    : R extends AsyncIterable<infer V>
-    ? (...args: A) => Iterable<V>
-    : R extends Promise<infer V1> | AsyncIterable<infer V2>
-    ? (...args: A) => V1 | Iterable<V2>
-    : never
-  : never;
-
 /** Generates a synchronous SDK, useful for example in Google Apps Script. */
 export function getSyncSdk(requester: SyncRequester): SyncSdk {
   return getSdk(requester as any) as any;
@@ -38,3 +28,13 @@ export type SyncRequester = Syncify<Requester>;
 export type SyncSdk = {
   readonly [K in keyof Sdk]: Syncify<Sdk[K]>;
 };
+
+type Syncify<F> = F extends (...args: infer A) => infer R
+  ? R extends Promise<infer V>
+    ? (...args: A) => V
+    : R extends AsyncIterable<infer V>
+    ? (...args: A) => Iterable<V>
+    : R extends Promise<infer V1> | AsyncIterable<infer V2>
+    ? (...args: A) => V1 | Iterable<V2>
+    : never
+  : never;

@@ -15,4 +15,33 @@
  * the License.
  */
 
+import {GraphQLClient} from 'graphql-request';
+import * as api from 'opvious-graph';
+
 export const name = 'opvious';
+
+const API_URL = 'https://api.opvious.io';
+
+export class OpviousClient {
+  private constructor(private readonly sdk: api.Sdk) {}
+
+  static forToken(token: string): OpviousClient {
+    const client = new GraphQLClient(API_URL, {
+      headers: {authorization: 'Bearer ' + token},
+    });
+    const sdk = api.getSdk(<R, V>(query: string, vars: V) =>
+      client.rawRequest<R, V>(query, vars)
+    );
+    return new OpviousClient(sdk);
+  }
+
+  async registerFormulation(
+    input: api.RegisterSpecificationInput
+  ): Promise<void> {
+    await this.sdk.RegisterSpecification({input});
+  }
+
+  async deleteFormulation(name: string): Promise<void> {
+    await this.sdk.DeleteFormulation({name});
+  }
+}

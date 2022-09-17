@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io",
@@ -19,6 +19,11 @@
     "clean": "rm -rf lib node_modules out",
     "prepare": "pnpm run build",
     "watch": "tsc -b -w src"
+  },
+  "dependencies": {
+    "graphql": "^16.6.0",
+    "graphql-request": "^5.0.0",
+    "opvious-graph": "workspace:^0.1.11"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
