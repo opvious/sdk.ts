@@ -1,8 +1,8 @@
 {
   "name": "opvious-graph",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "repository": "github:opvious/sdk.ts",
-  "description": "Opvious GraphQL API types",
+  "description": "Opvious GraphQL API",
   "homepage": "https://www.opvious.io",
   "keywords": [
     "opvious"
@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc -p src",
     "clean": "rm -rf lib node_modules out $(find src -name '*.gen.ts')",
-    "gen": "graphql-codegen --config .codegen.yml",
+    "gen": "./scripts/generate-api-types",
     "prepare": "pnpm run gen && pnpm run build",
     "watch": "tsc -b -w src"
   },
