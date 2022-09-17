@@ -6,7 +6,6 @@
 
 + [`opvious`](packages/sdk)
 + [`opvious-graph`](packages/graph)
-+ [`opvious-specifications`](packages/specifications)
 
 ## Developing
 

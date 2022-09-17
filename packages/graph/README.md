@@ -11,9 +11,10 @@ using the higher level SDK available via
 ## Quickstart
 
 ```ts
+import {GraphQLClient} from 'graphql-request';
 import {getSdk} from 'opvious-graph';
 
-const client = new GraphQLClient(API_URL);
+const client = new GraphQLClient("https://api.opvious.io/graphql");
 const sdk = getSdk(
   <R, V>(query: string, vars: V) => client.rawRequest<R, V>(query, vars)
 );

@@ -22,11 +22,18 @@ export const name = 'opvious';
 
 const API_URL = 'https://api.opvious.io';
 
+type Name = api.Scalars['Name'];
+
+type Definition = any;
+
 export class OpviousClient {
   private constructor(private readonly sdk: api.Sdk) {}
 
-  static forToken(token: string): OpviousClient {
-    const client = new GraphQLClient(API_URL, {
+  static forAccessToken(
+    token: string,
+    opts?: OpviousClientOptions
+  ): OpviousClient {
+    const client = new GraphQLClient(opts?.apiUrl ?? API_URL, {
       headers: {authorization: 'Bearer ' + token},
     });
     const sdk = api.getSdk(<R, V>(query: string, vars: V) =>
@@ -35,13 +42,56 @@ export class OpviousClient {
     return new OpviousClient(sdk);
   }
 
-  async registerFormulation(
-    input: api.RegisterSpecificationInput
-  ): Promise<void> {
-    await this.sdk.RegisterSpecification({input});
+  async extractDefinitions(source: string): Promise<ReadonlyArray<Definition>> {
+    const {data} = await this.sdk.ExtractDefinitions({sources: [source]});
+    const defs: any[] = [];
+    for (const slice of data?.extractDefinitions.slices ?? []) {
+      if (slice.__typename === 'InvalidSourceSlice') {
+        throw new Error(slice.errorMessage);
+      }
+      defs.push(slice.definition);
+    }
+    return defs;
+  }
+
+  async registerSpecification(args: {
+    readonly source: string;
+    readonly formulationName: string;
+    readonly tagNames: ReadonlyArray<Name>;
+  }): Promise<void> {
+    const defs = await this.extractDefinitions(args.source);
+    await this.sdk.RegisterSpecification({
+      input: {
+        definitions: defs,
+        formulationName: args.formulationName,
+        tagNames: args.tagNames,
+      },
+    });
   }
 
   async deleteFormulation(name: string): Promise<void> {
     await this.sdk.DeleteFormulation({name});
   }
+
+  async updateFormulation(args: {
+    readonly name: string;
+    readonly displayName?: string;
+    readonly description?: string;
+    readonly url?: string;
+  }): Promise<void> {
+    await this.sdk.UpdateFormulation({
+      input: {
+        name,
+        patch: {
+          description: args.description,
+          displayName: args.displayName,
+          url: args.url,
+        },
+      },
+    });
+  }
+}
+
+export interface OpviousClientOptions {
+  readonly apiUrl?: string;
 }
