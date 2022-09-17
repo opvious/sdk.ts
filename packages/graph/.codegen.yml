@@ -1,0 +1,31 @@
+schema:
+  - ./node_modules/@opvious/api-graph/resources/schema.gen.gql
+documents: ./node_modules/@opvious/api-graph/resources/operations/**/*.graphql
+generates:
+  ./src/api.gen.ts:
+    plugins:
+      - typescript
+      - typescript-generic-sdk
+      - typescript-operations
+    config:
+      documentMode: string
+      enumsAsTypes: true
+      immutableTypes: true
+      maybeValue: T | undefined
+      rawRequest: true
+      strictScalars: true
+      scalars:
+        AccessToken: string
+        Cursor: string
+        DateTime: string
+        Definition: any
+        Failure: any
+        KeyItem: number | string
+        Label: string
+        Limit: number
+        Name: string
+        Slug: string
+        Source: string
+        TensorBound: number | string
+        Url: string
+        Uuid: string

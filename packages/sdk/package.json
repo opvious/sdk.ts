@@ -1,13 +1,13 @@
 {
   "name": "opvious",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "keywords": [
     "opvious",
     "sdk"
   ],
-  "author": "Opvious engineering <eng@opvious.ai>",
+  "author": "Opvious engineering <eng@opvious.io>",
   "license": "Apache-2.0",
   "main": "lib/",
   "files": [
