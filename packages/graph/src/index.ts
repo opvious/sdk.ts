@@ -15,14 +15,4 @@
  * the License.
  */
 
-import {readFile} from 'fs/promises';
-import path from 'path';
-
-/**
- * Loads a model specification from its name. See the repository for the list of
- * available models.
- */
-export function loadSpecification(name: string): Promise<string> {
-  const fp = path.join(__dirname, '..', 'resources', name + '.md');
-  return readFile(fp, 'utf8');
-}
+export * from './api.gen';
