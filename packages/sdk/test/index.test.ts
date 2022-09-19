@@ -6,7 +6,11 @@ import * as sut from '../src';
 const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
 
 (ACCESS_TOKEN ? describe : describe.skip)('client', () => {
-  const client = sut.OpviousClient.create();
+  let client: sut.OpviousClient;
+
+  beforeAll(() => {
+    client = sut.OpviousClient.create();
+  });
 
   test('register and deletes specification', async () => {
     const source = await readSource('n-queens.md');

@@ -12,7 +12,7 @@ You'll need an Opvious API access token to run most client methods. You can
 generate one at https://hub.opvious.io/authorizations. With it, you can
 instantiate a client as follows:
 
-```ts
+```typescript
 import {OpviousClient} from 'opvious';
 
 // Generates a client using the token stored in the `OPVIOUS_TOKEN`
@@ -24,5 +24,11 @@ const client = OpviousClient.create();
 await client.registerSpecification({
   formulationName: 'my-formulation',
   source: '...',
+});
+
+// Runs an optimization using the passed in parameters.
+const outcome = await client.runAttempt({
+  formulationName: 'my-formulation',
+  parameters: [/* ... */],
 });
 ```

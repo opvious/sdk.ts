@@ -30,6 +30,8 @@ jobs:
         run: pnpm run lint
       - name: Test
         run: pnpm t
+        env:
+          OPVIOUS_TOKEN: ${{ secrets.OPVIOUS_TOKEN }}
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
