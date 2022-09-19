@@ -5,7 +5,7 @@ npm i opvious-graph
 ```
 
 This package contains auto-generated types for Opvious' underlying GraphQL API.
-Consider also using the higher level SDK available via
+Consider also using the higher level SDK exported by
 [`opvious`](https://www.npmjs.com/package/opvious).
 
 ## Quickstart
@@ -16,7 +16,7 @@ import {ENDPOINT, getSdk} from 'opvious-graph';
 
 // Underlying generic GraphQL client.
 const client = new GraphQLClient(ENDPOINT, {
-  headers: {authorization: process.env.OPVIOUS_TOKEN},
+  headers: {authorization: 'Bearer ' + process.env.OPVIOUS_TOKEN},
 });
 
 // Typesafe GraphQL SDK.
