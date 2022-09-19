@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io",
@@ -18,6 +18,7 @@
     "build": "tsc -p src",
     "clean": "rm -rf lib node_modules out",
     "prepare": "pnpm run build",
+    "test": "jest",
     "watch": "tsc -b -w src"
   },
   "dependencies": {
@@ -32,6 +33,28 @@
     "jest-extended": "^1.1.0",
     "ts-jest": "^27.1.2",
     "typescript": "^4.1.5"
+  },
+  "jest": {
+    "coverageDirectory": "../../out/coverage/sdk",
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/test/"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "test/tsconfig.json"
+      }
+    },
+    "preset": "ts-jest",
+    "setupFilesAfterEnv": [
+      "jest-extended/all"
+    ],
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      ".d.ts",
+      ".js"
+    ],
+    "transform": {}
   },
   "typedocMain": "src/index.ts"
 }
