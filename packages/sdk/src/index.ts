@@ -18,22 +18,24 @@
 import {GraphQLClient} from 'graphql-request';
 import * as api from 'opvious-graph';
 
-export const name = 'opvious';
+export type Definition = api.Scalars['Definition'];
 
-const API_URL = 'https://api.opvious.io';
+export type Name = api.Scalars['Name'];
 
-type Name = api.Scalars['Name'];
-
-type Definition = any;
-
+/** Opvious API client. */
 export class OpviousClient {
   private constructor(private readonly sdk: api.Sdk) {}
 
-  static forAccessToken(
-    token: string,
-    opts?: OpviousClientOptions
-  ): OpviousClient {
-    const client = new GraphQLClient(opts?.apiUrl ?? API_URL, {
+  /** Creates a new client. */
+  static create(opts?: OpviousClientOptions): OpviousClient {
+    const token = opts?.accessToken ?? process.env.OPVIOUS_TOKEN;
+    if (!token) {
+      throw new Error('Missing Opvious access token');
+    }
+    const apiEndpoint = opts?.apiEndpoint
+      ? '' + opts.apiEndpoint
+      : process.env.OPVIOUS_ENDPOINT ?? api.ENDPOINT;
+    const client = new GraphQLClient(apiEndpoint, {
       headers: {authorization: 'Bearer ' + token},
     });
     const sdk = api.getSdk(<R, V>(query: string, vars: V) =>
@@ -69,10 +71,6 @@ export class OpviousClient {
     });
   }
 
-  async deleteFormulation(name: string): Promise<void> {
-    await this.sdk.DeleteFormulation({name});
-  }
-
   async updateFormulation(args: {
     readonly name: string;
     readonly displayName?: string;
@@ -81,7 +79,7 @@ export class OpviousClient {
   }): Promise<void> {
     await this.sdk.UpdateFormulation({
       input: {
-        name,
+        name: args.name,
         patch: {
           description: args.description,
           displayName: args.displayName,
@@ -90,8 +88,19 @@ export class OpviousClient {
       },
     });
   }
+
+  async deleteFormulation(name: string): Promise<void> {
+    await this.sdk.DeleteFormulation({name});
+  }
 }
 
 export interface OpviousClientOptions {
-  readonly apiUrl?: string;
+  /** API authorization token, defaulting to `process.env.OPVIOUS_TOKEN`. */
+  readonly accessToken?: string;
+
+  /**
+   * GraphQL endpoint URL. If unset, uses `process.env.OPVIOUS_ENDPOINT` if set,
+   * and falls back to the default production endpoint otherwise.
+   */
+  readonly apiEndpoint?: string | URL;
 }

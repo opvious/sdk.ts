@@ -6,9 +6,14 @@ npm i opvious
 
 ## Quickstart
 
+You'll need an Opvious API access token to run most client methods. You can
+generate one at https://hub.opvious.io/authorizations. With it, you can
+instantiate a client as follows:
+
 ```ts
 import {OpviousClient} from 'opvious';
 
-const OPVIOUS_TOKEN = '...';
-const client = OpviousClient.forAccessToken(OPVIOUS_TOKEN);
+// Generates a client using the token stored in the `OPVIOUS_TOKEN` environment
+// variable. You can also pass one explicitly via the `accessToken` option.
+const client = OpviousClient.create();
 ```

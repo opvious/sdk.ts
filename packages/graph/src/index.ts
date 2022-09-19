@@ -18,7 +18,10 @@ import {getSdk, Requester, Sdk} from './api.gen';
 
 export * from './api.gen';
 
-/** Generates a synchronous SDK, useful for example in Google Apps Script. */
+/** Default GraphQL API endpoint. */
+export const ENDPOINT = 'https://api.opvious.io/graphql';
+
+/** Generates a synchronous SDK, useful for example in Google Apps Scripts. */
 export function getSyncSdk(requester: SyncRequester): SyncSdk {
   return getSdk(requester as any) as any;
 }
