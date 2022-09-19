@@ -1,13 +1,13 @@
 {
   "name": "opvious-graph",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious GraphQL API",
   "homepage": "https://www.opvious.io",
   "keywords": [
     "opvious"
   ],
-  "author": "Opvious engineering <eng@opvious.io>",
+  "author": "Opvious <oss@opvious.io>",
   "license": "Apache-2.0",
   "main": "lib/",
   "files": [
