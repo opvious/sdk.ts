@@ -27,7 +27,10 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
       formulationName,
       parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
     });
-    expect(outcome).toEqual({__typename: 'FeasibleOutcome', isOptimal: true});
+    expect(outcome).toMatchObject({
+      __typename: 'FeasibleOutcome',
+      isOptimal: true,
+    });
   });
 });
 
