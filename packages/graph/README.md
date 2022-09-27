@@ -10,12 +10,12 @@ Consider also using the higher level SDK exported by
 
 ## Quickstart
 
-```ts
+```typescript
 import {GraphQLClient} from 'graphql-request';
-import {ENDPOINT, getSdk} from 'opvious-graph';
+import {getSdk} from 'opvious-graph';
 
 // Underlying generic GraphQL client.
-const client = new GraphQLClient(ENDPOINT, {
+const client = new GraphQLClient('https://api.opvious.io/graphql', {
   headers: {authorization: 'Bearer ' + process.env.OPVIOUS_TOKEN},
 });
 

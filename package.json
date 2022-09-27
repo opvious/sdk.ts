@@ -1,6 +1,6 @@
 {
   "name": "@opvious/template-packages",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "private": true,
   "repository": "github:opvious/template.ts",
   "author": "Opvious <oss@opvious.io>",
@@ -16,7 +16,7 @@
   "devDependencies": {
     "@opvious/eslint-plugin": "^0.1.12",
     "@opvious/prettier-typescript": "^0.1.12",
-    "@opvious/stl": "^0.12.10",
+    "@opvious/stl": "^0.12.18",
     "eslint": "^8.12.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.4",

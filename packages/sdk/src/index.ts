@@ -20,13 +20,20 @@ import {GraphQLClient} from 'graphql-request';
 import * as api from 'opvious-graph';
 import {setTimeout} from 'timers/promises';
 
-export type Definition = api.Scalars['Definition'];
-
 export type Name = api.Scalars['Name'];
+
+enum DefaultEndpoint {
+  API = 'https://api.opvious.io/',
+  HUB = 'https://hub.opvious.io/',
+}
 
 /** Opvious API client. */
 export class OpviousClient {
-  private constructor(private readonly sdk: api.Sdk) {}
+  private constructor(
+    readonly apiEndpoint: string,
+    readonly hubEndpoint: string,
+    private readonly sdk: api.Sdk
+  ) {}
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
@@ -34,10 +41,12 @@ export class OpviousClient {
     if (!token) {
       throw new Error('Missing Opvious access token');
     }
-    const apiEndpoint = opts?.apiEndpoint
-      ? '' + opts.apiEndpoint
-      : process.env.OPVIOUS_ENDPOINT ?? api.ENDPOINT;
-    const client = new GraphQLClient(apiEndpoint, {
+    const apiEndpoint = strippingTrailingSlashes(
+      opts?.apiEndpoint
+        ? '' + opts.apiEndpoint
+        : process.env.OPVIOUS_API_ENDPOINT ?? DefaultEndpoint.API
+    );
+    const client = new GraphQLClient(apiEndpoint + '/graphql', {
       headers: {
         authorization: 'Bearer ' + token,
         'opvious-client': 'TypeScript SDK',
@@ -46,10 +55,17 @@ export class OpviousClient {
     const sdk = api.getSdk(<R, V>(query: string, vars: V) =>
       client.rawRequest<R, V>(query, vars)
     );
-    return new OpviousClient(sdk);
+    const hubEndpoint = strippingTrailingSlashes(
+      opts?.hubEndpoint
+        ? '' + opts.hubEndpoint
+        : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.API
+    );
+    return new OpviousClient(apiEndpoint, hubEndpoint, sdk);
   }
 
-  async extractDefinitions(source: string): Promise<ReadonlyArray<Definition>> {
+  async extractDefinitions(
+    source: string
+  ): Promise<ReadonlyArray<api.Definition>> {
     const res = await this.sdk.ExtractDefinitions({sources: [source]});
     assertNoErrors(res);
     const defs: any[] = [];
@@ -80,17 +96,11 @@ export class OpviousClient {
   async updateFormulation(args: {
     readonly name: string;
     readonly displayName?: string;
-    readonly description?: string;
-    readonly url?: string;
   }): Promise<void> {
     const res = await this.sdk.UpdateFormulation({
       input: {
         name: args.name,
-        patch: {
-          description: args.description,
-          displayName: args.displayName,
-          url: args.url,
-        },
+        patch: {displayName: args.displayName},
       },
     });
     assertNoErrors(res);
@@ -107,6 +117,7 @@ export class OpviousClient {
     readonly parameters?: ReadonlyArray<api.ParameterInput>;
     readonly dimensions?: ReadonlyArray<api.DimensionInput>;
     readonly pinnedVariables?: ReadonlyArray<api.PinnedVariableInput>;
+    readonly relaxation?: api.RelaxationInput;
   }): Promise<Omit<api.FeasibleOutcome, 'constraintResults'>> {
     const startRes = await this.sdk.StartAttempt({input: {...args}});
     assertNoErrors(startRes);
@@ -125,10 +136,10 @@ export class OpviousClient {
         case 'OPTIMAL':
           assert(outcome?.__typename === 'FeasibleOutcome');
           return outcome;
-        case 'FAILED':
+        case 'ERRORED':
           assert(outcome?.__typename === 'FailedOutcome');
           throw new Error(
-            'Attempt failed: ' + JSON.stringify(outcome.failure, null, 2)
+            'Attempt errored: ' + JSON.stringify(outcome.failure, null, 2)
           );
         case 'UNBOUNDED':
           throw new Error('Attempt was unbounded');
@@ -136,6 +147,24 @@ export class OpviousClient {
           throw new Error('Attempt was infeasible');
       }
     }
+  }
+
+  async shareFormulation(args: {
+    readonly name: string;
+    readonly tagName: Name;
+  }): Promise<URL> {
+    const res = await this.sdk.StartSharingFormulation({input: args});
+    assertNoErrors(res);
+    const {sharedVia} = checkPresent(res.data).startSharingFormulation;
+    return new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`);
+  }
+
+  async unshareFormulation(args: {
+    readonly name: string;
+    readonly tagNames?: ReadonlyArray<Name>;
+  }): Promise<void> {
+    const res = await this.sdk.StopSharingFormulation({input: args});
+    assertNoErrors(res);
   }
 }
 
@@ -156,6 +185,10 @@ function checkPresent<V>(arg: V | undefined | null): V {
   return arg;
 }
 
+function strippingTrailingSlashes(arg: string): string {
+  return arg.replace(/\/+$/, '');
+}
+
 const POLL_ATTEMPT_INTERVAL_MILLIS = 2_500;
 
 export interface OpviousClientOptions {
@@ -163,8 +196,15 @@ export interface OpviousClientOptions {
   readonly accessToken?: string;
 
   /**
-   * GraphQL endpoint URL. If unset, uses `process.env.OPVIOUS_ENDPOINT` if set,
-   * and falls back to the default production endpoint otherwise.
+   * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if
+   * set, and falls back to the default production endpoint otherwise.
    */
   readonly apiEndpoint?: string | URL;
+
+  /**
+   * Base model hub endpoint URL. If unset, uses
+   * `process.env.OPVIOUS_HUB_ENDPOINT` if set, and falls back to the default
+   * production endpoint otherwise.
+   */
+  readonly hubEndpoint?: string | URL;
 }
