@@ -18,11 +18,12 @@ generates:
         AccessToken: string
         Cursor: string
         DateTime: string
-        Definition: any
+        Duration: number
         Failure: any
         KeyItem: number | string
         Label: string
         Limit: number
+        Long: string
         Name: string
         Slug: string
         Source: string
