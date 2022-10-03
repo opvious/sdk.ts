@@ -35,6 +35,35 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     });
   });
 
+  test('runs set-cover', async () => {
+    const source = await readSource('set-cover.md');
+    const formulationName = 'set-cover' + SUFFIX;
+    await client.registerSpecification({formulationName, source});
+    const outcome = await client.runAttempt({
+      formulationName,
+      dimensions: [
+        {label: 'sets', items: ['s1', 's2']},
+        {label: 'vertices', items: ['v1', 'v2', 'v3']},
+      ],
+      parameters: [
+        {
+          label: 'coverage',
+          entries: [
+            {key: ['s1', 'v1']},
+            {key: ['s1', 'v2']},
+            {key: ['s2', 'v2']},
+            {key: ['s2', 'v3']},
+          ],
+        },
+      ],
+    });
+    expect(outcome).toMatchObject({
+      __typename: 'FeasibleOutcome',
+      isOptimal: true,
+      objectiveValue: 2,
+    });
+  });
+
   test('shares a formulation', async () => {
     const source = await readSource('n-queens.md');
     const formulationName = 'n-queens' + SUFFIX;

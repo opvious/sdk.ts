@@ -30,7 +30,7 @@ importers:
       '@graphql-codegen/typescript': ^2.7.3
       '@graphql-codegen/typescript-generic-sdk': ^3.0.1
       '@graphql-codegen/typescript-operations': ^2.5.3
-      '@opvious/api-graph': ^0.6.42
+      '@opvious/api-graph': ^0.6.44
       '@types/node': ^16.11.7
       graphql: ^16.6.0
       graphql-tag: ^2.12.6
@@ -43,7 +43,7 @@ importers:
       '@graphql-codegen/typescript': 2.7.3_graphql@16.6.0
       '@graphql-codegen/typescript-generic-sdk': 3.0.1_sy4knu3obj4ys7pjcqbyfxmqle
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
-      '@opvious/api-graph': 0.6.42
+      '@opvious/api-graph': 0.6.44
       '@types/node': 16.11.38
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_xrrid5ahylip6fa4hrbwh6apl4
@@ -1713,18 +1713,18 @@ packages:
       - encoding
     dev: true
 
-  /@opvious/api-graph/0.6.42:
-    resolution: {integrity: sha512-QB+CDU46bcZDKhQ3ps9NokaGmt/iJ2o/24ipTjYuA5025CQAl1lcKGBoL8e3MoWu+NM6nAEGPD0srJ4zLbduRg==, tarball: download/@opvious/api-graph/0.6.42/fe5d9dc7cef3ef93cd2b45fdd40abf51dba7d54e}
+  /@opvious/api-graph/0.6.44:
+    resolution: {integrity: sha512-hxWWmkWjVnyTTOo7HqtOmugk3dNCLA03jFDome1QtK3K4dPTPMUzJXeT70MBS8qy4IKOna0L8wNt39ldFSX1zA==, tarball: download/@opvious/api-graph/0.6.44/8243160d6d414cc866975182fecba2e1e9f239ca}
     dependencies:
       '@opvious/account-graph': 0.7.12
-      '@opvious/attempt-graph': 0.8.7
-      '@opvious/formulation-graph': 0.13.13
+      '@opvious/attempt-graph': 0.8.8
+      '@opvious/formulation-graph': 0.13.15
     transitivePeerDependencies:
       - encoding
     dev: true
 
-  /@opvious/attempt-graph/0.8.7:
-    resolution: {integrity: sha512-sCRAekG2z5hdWXwG4GDR2Lt+1uYgkSwLPDn62kKYR06Lx1aA39dEbTLligKoSffkc10GD7MIV0f9UQtiRKtCOg==, tarball: download/@opvious/attempt-graph/0.8.7/3053a6959c6c2c9860acbf7cbac3b4a2af6f69aa}
+  /@opvious/attempt-graph/0.8.8:
+    resolution: {integrity: sha512-WMBlmFO/287gMpcL2Q4UUqqW3emMFYK5bPohFl6Mo4EX5a7W95Hi2ghCmAzV0uQgmKoiJMQCyN10bJv2o1Uj+Q==, tarball: download/@opvious/attempt-graph/0.8.8/7d748e3c7e40f4a7368d2941890faf40478a4295}
     engines: {node: '>=16'}
     dependencies:
       graphql: 16.6.0
@@ -1749,8 +1749,8 @@ packages:
       - typescript
     dev: true
 
-  /@opvious/formulation-graph/0.13.13:
-    resolution: {integrity: sha512-txa0W+14+txGEn0VdcL4QcUx/a4+dsg1NJq9Q/Ddu5qZKHMAVktGb7L8+zq46e8dbyum+XvXuSYRSIT5zW0krA==, tarball: download/@opvious/formulation-graph/0.13.13/a6fa24a1083ce0d17ef3b846062217f611d912a4}
+  /@opvious/formulation-graph/0.13.15:
+    resolution: {integrity: sha512-l8WoaUq8iDKEgOspyr2YCAniwmuraeWn2/QeMSITPpYMseKR9NvE5amRQTzeYGmOsxeF9EWEc0ZNB2oiIR5Ldg==, tarball: download/@opvious/formulation-graph/0.13.15/f1be7f42862b0e6e7f6fe07f3a31d68518371c7f}
     engines: {node: '>=16'}
     dependencies:
       '@opvious/stl-errors': 0.12.18
@@ -1802,7 +1802,7 @@ packages:
       change-case: 4.1.2
       luxon: 2.5.0
       p-retry: 4.6.2
-      pino: 8.6.0
+      pino: 8.6.1
       pino-std-serializers: 6.0.0
       upper-case-first: 2.0.2
     dev: true
@@ -5207,8 +5207,8 @@ packages:
     resolution: {integrity: sha512-mMMOwSKrmyl+Y12Ri2xhH1lbzQxwwpuru9VjyJpgFIH4asSj88F2csdMwN6+M5g1Ll4rmsYghHLQJw81tgZ7LQ==}
     dev: true
 
-  /pino/8.6.0:
-    resolution: {integrity: sha512-gCEOs6XpgiM8mSFjiLXQejDJ1PZww8AUmHowQ16QpqpXQDIm3mFwn/29+Y6CJxd6i+x3uXduuerjq+IqWoABbA==}
+  /pino/8.6.1:
+    resolution: {integrity: sha512-fi+V2K98eMZjQ/uEHHSiMALNrz7HaFdKNYuyA3ZUrbH0f1e8sPFDmeRGzg7ZH2q4QDxGnJPOswmqlEaTAZeDPA==}
     hasBin: true
     dependencies:
       atomic-sleep: 1.0.0
