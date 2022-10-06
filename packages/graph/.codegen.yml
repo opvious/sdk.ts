@@ -19,6 +19,7 @@ generates:
         Cursor: string
         DateTime: string
         Duration: number
+        ExtendedFloat: number | string
         Failure: any
         KeyItem: number | string
         Label: string

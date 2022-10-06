@@ -6,7 +6,7 @@ importers:
     specifiers:
       '@opvious/eslint-plugin': ^0.1.13
       '@opvious/prettier-typescript': ^0.1.13
-      '@opvious/stl': ^0.12.27
+      '@opvious/stl': ^0.12.34
       eslint: ^8.12.0
       husky: ^7.0.4
       lint-staged: ^12.1.4
@@ -16,7 +16,7 @@ importers:
     devDependencies:
       '@opvious/eslint-plugin': 0.1.13_ud6rd4xtew5bv4yhvkvu24pzm4
       '@opvious/prettier-typescript': 0.1.13
-      '@opvious/stl': 0.12.27
+      '@opvious/stl': 0.12.34
       eslint: 8.17.0
       husky: 7.0.4
       lint-staged: 12.5.0
@@ -30,7 +30,7 @@ importers:
       '@graphql-codegen/typescript': ^2.7.3
       '@graphql-codegen/typescript-generic-sdk': ^3.0.1
       '@graphql-codegen/typescript-operations': ^2.5.3
-      '@opvious/api-graph': ^0.6.50
+      '@opvious/api-graph': ^0.7.0
       '@types/node': ^16.11.7
       graphql: ^16.6.0
       graphql-tag: ^2.12.6
@@ -43,7 +43,7 @@ importers:
       '@graphql-codegen/typescript': 2.7.3_graphql@16.6.0
       '@graphql-codegen/typescript-generic-sdk': 3.0.1_sy4knu3obj4ys7pjcqbyfxmqle
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
-      '@opvious/api-graph': 0.6.50
+      '@opvious/api-graph': 0.7.0
       '@types/node': 16.11.38
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_xrrid5ahylip6fa4hrbwh6apl4
@@ -1702,8 +1702,8 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
-  /@opvious/account-graph/0.7.12:
-    resolution: {integrity: sha512-Y4MFmv0EXqIh6fOLbbrVJtW3ubA14G1EwlrclCL12pkvASr7OC+SVc8v2kygb+kitibRdQ5FIiImtqPl70EPQg==, tarball: download/@opvious/account-graph/0.7.12/73f3dbc1a90267cce210db70e56faddee6c52b99}
+  /@opvious/account-graph/0.7.18:
+    resolution: {integrity: sha512-EiXnjIlYyHvyfanKMPBIAHzwZ40Ekbq19HqetZbPGPBFxS3hev8taC+rMiLAHMyu2Sp0YIuZjOPpm5rukYOS9A==, tarball: download/@opvious/account-graph/0.7.18/90409ce0124798ba1aed5d141b5273cdca4de6a3}
     engines: {node: '>=16'}
     dependencies:
       graphql: 16.6.0
@@ -1713,18 +1713,18 @@ packages:
       - encoding
     dev: true
 
-  /@opvious/api-graph/0.6.50:
-    resolution: {integrity: sha512-NwMYamZNhoXlqoEx/eGlKHq+cNJ/8pRU8cT1eX0d+TAK3g1EP8XqfT/w94oxmkI+LSGRTGA6Y2OA1EVxhXNidg==, tarball: download/@opvious/api-graph/0.6.50/9e1f83fc482d9aac67253c9a995ea02c393a1300}
+  /@opvious/api-graph/0.7.0:
+    resolution: {integrity: sha512-T4KRrV9vzrmZOUWHM2gr7O1Q0GssfqWLBXULlZcebLfXY6kCN2Hik6GiQK7n9hClnouF4qQnMSEJIlXeUQtM9g==, tarball: download/@opvious/api-graph/0.7.0/49193aa2c6bc71c8916e08b4baae77af80339cee}
     dependencies:
-      '@opvious/account-graph': 0.7.12
-      '@opvious/attempt-graph': 0.9.7
-      '@opvious/formulation-graph': 0.13.18
+      '@opvious/account-graph': 0.7.18
+      '@opvious/attempt-graph': 0.9.18
+      '@opvious/formulation-graph': 0.13.28
     transitivePeerDependencies:
       - encoding
     dev: true
 
-  /@opvious/attempt-graph/0.9.7:
-    resolution: {integrity: sha512-PmzGHYNhFutKPHePOlcrLgzFSU9DAEC6i8HFen7tZR24sSEhs/BgaeUpLj81HLyUnSZQtLbIIsNFsxUevNZfHw==, tarball: download/@opvious/attempt-graph/0.9.7/e07aa70568cf55602e2b94b082598428a355b34d}
+  /@opvious/attempt-graph/0.9.18:
+    resolution: {integrity: sha512-lOfiEhp4sTbJk6yTVV/DIROogbhYMk0uXYs/ijEkYRnvi7Hr9TUIsTgS/MStQjmf4A8KYIWxqrbuU3qJh7YyLw==, tarball: download/@opvious/attempt-graph/0.9.18/ee5be0e7fa910954e43f1660ec18d6a0aafc85ef}
     engines: {node: '>=16'}
     dependencies:
       graphql: 16.6.0
@@ -1749,12 +1749,12 @@ packages:
       - typescript
     dev: true
 
-  /@opvious/formulation-graph/0.13.18:
-    resolution: {integrity: sha512-FIt3+HdZFZDXuxxlxXvubnGC+x9Ch9/gueTdNs1sjKVT4YnCzmpJA59Q7gFI4/oU3WfiUR9ogf1NmSxv0RoVzQ==, tarball: download/@opvious/formulation-graph/0.13.18/c637cfff692978a9adca92492cfdfa9cb2ccc18d}
+  /@opvious/formulation-graph/0.13.28:
+    resolution: {integrity: sha512-uCR/OM+Wgh9XWZ8PvcwPxNtKQ22HdIgOzE+nNIKTc5k8fiE6CfhzBn6qjH2+FLx2t8Wi162Te4o2x0Z0sHHofg==, tarball: download/@opvious/formulation-graph/0.13.28/5d93ea4e52dae6af4c90d1e24cb5c38db2ee615a}
     engines: {node: '>=16'}
     dependencies:
-      '@opvious/stl-errors': 0.12.27
-      '@opvious/stl-utils': 0.12.27
+      '@opvious/stl-errors': 0.12.34
+      '@opvious/stl-utils': 0.12.34
       graphql: 16.6.0
       graphql-request: 4.3.0_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
@@ -1767,38 +1767,38 @@ packages:
     resolution: {integrity: sha512-aMyXFbzM/WDyWASmiq5DsCt1b4x0IynrYAxOliVlK7D/8JCRjOaNLmQxuFxxzIGd0GsUXTb83loDfljTGrNNSg==, tarball: download/@opvious/prettier-typescript/0.1.13/5df5ef2f49c2fb1d8cb21ab7162b711ce5884190}
     dev: true
 
-  /@opvious/stl-errors/0.12.27:
-    resolution: {integrity: sha512-2TVNzKnF0y3KI1IfX2qYh1bHUbXeCsCM5RyVg/Rf/+bjA5QnnohXl8uawwKrvqwD5eBHPHac39E/nZMwp9yLhQ==, tarball: download/@opvious/stl-errors/0.12.27/0de4cb9f3d1a64d96d82d19216c2ecf51e541f2c}
+  /@opvious/stl-errors/0.12.34:
+    resolution: {integrity: sha512-w1EOfUT4S5U8V3knjQik0cNQP6Xz0ecCp3LmMgsMN5wqQlXSwOpdwryAiul0QD6pjnmEgX0/yqzKfuKyIi176w==, tarball: download/@opvious/stl-errors/0.12.34/300b4f34c33dd51bdc7f427e7b1e2c75f9093f30}
     dependencies:
       '@opentelemetry/api': 1.2.0
       change-case: 4.1.2
       upper-case-first: 2.0.2
     dev: true
 
-  /@opvious/stl-settings/0.12.27:
-    resolution: {integrity: sha512-WFeDw11t7PnQu/nnzyEWKVT1jI4cP8o06MnmBCPzz0RPz9qa9rbmJXWkyFk3M5y5IeCDtz/MSwSaOHAzftMOhw==, tarball: download/@opvious/stl-settings/0.12.27/a9cd6504b531cbc59c48a00f2b0e4a9381dbab0d}
+  /@opvious/stl-settings/0.12.34:
+    resolution: {integrity: sha512-/flBu3z72aVISf0tBagJ8gYiyKRA9F8P34QMQqdHKpZs4pDQYFMbzTCDBwaqNy9QGIWBjUPq+OBV8aMcSD2juQ==, tarball: download/@opvious/stl-settings/0.12.34/3b5046945e05352616b0fa8cc8334852caf838e0}
     dependencies:
-      '@opvious/stl-errors': 0.12.27
+      '@opvious/stl-errors': 0.12.34
     dev: true
 
-  /@opvious/stl-utils/0.12.27:
-    resolution: {integrity: sha512-Ips2Dnxr8XDFt3VhGs7dsJMPti3QlgHKhrFpYldGrYVwmyYEbg/W7IZGxa3hmx7WCfLs5H4nexx9NxNJoqZX1w==, tarball: download/@opvious/stl-utils/0.12.27/4898788aa8a8e65050b2b2929db82bb15d87ddcf}
+  /@opvious/stl-utils/0.12.34:
+    resolution: {integrity: sha512-j870hTlR8kuzu5j1f/Bmx8srIH9ETDbDspZLzs0FFtuYC1ezAJkLmhWrBV8MxNJfe8EpAl4zYYaRRSeydWRvfg==, tarball: download/@opvious/stl-utils/0.12.34/ea443306ae5209379f4e111de87cf2f548e6a69f}
     dependencies:
-      '@opvious/stl-errors': 0.12.27
+      '@opvious/stl-errors': 0.12.34
       change-case: 4.1.2
       picomatch: 2.3.1
     dev: true
 
-  /@opvious/stl/0.12.27:
-    resolution: {integrity: sha512-YMW0X8ddOtjE6WgVLDlynxCTvZ37uQg/oNxUJ8M6yys6kkw5nTogTlBvzgs3sIhz0J5CFoLr7chJi5pSis6KOQ==, tarball: download/@opvious/stl/0.12.27/f3fa7f9713ac80b53b2659eb7dda904d3192716c}
+  /@opvious/stl/0.12.34:
+    resolution: {integrity: sha512-Xc6SyOB600OnkX16w6uY4xzJYdZkib5huCt6YfPmQNTVb1oDZs1mpOR8SI7+vr46sBGJ8CAvcogONTfSvoDRSg==, tarball: download/@opvious/stl/0.12.34/6600afa789c0b31bf2abaa612584365e3b092ad1}
     hasBin: true
     dependencies:
       '@opentelemetry/api': 1.2.0
       '@opentelemetry/api-metrics': 0.32.0
       '@opentelemetry/resources': 1.7.0_@opentelemetry+api@1.2.0
-      '@opvious/stl-errors': 0.12.27
-      '@opvious/stl-settings': 0.12.27
-      '@opvious/stl-utils': 0.12.27
+      '@opvious/stl-errors': 0.12.34
+      '@opvious/stl-settings': 0.12.34
+      '@opvious/stl-utils': 0.12.34
       change-case: 4.1.2
       luxon: 2.5.0
       p-retry: 4.6.2
@@ -2008,7 +2008,7 @@ packages:
       eslint: 8.17.0
       ignore: 5.2.0
       regexpp: 3.2.0
-      semver: 7.3.7
+      semver: 7.3.8
       tsutils: 3.21.0_typescript@4.7.3
       typescript: 4.7.3
     transitivePeerDependencies:
@@ -2082,7 +2082,7 @@ packages:
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.3.7
+      semver: 7.3.8
       tsutils: 3.21.0_typescript@4.7.3
       typescript: 4.7.3
     transitivePeerDependencies:
@@ -5514,6 +5514,14 @@ packages:
 
   /semver/7.3.7:
     resolution: {integrity: sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      lru-cache: 6.0.0
+    dev: true
+
+  /semver/7.3.8:
+    resolution: {integrity: sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:

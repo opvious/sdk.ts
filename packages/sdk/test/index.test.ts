@@ -3,7 +3,7 @@ import path from 'path';
 
 import * as sut from '../src';
 
-jest.setTimeout(15_000);
+jest.setTimeout(30_000);
 
 const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
 
@@ -25,13 +25,15 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     const source = await readSource('n-queens.md');
     const formulationName = 'n-queens' + SUFFIX;
     await client.registerSpecification({formulationName, source});
-    const outcome = await client.runAttempt({
+    const attempt = await client.runAttempt({
       formulationName,
       parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
     });
-    expect(outcome).toMatchObject({
-      __typename: 'FeasibleOutcome',
-      isOptimal: true,
+    expect(attempt).toMatchObject({
+      outcome: {
+        __typename: 'FeasibleOutcome',
+        isOptimal: true,
+      },
     });
   });
 
@@ -39,7 +41,7 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     const source = await readSource('set-cover.md');
     const formulationName = 'set-cover' + SUFFIX;
     await client.registerSpecification({formulationName, source});
-    const outcome = await client.runAttempt({
+    const attempt = await client.runAttempt({
       formulationName,
       dimensions: [
         {label: 'sets', items: ['s1', 's2']},
@@ -57,10 +59,12 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
         },
       ],
     });
-    expect(outcome).toMatchObject({
-      __typename: 'FeasibleOutcome',
-      isOptimal: true,
-      objectiveValue: 2,
+    expect(attempt).toMatchObject({
+      outcome: {
+        __typename: 'FeasibleOutcome',
+        isOptimal: true,
+        objectiveValue: 2,
+      },
     });
   });
 
@@ -78,7 +82,7 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     const source = await readSource('sudoku.md');
     const formulationName = 'sudoku' + SUFFIX;
     await client.registerSpecification({formulationName, source});
-    const outcome = await client.runAttempt({
+    const attempt = await client.runAttempt({
       formulationName,
       parameters: [
         {
@@ -97,15 +101,24 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
         constraints: [{label: 'matchHint', deficitBound: -1}],
       },
     });
-    expect(outcome).toMatchObject({
-      __typename: 'FeasibleOutcome',
-      isOptimal: true,
+    expect(attempt).toMatchObject({
+      outcome: {
+        __typename: 'FeasibleOutcome',
+        isOptimal: true,
+      },
+    });
+    const outputs = await client.fetchAttemptOutputs(attempt.uuid);
+    expect(outputs).toMatchObject({
       variableResults: [
         {
           label: 'matchHint_deficit',
           entries: [
             {key: [1, 0, 3], value: -1}, // Same key as above.
           ],
+          origin: {
+            __typename: 'DeficitVariable',
+            deficitFor: 'matchHint',
+          },
         },
         {label: 'positions'},
       ],

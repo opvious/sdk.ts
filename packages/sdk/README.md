@@ -27,7 +27,7 @@ await client.registerSpecification({
 });
 
 // Runs an optimization using the passed in parameters.
-const outcome = await client.runAttempt({
+const attempt = await client.runAttempt({
   formulationName: 'my-formulation',
   parameters: [/* ... */],
 });

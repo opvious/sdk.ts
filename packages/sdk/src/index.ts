@@ -118,7 +118,7 @@ export class OpviousClient {
     readonly dimensions?: ReadonlyArray<api.DimensionInput>;
     readonly pinnedVariables?: ReadonlyArray<api.PinnedVariableInput>;
     readonly relaxation?: api.RelaxationInput;
-  }): Promise<Omit<api.FeasibleOutcome, 'constraintResults'>> {
+  }): Promise<api.PolledAttemptFragment> {
     const startRes = await this.sdk.StartAttempt({input: {...args}});
     assertNoErrors(startRes);
     const uuid = checkPresent(startRes.data).startAttempt.uuid;
@@ -128,25 +128,27 @@ export class OpviousClient {
       const pollRes = await this.sdk.PollAttempt({uuid});
       assertNoErrors(pollRes);
       const attempt = checkPresent(pollRes.data?.attempt);
-      const {outcome, status} = attempt;
-      switch (status) {
-        case 'PENDING':
-          break;
-        case 'FEASIBLE':
-        case 'OPTIMAL':
-          assert(outcome?.__typename === 'FeasibleOutcome');
-          return outcome;
-        case 'ERRORED':
-          assert(outcome?.__typename === 'FailedOutcome');
-          throw new Error(
-            'Attempt errored: ' + JSON.stringify(outcome.failure, null, 2)
-          );
-        case 'UNBOUNDED':
-          throw new Error('Attempt was unbounded');
-        case 'INFEASIBLE':
-          throw new Error('Attempt was infeasible');
+      const {status} = attempt;
+      if (status !== 'PENDING') {
+        return attempt;
       }
     }
+  }
+
+  async fetchAttemptInputs(uuid: string): Promise<AttemptInputs | undefined> {
+    const res = await this.sdk.FetchAttemptInputs({uuid});
+    assertNoErrors(res);
+    return res.data?.attempt;
+  }
+
+  async fetchAttemptOutputs(uuid: string): Promise<AttemptOutputs | undefined> {
+    const res = await this.sdk.FetchAttemptOutputs({uuid});
+    assertNoErrors(res);
+    const outcome = res.data?.attempt?.outcome;
+    if (outcome?.__typename !== 'FeasibleOutcome') {
+      return undefined;
+    }
+    return outcome;
   }
 
   async shareFormulation(args: {
@@ -166,6 +168,16 @@ export class OpviousClient {
     const res = await this.sdk.StopSharingFormulation({input: args});
     assertNoErrors(res);
   }
+}
+
+export interface AttemptInputs {
+  readonly dimensions: ReadonlyArray<api.FullDimensionFragment>;
+  readonly parameters: ReadonlyArray<api.FullParameterFragment>;
+}
+
+export interface AttemptOutputs {
+  readonly constraintResults: ReadonlyArray<api.FullConstraintResultFragment>;
+  readonly variableResults: ReadonlyArray<api.FullVariableResultFragment>;
 }
 
 function assert(pred: unknown): asserts pred {

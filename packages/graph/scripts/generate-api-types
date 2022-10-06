@@ -3,6 +3,11 @@
 # Workaround script to support persisted queries in the generated code for
 # emitting requests.
 
+set -o nounset
+set -o errexit
+set -o pipefail
+shopt -s nullglob
+
 __dirname="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
