@@ -1,4 +1,5 @@
 import {readFile} from 'fs/promises';
+import fetch from 'node-fetch';
 import path from 'path';
 
 import * as sut from '../src';
@@ -35,6 +36,18 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
         isOptimal: true,
       },
     });
+    const inputs = await client.fetchAttemptInputs(attempt.uuid);
+    expect(inputs).toEqual({
+      dimensions: [],
+      parameters: [
+        {
+          label: 'size',
+          defaultValue: 0,
+          entries: [{key: [], value: 5}],
+          origin: null,
+        },
+      ],
+    });
   });
 
   test('runs set-cover', async () => {
@@ -69,13 +82,19 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
   });
 
   test('shares a formulation', async () => {
-    const source = await readSource('n-queens.md');
     const formulationName = 'n-queens' + SUFFIX;
+    await client.deleteFormulation(formulationName);
+    const source = await readSource('n-queens.md');
     await client.registerSpecification({formulationName, source});
-    await client.shareFormulation({
+    const {apiUrl} = await client.shareFormulation({
       name: formulationName,
       tagName: 'latest',
     });
+    const res1 = await fetch('' + apiUrl);
+    expect(res1.status).toEqual(200);
+    await client.unshareFormulation({name: formulationName});
+    const res2 = await fetch('' + apiUrl);
+    expect(res2.status).toEqual(404);
   });
 
   test('runs relaxed sudoku', async () => {
@@ -109,7 +128,7 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     });
     const outputs = await client.fetchAttemptOutputs(attempt.uuid);
     expect(outputs).toMatchObject({
-      variableResults: [
+      variables: [
         {
           label: 'matchHint_deficit',
           entries: [

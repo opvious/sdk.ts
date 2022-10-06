@@ -14,9 +14,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import {getSdk, Requester, Sdk} from './api.gen';
+import {getSdk, Requester, Sdk} from './graph.gen';
 
-export * from './api.gen';
+export * from './graph.gen';
 
 /** Generates a synchronous SDK, useful for example in Google Apps Scripts. */
 export function getSyncSdk(requester: SyncRequester): SyncSdk {

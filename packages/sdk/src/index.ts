@@ -17,10 +17,10 @@
 
 import * as gql from 'graphql';
 import {GraphQLClient} from 'graphql-request';
-import * as api from 'opvious-graph';
+import * as g from 'opvious-graph';
 import {setTimeout} from 'timers/promises';
 
-export type Name = api.Scalars['Name'];
+export type Name = g.Scalars['Name'];
 
 enum DefaultEndpoint {
   API = 'https://api.opvious.io/',
@@ -32,7 +32,7 @@ export class OpviousClient {
   private constructor(
     readonly apiEndpoint: string,
     readonly hubEndpoint: string,
-    private readonly sdk: api.Sdk
+    private readonly sdk: g.Sdk
   ) {}
 
   /** Creates a new client. */
@@ -52,20 +52,20 @@ export class OpviousClient {
         'opvious-client': 'TypeScript SDK',
       },
     });
-    const sdk = api.getSdk(<R, V>(query: string, vars: V) =>
+    const sdk = g.getSdk(<R, V>(query: string, vars: V) =>
       client.rawRequest<R, V>(query, vars)
     );
     const hubEndpoint = strippingTrailingSlashes(
       opts?.hubEndpoint
         ? '' + opts.hubEndpoint
-        : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.API
+        : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.HUB
     );
     return new OpviousClient(apiEndpoint, hubEndpoint, sdk);
   }
 
   async extractDefinitions(
     source: string
-  ): Promise<ReadonlyArray<api.Definition>> {
+  ): Promise<ReadonlyArray<g.Definition>> {
     const res = await this.sdk.ExtractDefinitions({sources: [source]});
     assertNoErrors(res);
     const defs: any[] = [];
@@ -94,7 +94,7 @@ export class OpviousClient {
   }
 
   async updateFormulation(args: {
-    readonly name: string;
+    readonly name: Name;
     readonly displayName?: string;
   }): Promise<void> {
     const res = await this.sdk.UpdateFormulation({
@@ -106,7 +106,7 @@ export class OpviousClient {
     assertNoErrors(res);
   }
 
-  async deleteFormulation(name: string): Promise<void> {
+  async deleteFormulation(name: Name): Promise<void> {
     const res = await this.sdk.DeleteFormulation({name});
     assertNoErrors(res);
   }
@@ -114,11 +114,11 @@ export class OpviousClient {
   async runAttempt(args: {
     readonly formulationName: string;
     readonly tagName?: string;
-    readonly parameters?: ReadonlyArray<api.ParameterInput>;
-    readonly dimensions?: ReadonlyArray<api.DimensionInput>;
-    readonly pinnedVariables?: ReadonlyArray<api.PinnedVariableInput>;
-    readonly relaxation?: api.RelaxationInput;
-  }): Promise<api.PolledAttemptFragment> {
+    readonly parameters?: ReadonlyArray<g.ParameterInput>;
+    readonly dimensions?: ReadonlyArray<g.DimensionInput>;
+    readonly pinnedVariables?: ReadonlyArray<g.PinnedVariableInput>;
+    readonly relaxation?: g.RelaxationInput;
+  }): Promise<g.PolledAttemptFragment> {
     const startRes = await this.sdk.StartAttempt({input: {...args}});
     assertNoErrors(startRes);
     const uuid = checkPresent(startRes.data).startAttempt.uuid;
@@ -135,13 +135,17 @@ export class OpviousClient {
     }
   }
 
-  async fetchAttemptInputs(uuid: string): Promise<AttemptInputs | undefined> {
+  async fetchAttemptInputs(
+    uuid: string
+  ): Promise<g.FetchedAttemptInputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptInputs({uuid});
     assertNoErrors(res);
     return res.data?.attempt;
   }
 
-  async fetchAttemptOutputs(uuid: string): Promise<AttemptOutputs | undefined> {
+  async fetchAttemptOutputs(
+    uuid: string
+  ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptOutputs({uuid});
     assertNoErrors(res);
     const outcome = res.data?.attempt?.outcome;
@@ -152,17 +156,20 @@ export class OpviousClient {
   }
 
   async shareFormulation(args: {
-    readonly name: string;
+    readonly name: Name;
     readonly tagName: Name;
-  }): Promise<URL> {
+  }): Promise<SharedFormulation> {
     const res = await this.sdk.StartSharingFormulation({input: args});
     assertNoErrors(res);
     const {sharedVia} = checkPresent(res.data).startSharingFormulation;
-    return new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`);
+    return {
+      apiUrl: new URL(`${this.apiEndpoint}/sharing/blueprints/${sharedVia}`),
+      hubUrl: new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`),
+    };
   }
 
   async unshareFormulation(args: {
-    readonly name: string;
+    readonly name: Name;
     readonly tagNames?: ReadonlyArray<Name>;
   }): Promise<void> {
     const res = await this.sdk.StopSharingFormulation({input: args});
@@ -170,14 +177,9 @@ export class OpviousClient {
   }
 }
 
-export interface AttemptInputs {
-  readonly dimensions: ReadonlyArray<api.FullDimensionFragment>;
-  readonly parameters: ReadonlyArray<api.FullParameterFragment>;
-}
-
-export interface AttemptOutputs {
-  readonly constraintResults: ReadonlyArray<api.FullConstraintResultFragment>;
-  readonly variableResults: ReadonlyArray<api.FullVariableResultFragment>;
+export interface SharedFormulation {
+  readonly apiUrl: URL;
+  readonly hubUrl: URL;
 }
 
 function assert(pred: unknown): asserts pred {

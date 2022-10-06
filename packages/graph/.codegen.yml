@@ -2,12 +2,13 @@ schema:
   - ./node_modules/@opvious/api-graph/resources/schema.gen.gql
 documents: ./node_modules/@opvious/api-graph/resources/operations/**/*.graphql
 generates:
-  ./src/api.gen.ts:
+  ./src/graph.gen.ts:
     plugins:
       - typescript
       - typescript-generic-sdk
       - typescript-operations
     config:
+      dedupeFragments: true
       documentMode: string
       enumsAsTypes: true
       immutableTypes: true

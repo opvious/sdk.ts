@@ -30,7 +30,7 @@ importers:
       '@graphql-codegen/typescript': ^2.7.3
       '@graphql-codegen/typescript-generic-sdk': ^3.0.1
       '@graphql-codegen/typescript-operations': ^2.5.3
-      '@opvious/api-graph': ^0.7.0
+      '@opvious/api-graph': ^0.7.1
       '@types/node': ^16.11.7
       graphql: ^16.6.0
       graphql-tag: ^2.12.6
@@ -43,7 +43,7 @@ importers:
       '@graphql-codegen/typescript': 2.7.3_graphql@16.6.0
       '@graphql-codegen/typescript-generic-sdk': 3.0.1_sy4knu3obj4ys7pjcqbyfxmqle
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
-      '@opvious/api-graph': 0.7.0
+      '@opvious/api-graph': 0.7.1
       '@types/node': 16.11.38
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_xrrid5ahylip6fa4hrbwh6apl4
@@ -53,10 +53,12 @@ importers:
     specifiers:
       '@types/jest': ^27.0.3
       '@types/node': ^16.11.7
+      '@types/node-fetch': ^2.6.2
       graphql: ^16.6.0
       graphql-request: ^5.0.0
       jest: ^27.4.5
       jest-extended: ^1.1.0
+      node-fetch: ^2.6.7
       opvious-graph: workspace:*
       ts-jest: ^27.1.2
       typescript: ^4.1.5
@@ -67,8 +69,10 @@ importers:
     devDependencies:
       '@types/jest': 27.5.2
       '@types/node': 16.11.38
+      '@types/node-fetch': 2.6.2
       jest: 27.5.1
       jest-extended: 1.2.1
+      node-fetch: 2.6.7
       ts-jest: 27.1.5_zydwki6ztrgm452or5cw6tjo5q
       typescript: 4.7.3
 
@@ -1713,18 +1717,18 @@ packages:
       - encoding
     dev: true
 
-  /@opvious/api-graph/0.7.0:
-    resolution: {integrity: sha512-T4KRrV9vzrmZOUWHM2gr7O1Q0GssfqWLBXULlZcebLfXY6kCN2Hik6GiQK7n9hClnouF4qQnMSEJIlXeUQtM9g==, tarball: download/@opvious/api-graph/0.7.0/49193aa2c6bc71c8916e08b4baae77af80339cee}
+  /@opvious/api-graph/0.7.1:
+    resolution: {integrity: sha512-sK7fcMXYonM+mbWp7vk7MoQkC+TIKmQj3Vvmw0nA+9TU9VmlyCIDaCWWQ5EK2EHywN4dRxPewXeJn93YgqHBAw==, tarball: download/@opvious/api-graph/0.7.1/014ecc8073d63f4ce61ac55531fea24202ea20c8}
     dependencies:
       '@opvious/account-graph': 0.7.18
-      '@opvious/attempt-graph': 0.9.18
+      '@opvious/attempt-graph': 0.9.19
       '@opvious/formulation-graph': 0.13.28
     transitivePeerDependencies:
       - encoding
     dev: true
 
-  /@opvious/attempt-graph/0.9.18:
-    resolution: {integrity: sha512-lOfiEhp4sTbJk6yTVV/DIROogbhYMk0uXYs/ijEkYRnvi7Hr9TUIsTgS/MStQjmf4A8KYIWxqrbuU3qJh7YyLw==, tarball: download/@opvious/attempt-graph/0.9.18/ee5be0e7fa910954e43f1660ec18d6a0aafc85ef}
+  /@opvious/attempt-graph/0.9.19:
+    resolution: {integrity: sha512-TQmxu6STi5hSnupcAt6Py60KW2BtfBhI/2QEzV8lPpcPPlIzPfQLgcBvt+UF2hu8P9OY1N/4G36uL8awA7gpEQ==, tarball: download/@opvious/attempt-graph/0.9.19/3214f70c47a1b1ea5b7d795e38cd62b94e743eb5}
     engines: {node: '>=16'}
     dependencies:
       graphql: 16.6.0
@@ -1945,6 +1949,13 @@ packages:
     resolution: {integrity: sha512-272FMnFGzAVMGtu9tkr29hRL6bZj4Zs1KZNeHLnKqAvp06tAIcarTMwOh8/8bz4FmKRcMxZhZNeUAQsNLoiPhg==}
     dependencies:
       '@types/node': 16.11.38
+    dev: true
+
+  /@types/node-fetch/2.6.2:
+    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
+    dependencies:
+      '@types/node': 16.11.38
+      form-data: 3.0.1
     dev: true
 
   /@types/node/16.11.38:
