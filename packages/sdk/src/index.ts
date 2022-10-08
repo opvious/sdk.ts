@@ -22,6 +22,8 @@ import {setTimeout} from 'timers/promises';
 
 export type Name = g.Scalars['Name'];
 
+export * as graph from 'opvious-graph';
+
 enum DefaultEndpoint {
   API = 'https://api.opvious.io/',
   HUB = 'https://hub.opvious.io/',
@@ -109,6 +111,12 @@ export class OpviousClient {
   async deleteFormulation(name: Name): Promise<void> {
     const res = await this.sdk.DeleteFormulation({name});
     assertNoErrors(res);
+  }
+
+  async startAttempt(args: g.AttemptInput): Promise<string> {
+    const startRes = await this.sdk.StartAttempt({input: {...args}});
+    assertNoErrors(startRes);
+    return checkPresent(startRes.data).startAttempt.uuid;
   }
 
   async runAttempt(args: {
