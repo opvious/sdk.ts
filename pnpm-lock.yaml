@@ -6,7 +6,7 @@ importers:
     specifiers:
       '@opvious/eslint-plugin': ^0.1.13
       '@opvious/prettier-typescript': ^0.1.13
-      '@opvious/stl': ^0.12.34
+      '@opvious/stl': ^0.12.36
       eslint: ^8.12.0
       husky: ^7.0.4
       lint-staged: ^12.1.4
@@ -16,7 +16,7 @@ importers:
     devDependencies:
       '@opvious/eslint-plugin': 0.1.13_ud6rd4xtew5bv4yhvkvu24pzm4
       '@opvious/prettier-typescript': 0.1.13
-      '@opvious/stl': 0.12.34
+      '@opvious/stl': 0.12.36
       eslint: 8.17.0
       husky: 7.0.4
       lint-staged: 12.5.0
@@ -30,7 +30,7 @@ importers:
       '@graphql-codegen/typescript': ^2.7.3
       '@graphql-codegen/typescript-generic-sdk': ^3.0.1
       '@graphql-codegen/typescript-operations': ^2.5.3
-      '@opvious/api-graph': ^0.7.1
+      '@opvious/api-graph': ^0.7.6
       '@types/node': ^16.11.7
       graphql: ^16.6.0
       graphql-tag: ^2.12.6
@@ -43,7 +43,7 @@ importers:
       '@graphql-codegen/typescript': 2.7.3_graphql@16.6.0
       '@graphql-codegen/typescript-generic-sdk': 3.0.1_sy4knu3obj4ys7pjcqbyfxmqle
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
-      '@opvious/api-graph': 0.7.1
+      '@opvious/api-graph': 0.7.6
       '@types/node': 16.11.38
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_xrrid5ahylip6fa4hrbwh6apl4
@@ -1717,18 +1717,18 @@ packages:
       - encoding
     dev: true
 
-  /@opvious/api-graph/0.7.1:
-    resolution: {integrity: sha512-sK7fcMXYonM+mbWp7vk7MoQkC+TIKmQj3Vvmw0nA+9TU9VmlyCIDaCWWQ5EK2EHywN4dRxPewXeJn93YgqHBAw==, tarball: download/@opvious/api-graph/0.7.1/014ecc8073d63f4ce61ac55531fea24202ea20c8}
+  /@opvious/api-graph/0.7.6:
+    resolution: {integrity: sha512-gqklkZRKidWSHpcytRGAZubHXSQLu8qUPkp8VFZeJ2z7DYVn7aYNnHnWTPgg9kIXnPQ17qh2TkPFxkU3xZ1jEw==, tarball: download/@opvious/api-graph/0.7.6/94cd0933e2556b817730c37e2cb3090c41e57a57}
     dependencies:
       '@opvious/account-graph': 0.7.18
-      '@opvious/attempt-graph': 0.9.19
-      '@opvious/formulation-graph': 0.13.28
+      '@opvious/attempt-graph': 0.9.23
+      '@opvious/formulation-graph': 0.13.30
     transitivePeerDependencies:
       - encoding
     dev: true
 
-  /@opvious/attempt-graph/0.9.19:
-    resolution: {integrity: sha512-TQmxu6STi5hSnupcAt6Py60KW2BtfBhI/2QEzV8lPpcPPlIzPfQLgcBvt+UF2hu8P9OY1N/4G36uL8awA7gpEQ==, tarball: download/@opvious/attempt-graph/0.9.19/3214f70c47a1b1ea5b7d795e38cd62b94e743eb5}
+  /@opvious/attempt-graph/0.9.23:
+    resolution: {integrity: sha512-ksiiwRw9lg8TX4/z9RRh3TPgDP6jgoXy1FGpQXOb+ixzd8fYagcbgS2BgEnL6gU3KpzeX6+jqmtPfRyOINJx8Q==, tarball: download/@opvious/attempt-graph/0.9.23/91a6cfdc6793b2f711bd884e0e21e1cb9613d88c}
     engines: {node: '>=16'}
     dependencies:
       graphql: 16.6.0
@@ -1753,12 +1753,12 @@ packages:
       - typescript
     dev: true
 
-  /@opvious/formulation-graph/0.13.28:
-    resolution: {integrity: sha512-uCR/OM+Wgh9XWZ8PvcwPxNtKQ22HdIgOzE+nNIKTc5k8fiE6CfhzBn6qjH2+FLx2t8Wi162Te4o2x0Z0sHHofg==, tarball: download/@opvious/formulation-graph/0.13.28/5d93ea4e52dae6af4c90d1e24cb5c38db2ee615a}
+  /@opvious/formulation-graph/0.13.30:
+    resolution: {integrity: sha512-79cC5hXeBu85t8ZpL+ZwLRBBlGA0dgSxKJkZ5VeD9aSfnIYB+e3Zrw9YrZ5oafoFt3YzjOhvkH1NntWmkHJmkA==, tarball: download/@opvious/formulation-graph/0.13.30/2c2fdad02acf0e77ba18568fbccbc970aac7faf8}
     engines: {node: '>=16'}
     dependencies:
-      '@opvious/stl-errors': 0.12.34
-      '@opvious/stl-utils': 0.12.34
+      '@opvious/stl-errors': 0.12.36
+      '@opvious/stl-utils': 0.12.36
       graphql: 16.6.0
       graphql-request: 4.3.0_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
@@ -1771,38 +1771,39 @@ packages:
     resolution: {integrity: sha512-aMyXFbzM/WDyWASmiq5DsCt1b4x0IynrYAxOliVlK7D/8JCRjOaNLmQxuFxxzIGd0GsUXTb83loDfljTGrNNSg==, tarball: download/@opvious/prettier-typescript/0.1.13/5df5ef2f49c2fb1d8cb21ab7162b711ce5884190}
     dev: true
 
-  /@opvious/stl-errors/0.12.34:
-    resolution: {integrity: sha512-w1EOfUT4S5U8V3knjQik0cNQP6Xz0ecCp3LmMgsMN5wqQlXSwOpdwryAiul0QD6pjnmEgX0/yqzKfuKyIi176w==, tarball: download/@opvious/stl-errors/0.12.34/300b4f34c33dd51bdc7f427e7b1e2c75f9093f30}
+  /@opvious/stl-errors/0.12.36:
+    resolution: {integrity: sha512-uaI3w/sVJzX/+m9G/rhaLo/KtwgsL819ArFY+7E0yWNSrlSHSZzNKUV9ehmEZB1jWkf8ElJC+mZEstqm526URA==, tarball: download/@opvious/stl-errors/0.12.36/6038d00d3b0dc3defe3f01235c6eac89c2981770}
     dependencies:
       '@opentelemetry/api': 1.2.0
       change-case: 4.1.2
       upper-case-first: 2.0.2
     dev: true
 
-  /@opvious/stl-settings/0.12.34:
-    resolution: {integrity: sha512-/flBu3z72aVISf0tBagJ8gYiyKRA9F8P34QMQqdHKpZs4pDQYFMbzTCDBwaqNy9QGIWBjUPq+OBV8aMcSD2juQ==, tarball: download/@opvious/stl-settings/0.12.34/3b5046945e05352616b0fa8cc8334852caf838e0}
+  /@opvious/stl-settings/0.12.36:
+    resolution: {integrity: sha512-KdtMwR0910PY8LOtJ681zEkpfcH1pSpxZD9x9p2g/AY/f9EOW5zwUa45JBMSHr8WiHA+roRYLMNqPQpVB+PkwA==, tarball: download/@opvious/stl-settings/0.12.36/3a14bcd6148831977f278e73196b70f23e6a3a74}
     dependencies:
-      '@opvious/stl-errors': 0.12.34
+      '@opvious/stl-errors': 0.12.36
     dev: true
 
-  /@opvious/stl-utils/0.12.34:
-    resolution: {integrity: sha512-j870hTlR8kuzu5j1f/Bmx8srIH9ETDbDspZLzs0FFtuYC1ezAJkLmhWrBV8MxNJfe8EpAl4zYYaRRSeydWRvfg==, tarball: download/@opvious/stl-utils/0.12.34/ea443306ae5209379f4e111de87cf2f548e6a69f}
+  /@opvious/stl-utils/0.12.36:
+    resolution: {integrity: sha512-6b7OvFBJxyIosXVB3M9sTbLo5SxeBQ9seatOrGKRE/Y6w5L7HW9qnR5a6vqfD+I/UfX6VRuoBu6eCh2tH21T4Q==, tarball: download/@opvious/stl-utils/0.12.36/c7d480c9be3175c00edbd9752fb5ff7e4b05b7cd}
     dependencies:
-      '@opvious/stl-errors': 0.12.34
+      '@opvious/stl-errors': 0.12.36
       change-case: 4.1.2
       picomatch: 2.3.1
+      untruncate-json: 0.0.1
     dev: true
 
-  /@opvious/stl/0.12.34:
-    resolution: {integrity: sha512-Xc6SyOB600OnkX16w6uY4xzJYdZkib5huCt6YfPmQNTVb1oDZs1mpOR8SI7+vr46sBGJ8CAvcogONTfSvoDRSg==, tarball: download/@opvious/stl/0.12.34/6600afa789c0b31bf2abaa612584365e3b092ad1}
+  /@opvious/stl/0.12.36:
+    resolution: {integrity: sha512-Ob5issnHqMpxrQoSytW/+spLWE1Xtgeza0+fiB3i8/kV8hNhAFzFoLqhCmPjx8yfs3hamSnK1SJu86uzgP00QA==, tarball: download/@opvious/stl/0.12.36/f2efde978bc631152e3b817853d01997e27006be}
     hasBin: true
     dependencies:
       '@opentelemetry/api': 1.2.0
       '@opentelemetry/api-metrics': 0.32.0
       '@opentelemetry/resources': 1.7.0_@opentelemetry+api@1.2.0
-      '@opvious/stl-errors': 0.12.34
-      '@opvious/stl-settings': 0.12.34
-      '@opvious/stl-utils': 0.12.34
+      '@opvious/stl-errors': 0.12.36
+      '@opvious/stl-settings': 0.12.36
+      '@opvious/stl-utils': 0.12.36
       change-case: 4.1.2
       luxon: 2.5.0
       p-retry: 4.6.2
@@ -6044,6 +6045,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       normalize-path: 2.1.1
+    dev: true
+
+  /untruncate-json/0.0.1:
+    resolution: {integrity: sha512-4W9enDK4X1y1s2S/Rz7ysw6kDuMS3VmRjMFg7GZrNO+98OSe+x5Lh7PKYoVjy3lW/1wmhs6HW0lusnQRHgMarA==}
     dev: true
 
   /update-browserslist-db/1.0.9_browserslist@4.21.4:
