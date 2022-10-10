@@ -143,6 +143,14 @@ export class OpviousClient {
     }
   }
 
+  async fetchAttempt(
+    uuid: string
+  ): Promise<g.FetchedAttemptFragment | undefined> {
+    const res = await this.sdk.FetchAttempt({uuid});
+    assertNoErrors(res);
+    return res.data?.attempt;
+  }
+
   async fetchAttemptInputs(
     uuid: string
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {

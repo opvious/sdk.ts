@@ -26,17 +26,26 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     const source = await readSource('n-queens.md');
     const formulationName = 'n-queens' + SUFFIX;
     await client.registerSpecification({formulationName, source});
-    const attempt = await client.runAttempt({
+
+    const polled = await client.runAttempt({
       formulationName,
       parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
     });
-    expect(attempt).toMatchObject({
+    expect(polled).toMatchObject({
       outcome: {
         __typename: 'FeasibleOutcome',
         isOptimal: true,
       },
     });
-    const inputs = await client.fetchAttemptInputs(attempt.uuid);
+
+    const fetched = await client.fetchAttempt(polled.uuid);
+    expect(fetched).toMatchObject({
+      outline: {
+        parameters: [{label: 'size', isIntegral: true}],
+      },
+    });
+
+    const inputs = await client.fetchAttemptInputs(polled.uuid);
     expect(inputs).toEqual({
       dimensions: [],
       parameters: [
@@ -44,7 +53,6 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
           label: 'size',
           defaultValue: 0,
           entries: [{key: [], value: 5}],
-          origin: null,
         },
       ],
     });
@@ -134,10 +142,6 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
           entries: [
             {key: [1, 0, 3], value: -1}, // Same key as above.
           ],
-          origin: {
-            __typename: 'DeficitVariable',
-            deficitFor: 'matchHint',
-          },
         },
         {label: 'positions'},
       ],
