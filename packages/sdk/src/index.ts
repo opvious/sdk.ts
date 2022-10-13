@@ -17,8 +17,10 @@
 
 import * as gql from 'graphql';
 import {GraphQLClient} from 'graphql-request';
+import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
 import {setTimeout} from 'timers/promises';
+import zlib from 'zlib';
 
 export type Name = g.Scalars['Name'];
 
@@ -28,6 +30,10 @@ enum DefaultEndpoint {
   API = 'https://api.opvious.io/',
   HUB = 'https://hub.opvious.io/',
 }
+
+const COMPRESSION_THRESHOLD_BYTES = 2 ** 16; // 64 kiB
+
+const ENCODING_HEADER = 'content-encoding';
 
 /** Opvious API client. */
 export class OpviousClient {
@@ -48,10 +54,25 @@ export class OpviousClient {
         ? '' + opts.apiEndpoint
         : process.env.OPVIOUS_API_ENDPOINT ?? DefaultEndpoint.API
     );
+    const threshold = COMPRESSION_THRESHOLD_BYTES;
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
       headers: {
         authorization: 'Bearer ' + token,
         'opvious-client': 'TypeScript SDK',
+      },
+      fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
+        const {body} = init;
+        if (typeof body != 'string' || body.length <= threshold) {
+          return fetch(info, init);
+        }
+        const headers = new Headers(init.headers);
+        assert(!headers.get(ENCODING_HEADER));
+        headers.set(ENCODING_HEADER, 'gzip');
+        const gzip = zlib.createGzip();
+        process.nextTick(() => {
+          gzip.end(body);
+        });
+        return fetch(info, {...init, headers, body: gzip});
       },
     });
     const sdk = g.getSdk(<R, V>(query: string, vars: V) =>

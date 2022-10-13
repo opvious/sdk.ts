@@ -3,9 +3,9 @@
 We start by defining the sets of possible values $\S^a : N \doteq \{1 \ldots 9\}$ and possible
 positions $\S^a : P \doteq \{0 \ldots 8\}$.
 
-With these two, we can define the variable we will optimize over: $\S^v_{positions} : \alpha \in \{0,1\}^{P_{row} \times P_{column} \times N_{value}}$.
+With these two, we can define the variable we will optimize over: $\S^v_{positions} : \alpha \in \{0,1\}^{P \times P \times N}$.
 
-The first constraint uses input hints $\S^p_{hints} : h \in \{0,1\}^{P_{row} \times P_{column} \times N_{value}}$ to enforce that our decision always matches the hint: $\S^c_{matchHint} : \forall i,j \in P, v \in N, \alpha_{i,j,v} \geq h_{i,j,v}$.
+The first constraint uses input hints $\S^p_{hints} : h \in \{0,1\}^{P \times P \times N}$ to enforce that our decision always matches the hint: $\S^c_{matchHint} : \forall i,j \in P, v \in N, \alpha_{i,j,v} \geq h_{i,j,v}$.
 
 Then there are four types of unicity constraints, all enforcing that there must be one of each value:
 
