@@ -11,7 +11,7 @@ importers:
       husky: ^7.0.4
       lint-staged: ^12.1.4
       prettier: ^2.6.1
-      typedoc: ^0.22.15
+      typedoc: ^0.23.17
       typescript: ^4.8.4
     devDependencies:
       '@opvious/eslint-plugin': 0.1.13_vhsckgnokn2tf7m5xkrurmvfv4
@@ -21,7 +21,7 @@ importers:
       husky: 7.0.4
       lint-staged: 12.5.0
       prettier: 2.6.2
-      typedoc: 0.22.17_typescript@4.8.4
+      typedoc: 0.23.17_typescript@4.8.4
       typescript: 4.8.4
 
   packages/graph:
@@ -38,8 +38,6 @@ importers:
       graphql-tag: ^2.12.6
       ts-node: ^10.9.1
       typescript: ^4.8.4
-    dependencies:
-      graphql: 16.6.0
     devDependencies:
       '@graphql-codegen/add': 3.2.1_graphql@16.6.0
       '@graphql-codegen/cli': 2.12.0_catevcyz7pcdfjs4vkj6kvu4yu
@@ -49,6 +47,7 @@ importers:
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
       '@opvious/api-graph': 0.7.7
       '@types/node': 18.8.5
+      graphql: 16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_ptpocrdt7oaz4ni5mlvucph5pa
       typescript: 4.8.4
@@ -3521,17 +3520,6 @@ packages:
       path-is-absolute: 1.0.1
     dev: true
 
-  /glob/8.0.3:
-    resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 5.1.0
-      once: 1.4.0
-    dev: true
-
   /globals/11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
     engines: {node: '>=4'}
@@ -4621,8 +4609,8 @@ packages:
     hasBin: true
     dev: true
 
-  /jsonc-parser/3.0.0:
-    resolution: {integrity: sha512-fQzRfAbIBnR0IQvftw9FJveWiHp72Fg20giDrHz6TdfB12UH/uue0D3hm57UB5KgAVuniLMCaS8P1IMj9NR7cA==}
+  /jsonc-parser/3.2.0:
+    resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
     dev: true
 
   /jsonify/0.0.0:
@@ -4859,8 +4847,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /marked/4.0.16:
-    resolution: {integrity: sha512-wahonIQ5Jnyatt2fn8KqF/nIqZM8mh3oRu2+l5EANGMhu6RFjiSG52QNE2eWzFMI94HqYSgN184NurgNG6CztA==}
+  /marked/4.1.1:
+    resolution: {integrity: sha512-0cNMnTcUJPxbA6uWmCmjWz4NJRe/0Xfk2NhXCUHjew9qJzFN20krFnsUe7QynwqOwa5m1fZ4UDg0ycKFVC0ccw==}
     engines: {node: '>= 12'}
     hasBin: true
     dev: true
@@ -5590,12 +5578,12 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /shiki/0.10.1:
-    resolution: {integrity: sha512-VsY7QJVzU51j5o1+DguUd+6vmCmZ5v/6gYu4vyYAhzjuNQU6P/vmSy4uQaOhvje031qQMiW0d2BwgMH52vqMng==}
+  /shiki/0.11.1:
+    resolution: {integrity: sha512-EugY9VASFuDqOexOgXR18ZV+TbFrQHeCpEYaXamO+SZlsnT/2LxuLBX25GGtIrwaEVFXUAbUQ601SWE2rMwWHA==}
     dependencies:
-      jsonc-parser: 3.0.0
+      jsonc-parser: 3.2.0
       vscode-oniguruma: 1.6.2
-      vscode-textmate: 5.2.0
+      vscode-textmate: 6.0.0
     dev: true
 
   /signal-exit/3.0.7:
@@ -6022,18 +6010,17 @@ packages:
       is-typedarray: 1.0.0
     dev: true
 
-  /typedoc/0.22.17_typescript@4.8.4:
-    resolution: {integrity: sha512-h6+uXHVVCPDaANzjwzdsj9aePBjZiBTpiMpBBeyh1zcN2odVsDCNajz8zyKnixF93HJeGpl34j/70yoEE5BfNg==}
-    engines: {node: '>= 12.10.0'}
+  /typedoc/0.23.17_typescript@4.8.4:
+    resolution: {integrity: sha512-3rtNubo1dK0pvs6ixpMAq4pESULd5/JNUqJbdyZoeilI14reb1RNVomN4fMgIadd0RMX1aenYjJSSMBOJ+/+0Q==}
+    engines: {node: '>= 14.14'}
     hasBin: true
     peerDependencies:
-      typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x || 4.4.x || 4.5.x || 4.6.x || 4.7.x
+      typescript: 4.6.x || 4.7.x || 4.8.x
     dependencies:
-      glob: 8.0.3
       lunr: 2.3.9
-      marked: 4.0.16
+      marked: 4.1.1
       minimatch: 5.1.0
-      shiki: 0.10.1
+      shiki: 0.11.1
       typescript: 4.8.4
     dev: true
 
@@ -6132,8 +6119,8 @@ packages:
     resolution: {integrity: sha512-KH8+KKov5eS/9WhofZR8M8dMHWN2gTxjMsG4jd04YhpbPR91fUj7rYQ2/XjeHCJWbg7X++ApRIU9NUwM2vTvLA==}
     dev: true
 
-  /vscode-textmate/5.2.0:
-    resolution: {integrity: sha512-Uw5ooOQxRASHgu6C7GVvUxisKXfSgW4oFlO+aa+PAkgmH89O3CXxEEzNRNtHSqtXFTl0nAC1uYj0GMSH27uwtQ==}
+  /vscode-textmate/6.0.0:
+    resolution: {integrity: sha512-gu73tuZfJgu+mvCSy4UZwd2JXykjK9zAZsfmDeut5dx/1a7FeTk0XwJsSuqQn+cuMCGVbIBfl+s53X4T19DnzQ==}
     dev: true
 
   /w3c-hr-time/1.0.2:

@@ -27,3 +27,7 @@ const sdk = getSdk(
 
 You can generate API tokens (used via `process.env.OPVIOUS_TOKEN` above) at
 https://hub.opvious.io/authorizations.
+
+## Schema
+
+The aggregated schema is available as `resources/schema.graphql`.

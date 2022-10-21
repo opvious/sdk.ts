@@ -4,13 +4,12 @@
 npm i opvious
 ```
 
-This package exposes a minimal SDK for the Opvious API.
+This package exposes a typesafe SDK for the Opvious API.
 
 ## Quickstart
 
-You'll need an Opvious API access token to run most client methods. You can
-generate one at https://hub.opvious.io/authorizations. With it, you can
-instantiate a client as follows:
+> You'll need an Opvious API access token to run client methods. You can
+> generate one at https://hub.opvious.io/authorizations.
 
 ```typescript
 import {OpviousClient} from 'opvious';
@@ -32,3 +31,5 @@ const attempt = await client.runAttempt({
   parameters: [/* ... */],
 });
 ```
+
+As a convenience, this package also reexports `opvious-graph` as `graph`.

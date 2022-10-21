@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io",
@@ -58,5 +58,7 @@
     ],
     "transform": {}
   },
-  "typedocMain": "src/index.ts"
+  "typedoc": {
+    "entryPoint": "src/index.ts"
+  }
 }
