@@ -39,6 +39,8 @@ generates:
         AccessToken: string
         Cursor: string
         DateTime: string
+        Description: string
+        DisplayName: string
         Duration: number
         ExtendedFloat: number | string
         Failure: any
