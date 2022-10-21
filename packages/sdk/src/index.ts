@@ -15,25 +15,20 @@
  * the License.
  */
 
-import * as gql from 'graphql';
 import {GraphQLClient} from 'graphql-request';
 import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
 import {setTimeout} from 'timers/promises';
 import zlib from 'zlib';
 
-export type Name = g.Scalars['Name'];
+import {
+  assert,
+  assertNoErrors,
+  checkPresent,
+  strippingTrailingSlashes,
+} from './common';
 
 export * as graph from 'opvious-graph';
-
-enum DefaultEndpoint {
-  API = 'https://api.opvious.io/',
-  HUB = 'https://hub.opvious.io/',
-}
-
-const COMPRESSION_THRESHOLD_BYTES = 2 ** 16; // 64 kiB
-
-const ENCODING_HEADER = 'content-encoding';
 
 /** Opvious API client. */
 export class OpviousClient {
@@ -54,7 +49,7 @@ export class OpviousClient {
         ? '' + opts.apiEndpoint
         : process.env.OPVIOUS_API_ENDPOINT ?? DefaultEndpoint.API
     );
-    const threshold = COMPRESSION_THRESHOLD_BYTES;
+    const threshold = ENCODING_THRESHOLD;
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
       headers: {
         authorization: 'Bearer ' + token,
@@ -103,7 +98,7 @@ export class OpviousClient {
 
   async registerSpecification(args: {
     readonly source: string;
-    readonly formulationName: string;
+    readonly formulationName: Name;
     readonly tagNames?: ReadonlyArray<Name>;
   }): Promise<void> {
     const defs = await this.extractDefinitions(args.source);
@@ -141,8 +136,8 @@ export class OpviousClient {
   }
 
   async runAttempt(args: {
-    readonly formulationName: string;
-    readonly tagName?: string;
+    readonly formulationName: Name;
+    readonly tagName?: Name;
     readonly parameters?: ReadonlyArray<g.ParameterInput>;
     readonly dimensions?: ReadonlyArray<g.DimensionInput>;
     readonly pinnedVariables?: ReadonlyArray<g.PinnedVariableInput>;
@@ -165,7 +160,7 @@ export class OpviousClient {
   }
 
   async fetchAttempt(
-    uuid: string
+    uuid: Uuid
   ): Promise<g.FetchedAttemptFragment | undefined> {
     const res = await this.sdk.FetchAttempt({uuid});
     assertNoErrors(res);
@@ -173,7 +168,7 @@ export class OpviousClient {
   }
 
   async fetchAttemptInputs(
-    uuid: string
+    uuid: Uuid
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptInputs({uuid});
     assertNoErrors(res);
@@ -181,7 +176,7 @@ export class OpviousClient {
   }
 
   async fetchAttemptOutputs(
-    uuid: string
+    uuid: Uuid
   ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptOutputs({uuid});
     assertNoErrors(res);
@@ -214,34 +209,6 @@ export class OpviousClient {
   }
 }
 
-export interface SharedFormulation {
-  readonly apiUrl: URL;
-  readonly hubUrl: URL;
-}
-
-function assert(pred: unknown): asserts pred {
-  if (!pred) {
-    throw new Error('Assertion failed');
-  }
-}
-
-function assertNoErrors<V>(res: gql.ExecutionResult<V, unknown>): void {
-  if (res.errors?.length) {
-    throw new Error('API call failed: ' + JSON.stringify(res.errors, null, 2));
-  }
-}
-
-function checkPresent<V>(arg: V | undefined | null): V {
-  assert(arg != null);
-  return arg;
-}
-
-function strippingTrailingSlashes(arg: string): string {
-  return arg.replace(/\/+$/, '');
-}
-
-const POLL_ATTEMPT_INTERVAL_MILLIS = 2_500;
-
 export interface OpviousClientOptions {
   /** API authorization token, defaulting to `process.env.OPVIOUS_TOKEN`. */
   readonly accessToken?: string;
@@ -259,3 +226,22 @@ export interface OpviousClientOptions {
    */
   readonly hubEndpoint?: string | URL;
 }
+
+export interface SharedFormulation {
+  readonly apiUrl: URL;
+  readonly hubUrl: URL;
+}
+
+type Name = g.Scalars['Name'];
+type Uuid = g.Scalars['Uuid'];
+
+enum DefaultEndpoint {
+  API = 'https://api.opvious.io/',
+  HUB = 'https://hub.opvious.io/',
+}
+
+const ENCODING_HEADER = 'content-encoding';
+
+const ENCODING_THRESHOLD = 2 ** 16; // 64 kiB
+
+const POLL_ATTEMPT_INTERVAL_MILLIS = 2_500;
