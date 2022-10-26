@@ -24,6 +24,27 @@ importers:
       typedoc: 0.23.17_typescript@4.8.4
       typescript: 4.8.4
 
+  packages/cli:
+    specifiers:
+      '@types/jest': ^27.0.3
+      '@types/node': ^18.8.5
+      commander: ^9.1.0
+      jest: ^27.4.5
+      jest-extended: ^1.1.0
+      opvious: workspace:*
+      ts-jest: ^27.1.2
+      typescript: ^4.8.4
+    dependencies:
+      commander: 9.3.0
+      opvious: link:../sdk
+    devDependencies:
+      '@types/jest': 27.5.2
+      '@types/node': 18.8.5
+      jest: 27.5.1
+      jest-extended: 1.2.1
+      ts-jest: 27.1.5_h2mjkler2cwtrz56xjx3qgassu
+      typescript: 4.8.4
+
   packages/graph:
     specifiers:
       '@graphql-codegen/add': ^3.2.1
@@ -2806,7 +2827,6 @@ packages:
   /commander/9.3.0:
     resolution: {integrity: sha512-hv95iU5uXPbK83mjrJKuZyFM/LBAoCV/XhVGkS5Je6tl7sxr6A0ITMw5WoRV46/UaJ46Nllm3Xt7IaJhXTIkzw==}
     engines: {node: ^12.20.0 || >=14}
-    dev: true
 
   /common-tags/1.8.2:
     resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}

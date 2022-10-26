@@ -1,17 +1,18 @@
 {
-  "name": "opvious",
+  "name": "opvious-cli",
   "version": "0.1.28",
   "repository": "github:opvious/sdk.ts",
-  "description": "Opvious SDK",
+  "description": "Opvious CLI",
   "homepage": "https://www.opvious.io",
   "keywords": [
-    "opvious",
-    "sdk"
+    "cli",
+    "opvious"
   ],
   "author": "Opvious <oss@opvious.io>",
   "license": "Apache-2.0",
   "main": "lib/",
   "files": [
+    "bin/",
     "lib/"
   ],
   "scripts": {
@@ -22,22 +23,19 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "graphql": "^16.6.0",
-    "graphql-request": "^5.0.0",
-    "opvious-graph": "workspace:*"
+    "commander": "^9.1.0",
+    "opvious": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "@types/node": "^18.8.5",
-    "@types/node-fetch": "^2.6.2",
     "jest": "^27.4.5",
     "jest-extended": "^1.1.0",
-    "node-fetch": "^2.6.7",
     "ts-jest": "^27.1.2",
     "typescript": "^4.8.4"
   },
   "jest": {
-    "coverageDirectory": "../../out/coverage/sdk",
+    "coverageDirectory": "../../out/coverage/cli",
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/test/"
