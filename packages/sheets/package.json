@@ -1,21 +1,17 @@
 {
-  "name": "opvious-cli",
+  "name": "opvious-sheets",
   "version": "0.1.30",
   "repository": "github:opvious/sdk.ts",
-  "description": "Opvious CLI",
+  "description": "Opvious spreadsheet utilities",
   "homepage": "https://www.opvious.io",
   "keywords": [
-    "cli",
-    "opvious"
+    "opvious",
+    "sdk"
   ],
   "author": "Opvious <oss@opvious.io>",
   "license": "Apache-2.0",
-  "bin": {
-    "opvious": "./bin/opvious"
-  },
   "main": "lib/",
   "files": [
-    "bin/",
     "lib/"
   ],
   "scripts": {
@@ -26,22 +22,14 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "ajv": "^8.11.0",
-    "commander": "^9.1.0",
-    "easy-table": "^1.2.0",
-    "humanize-duration": "^3.27.3",
-    "js-yaml": "^4.1.0",
-    "luxon": "^3.0.4",
-    "opvious": "workspace:*",
-    "opvious-sheets": "workspace:*",
-    "ora": "^5.4.1"
+    "change-case": "^4.1.2",
+    "opvious-graph": "workspace:*",
+    "pluralize": "^8.0.0"
   },
   "devDependencies": {
-    "@types/humanize-duration": "^3.27.1",
     "@types/jest": "^27.0.3",
-    "@types/js-yaml": "^4.0.5",
-    "@types/luxon": "^3.0.2",
     "@types/node": "^18.11.7",
+    "@types/pluralize": "^0.0.29",
     "jest": "^27.4.5",
     "jest-extended": "^1.1.0",
     "ts-essentials": "^9.3.0",
@@ -49,7 +37,7 @@
     "typescript": "^4.8.4"
   },
   "jest": {
-    "coverageDirectory": "../../out/coverage/cli",
+    "coverageDirectory": "../../out/coverage/sheets",
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/test/"

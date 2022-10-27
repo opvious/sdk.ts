@@ -168,6 +168,24 @@ export class OpviousClient {
     };
   }
 
+  /** Fetches a formulation's outline. */
+  async fetchOutline(
+    formulationName: Name,
+    tagName?: Name
+  ): Promise<OutlineInfo> {
+    const res = await this.sdk.FetchSpecificationOutline({
+      formulationName,
+      tagName,
+    });
+    assertNoErrors(res);
+    const tag = checkPresent(res.data).formulation?.tag;
+    if (!tag) {
+      throw new Error('No such specification');
+    }
+    const {revno, outline} = tag.specification;
+    return {revno, ...outline};
+  }
+
   /** Paginates available formulations. */
   async paginateFormulations(
     vars: g.PaginateFormulationsQueryVariables
@@ -392,6 +410,10 @@ export interface SpecificationInfo {
   readonly formulation: FormulationInfo;
   readonly revno: number;
   readonly hubUrl: URL;
+}
+
+export interface OutlineInfo extends Omit<g.Outline, '__typename'> {
+  readonly revno: number;
 }
 
 export interface AttemptInfo {

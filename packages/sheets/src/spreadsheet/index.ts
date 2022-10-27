@@ -15,17 +15,5 @@
  * the License.
  */
 
-import humanizeDuration from 'humanize-duration';
-
-export const COMMAND_NAME = 'opvious';
-
-export function isCommanderError(err: unknown): boolean {
-  const code = (err as any)?.code;
-  return typeof code == 'string' && code.startsWith('commander');
-}
-
-export function humanizeMillis(millis: number): string {
-  return Math.abs(millis) < 1_000
-    ? 'less than a second'
-    : humanizeDuration(millis, {largest: 1, round: true});
-}
+export * from './common';
+export * from './local';
