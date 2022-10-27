@@ -1,6 +1,6 @@
 {
   "name": "opvious-cli",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious CLI",
   "homepage": "https://www.opvious.io",
@@ -10,6 +10,9 @@
   ],
   "author": "Opvious <oss@opvious.io>",
   "license": "Apache-2.0",
+  "bin": {
+    "opvious": "./bin/opvious"
+  },
   "main": "lib/",
   "files": [
     "bin/",
