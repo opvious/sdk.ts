@@ -22,13 +22,15 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
+    "backoff": "^2.5.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "opvious-graph": "workspace:*"
   },
   "devDependencies": {
+    "@types/backoff": "^2.5.2",
     "@types/jest": "^27.0.3",
-    "@types/node": "^18.8.5",
+    "@types/node": "^18.11.7",
     "@types/node-fetch": "^2.6.2",
     "jest": "^27.4.5",
     "jest-extended": "^1.1.0",

@@ -15,10 +15,10 @@
  * the License.
  */
 
+import backoff from 'backoff';
 import {GraphQLClient} from 'graphql-request';
 import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
-import {setTimeout} from 'timers/promises';
 import zlib from 'zlib';
 
 import {
@@ -82,9 +82,9 @@ export class OpviousClient {
   }
 
   async extractDefinitions(
-    source: string
+    ...sources: string[]
   ): Promise<ReadonlyArray<g.Definition>> {
-    const res = await this.sdk.ExtractDefinitions({sources: [source]});
+    const res = await this.sdk.ExtractDefinitions({sources});
     assertNoErrors(res);
     const defs: any[] = [];
     for (const slice of checkPresent(res.data).extractDefinitions.slices) {
@@ -96,32 +96,46 @@ export class OpviousClient {
     return defs;
   }
 
-  async registerSpecification(args: {
-    readonly source: string;
-    readonly formulationName: Name;
-    readonly tagNames?: ReadonlyArray<Name>;
-  }): Promise<void> {
-    const defs = await this.extractDefinitions(args.source);
-    await this.sdk.RegisterSpecification({
-      input: {
-        definitions: defs,
-        formulationName: args.formulationName,
-        tagNames: args.tagNames,
+  async registerSpecification(
+    input: g.RegisterSpecificationInput
+  ): Promise<SpecificationInfo> {
+    const res = await this.sdk.RegisterSpecification({input});
+    assertNoErrors(res);
+    const spec = checkPresent(res.data?.registerSpecification);
+    return {
+      formulation: {
+        name: spec.formulation.name,
+        displayName: spec.formulation.displayName,
+        hubUrl: this.formulationUrl(spec.formulation.name),
       },
-    });
+      revno: spec.revno,
+      hubUrl: this.specificationUrl(spec.formulation.name, spec.revno),
+    };
   }
 
-  async updateFormulation(args: {
-    readonly name: Name;
-    readonly displayName?: string;
-  }): Promise<void> {
-    const res = await this.sdk.UpdateFormulation({
-      input: {
-        name: args.name,
-        patch: {displayName: args.displayName},
-      },
-    });
+  async updateFormulation(
+    input: g.UpdateFormulationInput
+  ): Promise<FormulationInfo> {
+    const res = await this.sdk.UpdateFormulation({input});
     assertNoErrors(res);
+    const form = checkPresent(res.data?.updateFormulation);
+    return {
+      name: input.name,
+      displayName: form.displayName,
+      hubUrl: this.formulationUrl(input.name),
+    };
+  }
+
+  async listFormulations(
+    vars: g.PaginateFormulationsQueryVariables
+  ): Promise<ReadonlyArray<FormulationInfo>> {
+    const res = await this.sdk.PaginateFormulations(vars);
+    assertNoErrors(res);
+    return checkPresent(res.data).formulations.edges.map((e) => ({
+      name: e.node.name,
+      displayName: e.node.displayName,
+      hubUrl: this.formulationUrl(e.node.name),
+    }));
   }
 
   async deleteFormulation(name: Name): Promise<void> {
@@ -129,34 +143,43 @@ export class OpviousClient {
     assertNoErrors(res);
   }
 
-  async startAttempt(args: g.AttemptInput): Promise<string> {
-    const startRes = await this.sdk.StartAttempt({input: {...args}});
+  async startAttempt(input: g.AttemptInput): Promise<AttemptInfo> {
+    const startRes = await this.sdk.StartAttempt({input});
     assertNoErrors(startRes);
-    return checkPresent(startRes.data).startAttempt.uuid;
+    const attempt = checkPresent(startRes.data?.startAttempt);
+    return {
+      uuid: attempt.uuid,
+      hubUrl: this.attemptUrl(attempt.uuid),
+    };
   }
 
-  async runAttempt(args: {
-    readonly formulationName: Name;
-    readonly tagName?: Name;
-    readonly parameters?: ReadonlyArray<g.ParameterInput>;
-    readonly dimensions?: ReadonlyArray<g.DimensionInput>;
-    readonly pinnedVariables?: ReadonlyArray<g.PinnedVariableInput>;
-    readonly relaxation?: g.RelaxationInput;
-  }): Promise<g.PolledAttemptFragment> {
-    const startRes = await this.sdk.StartAttempt({input: {...args}});
-    assertNoErrors(startRes);
-    const uuid = checkPresent(startRes.data).startAttempt.uuid;
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      await setTimeout(POLL_ATTEMPT_INTERVAL_MILLIS);
-      const pollRes = await this.sdk.PollAttempt({uuid});
-      assertNoErrors(pollRes);
-      const attempt = checkPresent(pollRes.data?.attempt);
-      const {status} = attempt;
-      if (status !== 'PENDING') {
-        return attempt;
-      }
-    }
+  async waitForOutcome(uuid: Uuid): Promise<OutcomeInfo> {
+    const xb = backoff.exponential();
+    return new Promise((ok, fail) => {
+      xb.on('ready', () => {
+        this.sdk
+          .PollAttempt({uuid})
+          .then((res) => {
+            assertNoErrors(res);
+            const attempt = checkPresent(res.data?.attempt);
+            switch (attempt.status) {
+              case 'PENDING':
+                xb.backoff();
+                return;
+              case 'INFEASIBLE':
+                throw new Error('Infeasible attempt');
+              case 'UNBOUNDED':
+                throw new Error('Unbounded attempt');
+            }
+            const outcome = checkPresent(attempt.outcome);
+            if (outcome.__typename === 'FailedOutcome') {
+              throw new Error(outcome.failure.message);
+            }
+            ok(outcome);
+          })
+          .catch(fail);
+      }).backoff();
+    });
   }
 
   async fetchAttempt(
@@ -187,11 +210,10 @@ export class OpviousClient {
     return outcome;
   }
 
-  async shareFormulation(args: {
-    readonly name: Name;
-    readonly tagName: Name;
-  }): Promise<SharedFormulation> {
-    const res = await this.sdk.StartSharingFormulation({input: args});
+  async shareFormulation(
+    input: g.StartSharingFormulationInput
+  ): Promise<BlueprintInfo> {
+    const res = await this.sdk.StartSharingFormulation({input});
     assertNoErrors(res);
     const {sharedVia} = checkPresent(res.data).startSharingFormulation;
     return {
@@ -200,12 +222,24 @@ export class OpviousClient {
     };
   }
 
-  async unshareFormulation(args: {
-    readonly name: Name;
-    readonly tagNames?: ReadonlyArray<Name>;
-  }): Promise<void> {
-    const res = await this.sdk.StopSharingFormulation({input: args});
+  async unshareFormulation(
+    input: g.StopSharingFormulationInput
+  ): Promise<void> {
+    const res = await this.sdk.StopSharingFormulation({input});
     assertNoErrors(res);
+  }
+
+  private formulationUrl(formulation: string): URL {
+    return new URL(this.hubEndpoint + `/formulations/${formulation}`);
+  }
+
+  private specificationUrl(formulation: string, revno: number): URL {
+    const pathname = `/formulations/${formulation}/overview/${revno}`;
+    return new URL(this.hubEndpoint + pathname);
+  }
+
+  private attemptUrl(uuid: string): URL {
+    return new URL(this.hubEndpoint + `/attempts/${uuid}`);
   }
 }
 
@@ -227,21 +261,42 @@ export interface OpviousClientOptions {
   readonly hubEndpoint?: string | URL;
 }
 
-export interface SharedFormulation {
+export interface FormulationInfo {
+  readonly name: Name;
+  readonly displayName: string;
+  readonly hubUrl: URL;
+}
+
+export interface SpecificationInfo {
+  readonly formulation: FormulationInfo;
+  readonly revno: number;
+  readonly hubUrl: URL;
+}
+
+export interface AttemptInfo {
+  readonly uuid: Uuid;
+  readonly hubUrl: URL;
+}
+
+export interface OutcomeInfo {
+  readonly objectiveValue: number;
+  readonly relativeGap?: number;
+  readonly isOptimal: boolean;
+}
+
+export interface BlueprintInfo {
   readonly apiUrl: URL;
   readonly hubUrl: URL;
 }
 
-type Name = g.Scalars['Name'];
-type Uuid = g.Scalars['Uuid'];
+export type Name = g.Scalars['Name'];
+export type Uuid = g.Scalars['Uuid'];
 
 enum DefaultEndpoint {
-  API = 'https://api.opvious.io/',
-  HUB = 'https://hub.opvious.io/',
+  API = 'https://api.opvious.io',
+  HUB = 'https://hub.opvious.io',
 }
 
 const ENCODING_HEADER = 'content-encoding';
 
 const ENCODING_THRESHOLD = 2 ** 16; // 64 kiB
-
-const POLL_ATTEMPT_INTERVAL_MILLIS = 2_500;

@@ -23,14 +23,19 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
+    "ajv": "^8.11.0",
     "commander": "^9.1.0",
-    "opvious": "workspace:*"
+    "js-yaml": "^4.1.0",
+    "opvious": "workspace:*",
+    "ora": "^5.4.1"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
-    "@types/node": "^18.8.5",
+    "@types/js-yaml": "^4.0.5",
+    "@types/node": "^18.11.7",
     "jest": "^27.4.5",
     "jest-extended": "^1.1.0",
+    "ts-essentials": "^9.3.0",
     "ts-jest": "^27.1.2",
     "typescript": "^4.8.4"
   },

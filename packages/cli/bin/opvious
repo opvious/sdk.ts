@@ -17,11 +17,11 @@
  * the License.
  */
 
-const {mainCommand} = require('../lib');
+const {isCommanderError, mainCommand} = require('../lib');
 
 mainCommand().parseAsync(process.argv).catch((err) => {
   process.exitCode = 1;
-  if (!err.code?.startsWith('commander')) {
-    console.error('Command failed', err);
+  if (!isCommanderError(err)) {
+    console.error(err);
   }
 });

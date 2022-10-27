@@ -16,3 +16,8 @@
  */
 
 export const COMMAND_NAME = 'opvious';
+
+export function isCommanderError(err: unknown): boolean {
+  const code = (err as any)?.code;
+  return typeof code == 'string' && code.startsWith('commander');
+}

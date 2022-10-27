@@ -16,9 +16,10 @@
  */
 
 import {Command} from 'commander';
-import {OpviousClient} from 'opvious';
 
-import {COMMAND_NAME} from './common';
+import {COMMAND_NAME} from '../common';
+import {newCommand} from './common';
+import {formulationCommand} from './formulation';
 
 export function mainCommand(): Command {
   return newCommand()
@@ -26,32 +27,4 @@ export function mainCommand(): Command {
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
     .addCommand(formulationCommand());
-}
-
-function formulationCommand(): Command {
-  return newCommand()
-    .command('formulation')
-    .description('formulation commands')
-    .addCommand(registerSpecificationCommand());
-}
-
-function registerSpecificationCommand(): Command {
-  return newCommand()
-    .command('register-specification')
-    .description('add a new specification')
-    .requiredOption('-f, --formulation <name>', 'matching formulation name')
-    .requiredOption('-s, --source <path>', 'path to specification source')
-    .action(async (opts) => {
-      const client = OpviousClient.create();
-      await client.registerSpecification({
-        formulationName: opts.formulation,
-        source: opts.source,
-      });
-    });
-}
-
-function newCommand(): Command {
-  return new Command().exitOverride((cause) => {
-    throw cause;
-  });
 }

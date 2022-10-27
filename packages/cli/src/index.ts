@@ -16,3 +16,4 @@
  */
 
 export {mainCommand} from './command';
+export {isCommanderError} from './common';
