@@ -21,8 +21,17 @@ const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
     await client.deleteFormulation(formulationName);
   });
 
-  test('lists authorizations', async () => {
-    await client.listAuthorizations();
+  test('generates, lists, and revokes authorizations', async () => {
+    const name = 'test-token';
+    await client.revokeAuthorization(name);
+    const token = await client.generateAccessToken({name, ttlDays: 1});
+    const tokenClient = sut.OpviousClient.create({authorization: token});
+    const infos1 = await tokenClient.listAuthorizations();
+    expect(infos1.find((i) => i.name === name)).toBeDefined();
+    const revoked = await tokenClient.revokeAuthorization(name);
+    expect(revoked).toBe(true);
+    const infos2 = await client.listAuthorizations();
+    expect(infos2.find((i) => i.name === name)).toBeUndefined();
   });
 
   test('lists formulations', async () => {

@@ -101,6 +101,15 @@ export class OpviousClient {
     }));
   }
 
+  /** Creates a new access token for an authorization with the given name. */
+  async generateAccessToken(
+    input: g.GenerateAuthorizationInput
+  ): Promise<string> {
+    const res = await this.sdk.GenerateAuthorization({input});
+    assertNoErrors(res);
+    return checkPresent(res.data).generateAuthorization.token;
+  }
+
   /** Revokes an authorization from its name, returning true if one existed. */
   async revokeAuthorization(name: string): Promise<boolean> {
     const res = await this.sdk.RevokeAuthorization({name});

@@ -27,6 +27,7 @@ export function authorizationCommand(): Command {
     .description('authorization commands')
     .addCommand(showAccountCommand())
     .addCommand(listAuthorizationsCommand())
+    .addCommand(generateAuthorizationCommand())
     .addCommand(revokeAuthorizationCommand());
 }
 
@@ -69,7 +70,28 @@ function listAuthorizationsCommand(): Command {
           table.newRow();
         }
         spinner.succeed(`Fetched ${infos.length} authorizations(s).`);
-        console.log('\n' + table);
+        if (infos.length) {
+          console.log('\n' + table);
+        }
+      })
+    );
+}
+
+function generateAuthorizationCommand(): Command {
+  return newCommand()
+    .command('generate <name>')
+    .description('create an access token')
+    .option('-t, --ttl <days>', 'authorization TTL', '30')
+    .action(
+      contextualAction(async function (name, opts) {
+        const {client, spinner} = this;
+        spinner.start('Creating authorization...');
+        const token = await client.generateAccessToken({
+          name,
+          ttlDays: +opts.ttl,
+        });
+        spinner.succeed('Authorization created.');
+        console.log(token);
       })
     );
 }
