@@ -39,10 +39,10 @@ export function contextualAction(
     const opts = cmd.opts();
     const spinner = ora({isSilent: !!opts.quiet});
 
-    spinner.start('Creating client...');
+    spinner.start('Loading client...');
     try {
       const config = await loadConfig({profile: opts.profile});
-      spinner.info(`Created client. [profile=${config.profileName}]`);
+      spinner.info(`Loaded client. [profile=${config.profileName}]`);
       await fn.call({client: config.client, spinner}, ...args);
     } catch (cause: any) {
       spinner.fail(cause.message);

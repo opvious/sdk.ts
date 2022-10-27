@@ -25,25 +25,9 @@ export function authorizationCommand(): Command {
   return newCommand()
     .command('authorization')
     .description('authorization commands')
-    .addCommand(showAccountCommand())
     .addCommand(listAuthorizationsCommand())
     .addCommand(generateAuthorizationCommand())
     .addCommand(revokeAuthorizationCommand());
-}
-
-function showAccountCommand(): Command {
-  return newCommand()
-    .command('me')
-    .description('show current account')
-    .action(
-      contextualAction(async function () {
-        const {client, spinner} = this;
-        spinner.start('Fetching account...');
-        const info = await client.fetchAccount();
-        spinner.succeed('Fetched account.');
-        console.log(info.email);
-      })
-    );
 }
 
 function listAuthorizationsCommand(): Command {

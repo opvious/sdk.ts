@@ -19,7 +19,7 @@ import {Command} from 'commander';
 
 import {COMMAND_NAME} from '../common';
 import {authorizationCommand} from './authorization';
-import {newCommand} from './common';
+import {contextualAction, newCommand} from './common';
 import {formulationCommand} from './formulation';
 
 export function mainCommand(): Command {
@@ -28,5 +28,21 @@ export function mainCommand(): Command {
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
     .addCommand(authorizationCommand())
-    .addCommand(formulationCommand());
+    .addCommand(formulationCommand())
+    .addCommand(showAccountCommand());
+}
+
+function showAccountCommand(): Command {
+  return newCommand()
+    .command('me')
+    .description('display current credentials')
+    .action(
+      contextualAction(async function () {
+        const {client, spinner} = this;
+        spinner.start('Fetching account...');
+        const info = await client.fetchAccount();
+        spinner.succeed('Fetched account.');
+        console.log(info.email);
+      })
+    );
 }
