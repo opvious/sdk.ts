@@ -18,6 +18,7 @@
 import {Command} from 'commander';
 
 import {COMMAND_NAME} from '../common';
+import {attemptCommand} from './attempt';
 import {authorizationCommand} from './authorization';
 import {contextualAction, newCommand} from './common';
 import {formulationCommand} from './formulation';
@@ -27,6 +28,7 @@ export function mainCommand(): Command {
     .name(COMMAND_NAME)
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
+    .addCommand(attemptCommand())
     .addCommand(authorizationCommand())
     .addCommand(formulationCommand())
     .addCommand(showAccountCommand());

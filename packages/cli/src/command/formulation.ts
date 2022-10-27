@@ -49,7 +49,7 @@ function listFormulationsCommand(): Command {
         let count = 0;
         let cursor: string | undefined;
         do {
-          const paginated = await client.listFormulations({
+          const paginated = await client.paginateFormulations({
             first: Math.min(PAGE_LIMIT, limit - count),
             after: cursor,
             filter: {

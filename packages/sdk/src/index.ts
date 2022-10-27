@@ -168,8 +168,8 @@ export class OpviousClient {
     };
   }
 
-  /** Lists available formulations. */
-  async listFormulations(
+  /** Paginates available formulations. */
+  async paginateFormulations(
     vars: g.PaginateFormulationsQueryVariables
   ): Promise<Paginated<FormulationInfo>> {
     const res = await this.sdk.PaginateFormulations(vars);
@@ -220,6 +220,28 @@ export class OpviousClient {
     assertNoErrors(res);
   }
 
+  /** Paginates available attempts. */
+  async paginateAttempts(
+    vars: g.PaginateAttemptsQueryVariables
+  ): Promise<Paginated<AttemptInfo>> {
+    const res = await this.sdk.PaginateAttempts(vars);
+    assertNoErrors(res);
+    const forms = checkPresent(res.data).attempts;
+    return {
+      info: forms.pageInfo,
+      totalCount: forms.totalCount,
+      values: forms.edges.map((e) => ({
+        uuid: e.node.uuid,
+        formulationName: e.node.pristineSpecification.formulation.displayName,
+        specificationRevno: e.node.pristineSpecification.revno,
+        startedAt: e.node.startedAt,
+        endedAt: e.node.endedAt,
+        status: e.node.status,
+        hubUrl: this.attemptUrl(e.node.uuid),
+      })),
+    };
+  }
+
   /**
    * Starts a new attempt. The attempt will run asynchronously; use the returned
    * UUID to wait for its outcome (via `waitForOutcome`), fetch its inputs and
@@ -231,6 +253,10 @@ export class OpviousClient {
     const attempt = checkPresent(startRes.data?.startAttempt);
     return {
       uuid: attempt.uuid,
+      formulationName: input.formulationName,
+      specificationRevno: attempt.pristineSpecification.revno,
+      status: 'PENDING',
+      startedAt: attempt.startedAt,
       hubUrl: this.attemptUrl(attempt.uuid),
     };
   }
@@ -370,6 +396,11 @@ export interface SpecificationInfo {
 
 export interface AttemptInfo {
   readonly uuid: Uuid;
+  readonly formulationName: string;
+  readonly specificationRevno: number;
+  readonly startedAt: string;
+  readonly endedAt?: string;
+  readonly status: g.AttemptStatus;
   readonly hubUrl: URL;
 }
 

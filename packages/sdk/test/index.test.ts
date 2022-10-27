@@ -34,16 +34,16 @@ const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
     expect(infos2.find((i) => i.name === name)).toBeUndefined();
   });
 
-  test('lists formulations', async () => {
+  test('paginates formulations', async () => {
     const formulationName = 'n-queens' + SUFFIX;
     await registerSpecification(client, formulationName, 'n-queens.md');
-    const infos1 = await client.listFormulations({
+    const infos1 = await client.paginateFormulations({
       first: 10,
       filter: {displayNameLike: formulationName},
     });
     expect(infos1).toMatchObject({values: [{name: formulationName}]});
     await client.deleteFormulation(formulationName);
-    const infos2 = await client.listFormulations({first: 5});
+    const infos2 = await client.paginateFormulations({first: 5});
     expect(
       infos2.values.find((f) => f.name === formulationName)
     ).toBeUndefined();
@@ -62,6 +62,11 @@ const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
     await client.unshareFormulation({name: formulationName});
     const res2 = await fetch('' + apiUrl);
     expect(res2.status).toEqual(404);
+  });
+
+  test('paginates attempts', async () => {
+    await client.paginateAttempts({first: 10});
+    // TODO: Check things...
   });
 
   test('runs n-queens', async () => {
