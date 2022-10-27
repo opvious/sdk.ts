@@ -1,20 +1,12 @@
 import * as g from 'opvious-graph';
 
-import {InMemorySpreadsheet, Spreadsheet} from '../src/spreadsheet';
+import {InMemorySpreadsheet} from '../src/spreadsheet';
 import {identifyTables, Table} from '../src/table';
 
-export const SHEET = 's1';
+export const SHEET = 'default';
 
 export function extractTables(csv: string): ReadonlyArray<Table> {
-  const ss = InMemorySpreadsheet.forCsvs({[SHEET]: csv});
-  return extractTablesFromDefaultSheet(ss);
-}
-
-export function extractTablesFromDefaultSheet(
-  ss: Spreadsheet
-): ReadonlyArray<Table> {
-  const [cols] = ss.readColumns([{sheet: SHEET, bottom: 2}]);
-  return identifyTables({[SHEET]: cols!});
+  return identifyTables(InMemorySpreadsheet.forCsvs({[SHEET]: csv}));
 }
 
 export function tensorOutline(

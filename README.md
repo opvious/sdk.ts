@@ -7,6 +7,7 @@
 + [`opvious`](packages/sdk)
 + [`opvious-cli`](packages/cli)
 + [`opvious-graph`](packages/graph)
++ [`opvious-sheets`](packages/sheets)
 
 ## Developing
 

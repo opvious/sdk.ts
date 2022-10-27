@@ -112,7 +112,7 @@ function startAttemptCommand(): Command {
           .info(`Fetched outline. [revno=${outline.revno}]`)
           .start('Collecting input values...');
         const sheets = await Promise.all(
-          opts.sheet.map((s: string) => [s, readFile(s, 'utf8')])
+          opts.sheet.map(async (s: string) => [s, await readFile(s, 'utf8')])
         );
         for (const scalar of opts.scalar) {
           const [key, value] = scalar.split('=');

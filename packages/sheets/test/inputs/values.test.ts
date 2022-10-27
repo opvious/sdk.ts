@@ -3,7 +3,8 @@ import * as g from 'opvious-graph';
 import {computeInputMapping} from '../../src/inputs/mapping';
 import * as sut from '../../src/inputs/values';
 import {InMemorySpreadsheet} from '../../src/spreadsheet';
-import {extractTablesFromDefaultSheet, SHEET, tensorOutline} from '../helpers';
+import {identifyTables} from '../../src/table';
+import {SHEET, tensorOutline} from '../helpers';
 
 describe('extract input values', () => {
   test.each<[string, string, g.Outline, sut.InputValues]>([
@@ -221,7 +222,7 @@ describe('extract input values', () => {
     ],
   ])('handles %s case', (_desc, csv, sig, want) => {
     const ss = InMemorySpreadsheet.forCsvs({[SHEET]: csv});
-    const tables = extractTablesFromDefaultSheet(ss);
+    const tables = identifyTables(ss);
     const mapping = computeInputMapping(tables, sig);
     const got = sut.extractInputValues(mapping, ss);
     expect(got).toEqual(want);
