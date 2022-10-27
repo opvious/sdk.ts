@@ -25,12 +25,12 @@ export async function loadConfig(params: LoadConfigParams): Promise<Config> {
   if (!profile) {
     throw new Error('Unknown or missing profile');
   }
-  const accessToken = profile.accessToken.startsWith('$')
-    ? process.env[profile.accessToken.substring(1)]
-    : profile.accessToken;
+  const authorization = profile.authorization.startsWith('$')
+    ? process.env[profile.authorization.substring(1)]
+    : profile.authorization;
   return {
     profileName: profile.name,
-    client: OpviousClient.create({accessToken}),
+    client: OpviousClient.create({authorization}),
   };
 }
 
@@ -47,7 +47,7 @@ const ajv = new Ajv();
 
 interface Profile {
   readonly name: string;
-  readonly accessToken: string;
+  readonly authorization: string;
 }
 
 const validate = ajv.compile<DeepWritable<ConfigFile>>({
@@ -58,10 +58,10 @@ const validate = ajv.compile<DeepWritable<ConfigFile>>({
       type: 'array',
       items: {
         type: 'object',
-        required: ['name', 'accessToken'],
+        required: ['name', 'authorization'],
         properties: {
           name: {type: 'string'},
-          accessToken: {type: 'string'},
+          authorization: {type: 'string'},
         },
       },
     },

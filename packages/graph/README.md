@@ -16,7 +16,7 @@ import {getSdk} from 'opvious-graph';
 
 // Underlying generic GraphQL client.
 const client = new GraphQLClient('https://api.opvious.io/graphql', {
-  headers: {authorization: 'Bearer ' + process.env.OPVIOUS_TOKEN},
+  headers: {authorization: process.env.OPVIOUS_AUTHORIZATION},
 });
 
 // Typesafe GraphQL SDK.
@@ -25,8 +25,8 @@ const sdk = getSdk(
 );
 ```
 
-You can generate API tokens (used via `process.env.OPVIOUS_TOKEN` above) at
-https://hub.opvious.io/authorizations.
+You can generate API tokens (used via `process.env.OPVIOUS_AUTHORIZATION` above)
+at https://hub.opvious.io/authorizations.
 
 ## Schema
 

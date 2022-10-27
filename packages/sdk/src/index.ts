@@ -40,9 +40,9 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
-    const token = opts?.accessToken ?? process.env.OPVIOUS_TOKEN;
-    if (!token) {
-      throw new Error('Missing Opvious access token');
+    const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
+    if (!auth) {
+      throw new Error('Missing authorization');
     }
     const apiEndpoint = strippingTrailingSlashes(
       opts?.apiEndpoint
@@ -52,7 +52,7 @@ export class OpviousClient {
     const threshold = ENCODING_THRESHOLD;
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
       headers: {
-        authorization: 'Bearer ' + token,
+        authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
         'opvious-client': 'TypeScript SDK',
       },
       fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
@@ -81,6 +81,37 @@ export class OpviousClient {
     return new OpviousClient(apiEndpoint, hubEndpoint, sdk);
   }
 
+  /** Fetch currently active account information. */
+  async fetchAccount(): Promise<AccountInfo> {
+    const res = await this.sdk.FetchMyAccount();
+    assertNoErrors(res);
+    return {email: checkPresent(res.data?.me.holder.email)};
+  }
+
+  /** Lists all available authorizations. */
+  async listAuthorizations(): Promise<ReadonlyArray<AuthorizationInfo>> {
+    const res = await this.sdk.ListMyAuthorizations();
+    assertNoErrors(res);
+    return checkPresent(res.data?.me.holder).authorizations.map((a) => ({
+      name: a.name,
+      createdAt: a.createdAt,
+      expiresAt: a.expiresAt,
+      lastUsedAt: a.lastUsedAt,
+      tokenSuffix: a.tokenSuffix,
+    }));
+  }
+
+  /** Revokes an authorization from its name, returning true if one existed. */
+  async revokeAuthorization(name: string): Promise<boolean> {
+    const res = await this.sdk.RevokeAuthorization({name});
+    assertNoErrors(res);
+    return checkPresent(res.data).revokeAuthorization;
+  }
+
+  /**
+   * Extracts definitions from one or more sources. These definitions can then
+   * be used to register a specification.
+   */
   async extractDefinitions(
     ...sources: string[]
   ): Promise<ReadonlyArray<g.Definition>> {
@@ -96,6 +127,7 @@ export class OpviousClient {
     return defs;
   }
 
+  /** Adds a new specification. */
   async registerSpecification(
     input: g.RegisterSpecificationInput
   ): Promise<SpecificationInfo> {
@@ -113,6 +145,7 @@ export class OpviousClient {
     };
   }
 
+  /** Updates a formulation's metadata. */
   async updateFormulation(
     input: g.UpdateFormulationInput
   ): Promise<FormulationInfo> {
@@ -126,23 +159,63 @@ export class OpviousClient {
     };
   }
 
+  /** Lists available formulations. */
   async listFormulations(
     vars: g.PaginateFormulationsQueryVariables
-  ): Promise<ReadonlyArray<FormulationInfo>> {
+  ): Promise<Paginated<FormulationInfo>> {
     const res = await this.sdk.PaginateFormulations(vars);
     assertNoErrors(res);
-    return checkPresent(res.data).formulations.edges.map((e) => ({
-      name: e.node.name,
-      displayName: e.node.displayName,
-      hubUrl: this.formulationUrl(e.node.name),
-    }));
+    const forms = checkPresent(res.data).formulations;
+    return {
+      info: forms.pageInfo,
+      totalCount: forms.totalCount,
+      values: forms.edges.map((e) => ({
+        name: e.node.name,
+        displayName: e.node.displayName,
+        hubUrl: this.formulationUrl(e.node.name),
+      })),
+    };
   }
 
-  async deleteFormulation(name: Name): Promise<void> {
+  /** Deletes a formulation, returning true if a formulation was deleted. */
+  async deleteFormulation(name: Name): Promise<boolean> {
     const res = await this.sdk.DeleteFormulation({name});
+    assertNoErrors(res);
+    return checkPresent(res.data).deleteFormulation.specificationCount > 0;
+  }
+
+  /**
+   * Makes a formulation's tag publicly accessible via a unique URL. This can be
+   * disabled via `unshareFormulation`.
+   */
+  async shareFormulation(
+    input: g.StartSharingFormulationInput
+  ): Promise<BlueprintInfo> {
+    const res = await this.sdk.StartSharingFormulation({input});
+    assertNoErrors(res);
+    const {sharedVia} = checkPresent(res.data).startSharingFormulation;
+    return {
+      apiUrl: new URL(`${this.apiEndpoint}/sharing/blueprints/${sharedVia}`),
+      hubUrl: new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`),
+    };
+  }
+
+  /**
+   * Makes a formulation's tag(s) private. If not tags are specified, all the
+   * formulations tags will be set to private.
+   */
+  async unshareFormulation(
+    input: g.StopSharingFormulationInput
+  ): Promise<void> {
+    const res = await this.sdk.StopSharingFormulation({input});
     assertNoErrors(res);
   }
 
+  /**
+   * Starts a new attempt. The attempt will run asynchronously; use the returned
+   * UUID to wait for its outcome (via `waitForOutcome`), fetch its inputs and
+   * outputs, etc.
+   */
   async startAttempt(input: g.AttemptInput): Promise<AttemptInfo> {
     const startRes = await this.sdk.StartAttempt({input});
     assertNoErrors(startRes);
@@ -153,6 +226,11 @@ export class OpviousClient {
     };
   }
 
+  /**
+   * Polls an attempt for its outcome, returning when the attempt has completed.
+   * If the attempt failed (error, infeasible, unbounded), the returned promise
+   * will reject.
+   */
   async waitForOutcome(uuid: Uuid): Promise<OutcomeInfo> {
     const xb = backoff.exponential();
     return new Promise((ok, fail) => {
@@ -182,6 +260,7 @@ export class OpviousClient {
     });
   }
 
+  /** Fetches an attempt from its UUID. */
   async fetchAttempt(
     uuid: Uuid
   ): Promise<g.FetchedAttemptFragment | undefined> {
@@ -190,6 +269,7 @@ export class OpviousClient {
     return res.data?.attempt;
   }
 
+  /** Fetches an attempt's inputs from its UUID. */
   async fetchAttemptInputs(
     uuid: Uuid
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {
@@ -198,6 +278,10 @@ export class OpviousClient {
     return res.data?.attempt;
   }
 
+  /**
+   * Fetches an attempt's outputs from its UUID. This method will returned
+   * `undefined` if the attempt is not feasible (e.g. still pending).
+   * */
   async fetchAttemptOutputs(
     uuid: Uuid
   ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
@@ -208,25 +292,6 @@ export class OpviousClient {
       return undefined;
     }
     return outcome;
-  }
-
-  async shareFormulation(
-    input: g.StartSharingFormulationInput
-  ): Promise<BlueprintInfo> {
-    const res = await this.sdk.StartSharingFormulation({input});
-    assertNoErrors(res);
-    const {sharedVia} = checkPresent(res.data).startSharingFormulation;
-    return {
-      apiUrl: new URL(`${this.apiEndpoint}/sharing/blueprints/${sharedVia}`),
-      hubUrl: new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`),
-    };
-  }
-
-  async unshareFormulation(
-    input: g.StopSharingFormulationInput
-  ): Promise<void> {
-    const res = await this.sdk.StopSharingFormulation({input});
-    assertNoErrors(res);
   }
 
   private formulationUrl(formulation: string): URL {
@@ -244,8 +309,11 @@ export class OpviousClient {
 }
 
 export interface OpviousClientOptions {
-  /** API authorization token, defaulting to `process.env.OPVIOUS_TOKEN`. */
-  readonly accessToken?: string;
+  /**
+   * API authorization header or access token, defaulting to
+   * `process.env.OPVIOUS_AUTHORIZATION`.
+   */
+  readonly authorization?: string;
 
   /**
    * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if
@@ -259,6 +327,24 @@ export interface OpviousClientOptions {
    * production endpoint otherwise.
    */
   readonly hubEndpoint?: string | URL;
+}
+
+export interface AccountInfo {
+  readonly email: string;
+}
+
+export interface AuthorizationInfo {
+  readonly name: string;
+  readonly tokenSuffix: string;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly lastUsedAt?: string;
+}
+
+export interface Paginated<V> {
+  readonly info: g.PageInfo;
+  readonly totalCount: number;
+  readonly values: ReadonlyArray<V>;
 }
 
 export interface FormulationInfo {

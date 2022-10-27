@@ -6,19 +6,48 @@ import * as sut from '../src';
 
 jest.setTimeout(30_000);
 
-const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
+const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
 
-(ACCESS_TOKEN ? describe : describe.skip)('client', () => {
+(AUTHORIZATION ? describe : describe.skip)('client', () => {
   let client: sut.OpviousClient;
 
   beforeAll(() => {
-    client = sut.OpviousClient.create();
+    client = sut.OpviousClient.create({authorization: AUTHORIZATION});
   });
 
   test('register and deletes specification', async () => {
     const formulationName = 'n-queens' + SUFFIX;
     await registerSpecification(client, formulationName, 'n-queens.md');
     await client.deleteFormulation(formulationName);
+  });
+
+  test('lists authorizations', async () => {
+    await client.listAuthorizations();
+  });
+
+  test('lists formulations', async () => {
+    const formulationName = 'n-queens' + SUFFIX;
+    await registerSpecification(client, formulationName, 'n-queens.md');
+    const infos1 = await client.listFormulations({first: 10});
+    expect(infos1).toMatchObject([{name: formulationName}]);
+    await client.deleteFormulation(formulationName);
+    const infos2 = await client.listFormulations({first: 5});
+    expect(infos2).toHaveLength(0);
+  });
+
+  test('shares a formulation', async () => {
+    const formulationName = 'n-queens' + SUFFIX;
+    await client.deleteFormulation(formulationName);
+    await registerSpecification(client, formulationName, 'n-queens.md');
+    const {apiUrl} = await client.shareFormulation({
+      name: formulationName,
+      tagName: 'latest',
+    });
+    const res1 = await fetch('' + apiUrl);
+    expect(res1.status).toEqual(200);
+    await client.unshareFormulation({name: formulationName});
+    const res2 = await fetch('' + apiUrl);
+    expect(res2.status).toEqual(404);
   });
 
   test('runs n-queens', async () => {
@@ -76,21 +105,6 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
     });
     const outcome = await client.waitForOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
-  });
-
-  test('shares a formulation', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await client.deleteFormulation(formulationName);
-    await registerSpecification(client, formulationName, 'n-queens.md');
-    const {apiUrl} = await client.shareFormulation({
-      name: formulationName,
-      tagName: 'latest',
-    });
-    const res1 = await fetch('' + apiUrl);
-    expect(res1.status).toEqual(200);
-    await client.unshareFormulation({name: formulationName});
-    const res2 = await fetch('' + apiUrl);
-    expect(res2.status).toEqual(404);
   });
 
   test('runs relaxed sudoku', async () => {

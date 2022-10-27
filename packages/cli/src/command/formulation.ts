@@ -16,6 +16,7 @@
  */
 
 import {Command} from 'commander';
+import Table from 'easy-table';
 import {readFile} from 'fs/promises';
 
 import {contextualAction, newCommand} from './common';
@@ -26,29 +27,65 @@ export function formulationCommand(): Command {
     .description('formulation commands')
     .addCommand(listFormulationsCommand())
     .addCommand(registerSpecificationCommand())
+    .addCommand(deleteFormulationCommand())
     .addCommand(shareFormulationCommand())
     .addCommand(unshareFormulationCommand());
 }
+
+const PAGE_LIMIT = 25;
 
 function listFormulationsCommand(): Command {
   return newCommand()
     .command('list')
     .description('list formulations')
     .option('-d, --display-name <like>', 'display name filter')
-    .option('-l, --limit <limit>', 'maximum number of results', '10')
+    .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
     .action(
       contextualAction(async function (opts) {
         const {client, spinner} = this;
         spinner.start('Fetching formulations...');
-        const infos = await client.listFormulations({
-          first: +opts.limit,
-          filter: {
-            displayNameLike: opts.displayName,
-          },
-        });
-        spinner.succeed(`Fetched ${infos.length} formulation(s).`);
-        for (const info of infos) {
-          console.log(`${info.displayName}\t${info.hubUrl}`);
+        const table = new Table();
+        const limit = +opts.limit;
+        let count = 0;
+        let cursor: string | undefined;
+        do {
+          const paginated = await client.listFormulations({
+            first: Math.min(PAGE_LIMIT, limit - count),
+            after: cursor,
+            filter: {
+              displayNameLike: opts.displayName,
+            },
+          });
+          for (const val of paginated.values) {
+            table.cell('name', val.displayName);
+            table.cell('url', val.hubUrl);
+            table.newRow();
+          }
+          const {hasNextPage, endCursor} = paginated.info;
+          cursor = hasNextPage ? endCursor : undefined;
+          count += paginated.values.length;
+          spinner.text =
+            `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
+        } while (cursor && count < limit);
+        spinner.succeed(`Fetched ${count} formulation(s).`);
+        console.log('\n' + table);
+      })
+    );
+}
+
+function deleteFormulationCommand(): Command {
+  return newCommand()
+    .command('delete <name>')
+    .description('delete a formulation')
+    .action(
+      contextualAction(async function (name) {
+        const {client, spinner} = this;
+        spinner.start('Deleting formulation...');
+        const deleted = await client.deleteFormulation(name);
+        if (deleted) {
+          spinner.succeed('Formulation deleted.');
+        } else {
+          spinner.warn('No formulation matching this name was found.');
         }
       })
     );
@@ -56,7 +93,7 @@ function listFormulationsCommand(): Command {
 
 function registerSpecificationCommand(): Command {
   return newCommand()
-    .command('register-specification')
+    .command('register')
     .description('add a new specification')
     .requiredOption('-f, --formulation <name>', 'matching formulation name')
     .requiredOption('-s, --source <path>', 'path to specification source')
