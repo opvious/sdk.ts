@@ -5,6 +5,7 @@
 ### NPM packages
 
 + [`opvious`](packages/sdk)
++ [`opvious-cli`](packages/cli)
 + [`opvious-graph`](packages/graph)
 
 ## Developing

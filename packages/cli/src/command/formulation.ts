@@ -112,7 +112,7 @@ function registerSpecificationCommand(): Command {
           formulationName: opts.formulation,
           definitions: defs,
           description: opts.description ?? src,
-          tagNames: opts.tags.split(','),
+          tagNames: opts.tags?.split(','),
         });
         spinner.succeed('Registered specification: ' + info.hubUrl);
       })
