@@ -15,10 +15,10 @@
  * the License.
  */
 
+import backoff from 'backoff';
 import {GraphQLClient} from 'graphql-request';
 import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
-import {setTimeout} from 'timers/promises';
 import zlib from 'zlib';
 
 import {
@@ -40,9 +40,9 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
-    const token = opts?.accessToken ?? process.env.OPVIOUS_TOKEN;
-    if (!token) {
-      throw new Error('Missing Opvious access token');
+    const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
+    if (!auth) {
+      throw new Error('Missing authorization');
     }
     const apiEndpoint = strippingTrailingSlashes(
       opts?.apiEndpoint
@@ -52,7 +52,7 @@ export class OpviousClient {
     const threshold = ENCODING_THRESHOLD;
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
       headers: {
-        authorization: 'Bearer ' + token,
+        authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
         'opvious-client': 'TypeScript SDK',
       },
       fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
@@ -81,10 +81,50 @@ export class OpviousClient {
     return new OpviousClient(apiEndpoint, hubEndpoint, sdk);
   }
 
+  /** Fetch currently active account information. */
+  async fetchAccount(): Promise<AccountInfo> {
+    const res = await this.sdk.FetchMyAccount();
+    assertNoErrors(res);
+    return {email: checkPresent(res.data?.me.holder.email)};
+  }
+
+  /** Lists all available authorizations. */
+  async listAuthorizations(): Promise<ReadonlyArray<AuthorizationInfo>> {
+    const res = await this.sdk.ListMyAuthorizations();
+    assertNoErrors(res);
+    return checkPresent(res.data?.me.holder).authorizations.map((a) => ({
+      name: a.name,
+      createdAt: a.createdAt,
+      expiresAt: a.expiresAt,
+      lastUsedAt: a.lastUsedAt,
+      tokenSuffix: a.tokenSuffix,
+    }));
+  }
+
+  /** Creates a new access token for an authorization with the given name. */
+  async generateAccessToken(
+    input: g.GenerateAuthorizationInput
+  ): Promise<string> {
+    const res = await this.sdk.GenerateAuthorization({input});
+    assertNoErrors(res);
+    return checkPresent(res.data).generateAuthorization.token;
+  }
+
+  /** Revokes an authorization from its name, returning true if one existed. */
+  async revokeAuthorization(name: string): Promise<boolean> {
+    const res = await this.sdk.RevokeAuthorization({name});
+    assertNoErrors(res);
+    return checkPresent(res.data).revokeAuthorization;
+  }
+
+  /**
+   * Extracts definitions from one or more sources. These definitions can then
+   * be used to register a specification.
+   */
   async extractDefinitions(
-    source: string
+    ...sources: string[]
   ): Promise<ReadonlyArray<g.Definition>> {
-    const res = await this.sdk.ExtractDefinitions({sources: [source]});
+    const res = await this.sdk.ExtractDefinitions({sources});
     assertNoErrors(res);
     const defs: any[] = [];
     for (const slice of checkPresent(res.data).extractDefinitions.slices) {
@@ -96,69 +136,140 @@ export class OpviousClient {
     return defs;
   }
 
-  async registerSpecification(args: {
-    readonly source: string;
-    readonly formulationName: Name;
-    readonly tagNames?: ReadonlyArray<Name>;
-  }): Promise<void> {
-    const defs = await this.extractDefinitions(args.source);
-    await this.sdk.RegisterSpecification({
-      input: {
-        definitions: defs,
-        formulationName: args.formulationName,
-        tagNames: args.tagNames,
-      },
-    });
-  }
-
-  async updateFormulation(args: {
-    readonly name: Name;
-    readonly displayName?: string;
-  }): Promise<void> {
-    const res = await this.sdk.UpdateFormulation({
-      input: {
-        name: args.name,
-        patch: {displayName: args.displayName},
-      },
-    });
+  /** Adds a new specification. */
+  async registerSpecification(
+    input: g.RegisterSpecificationInput
+  ): Promise<SpecificationInfo> {
+    const res = await this.sdk.RegisterSpecification({input});
     assertNoErrors(res);
+    const spec = checkPresent(res.data?.registerSpecification);
+    return {
+      formulation: {
+        name: spec.formulation.name,
+        displayName: spec.formulation.displayName,
+        hubUrl: this.formulationUrl(spec.formulation.name),
+      },
+      revno: spec.revno,
+      hubUrl: this.specificationUrl(spec.formulation.name, spec.revno),
+    };
   }
 
-  async deleteFormulation(name: Name): Promise<void> {
+  /** Updates a formulation's metadata. */
+  async updateFormulation(
+    input: g.UpdateFormulationInput
+  ): Promise<FormulationInfo> {
+    const res = await this.sdk.UpdateFormulation({input});
+    assertNoErrors(res);
+    const form = checkPresent(res.data?.updateFormulation);
+    return {
+      name: input.name,
+      displayName: form.displayName,
+      hubUrl: this.formulationUrl(input.name),
+    };
+  }
+
+  /** Lists available formulations. */
+  async listFormulations(
+    vars: g.PaginateFormulationsQueryVariables
+  ): Promise<Paginated<FormulationInfo>> {
+    const res = await this.sdk.PaginateFormulations(vars);
+    assertNoErrors(res);
+    const forms = checkPresent(res.data).formulations;
+    return {
+      info: forms.pageInfo,
+      totalCount: forms.totalCount,
+      values: forms.edges.map((e) => ({
+        name: e.node.name,
+        displayName: e.node.displayName,
+        hubUrl: this.formulationUrl(e.node.name),
+      })),
+    };
+  }
+
+  /** Deletes a formulation, returning true if a formulation was deleted. */
+  async deleteFormulation(name: Name): Promise<boolean> {
     const res = await this.sdk.DeleteFormulation({name});
     assertNoErrors(res);
+    return checkPresent(res.data).deleteFormulation.specificationCount > 0;
   }
 
-  async startAttempt(args: g.AttemptInput): Promise<string> {
-    const startRes = await this.sdk.StartAttempt({input: {...args}});
+  /**
+   * Makes a formulation's tag publicly accessible via a unique URL. This can be
+   * disabled via `unshareFormulation`.
+   */
+  async shareFormulation(
+    input: g.StartSharingFormulationInput
+  ): Promise<BlueprintInfo> {
+    const res = await this.sdk.StartSharingFormulation({input});
+    assertNoErrors(res);
+    const {sharedVia} = checkPresent(res.data).startSharingFormulation;
+    return {
+      apiUrl: new URL(`${this.apiEndpoint}/sharing/blueprints/${sharedVia}`),
+      hubUrl: new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`),
+    };
+  }
+
+  /**
+   * Makes a formulation's tag(s) private. If not tags are specified, all the
+   * formulations tags will be set to private.
+   */
+  async unshareFormulation(
+    input: g.StopSharingFormulationInput
+  ): Promise<void> {
+    const res = await this.sdk.StopSharingFormulation({input});
+    assertNoErrors(res);
+  }
+
+  /**
+   * Starts a new attempt. The attempt will run asynchronously; use the returned
+   * UUID to wait for its outcome (via `waitForOutcome`), fetch its inputs and
+   * outputs, etc.
+   */
+  async startAttempt(input: g.AttemptInput): Promise<AttemptInfo> {
+    const startRes = await this.sdk.StartAttempt({input});
     assertNoErrors(startRes);
-    return checkPresent(startRes.data).startAttempt.uuid;
+    const attempt = checkPresent(startRes.data?.startAttempt);
+    return {
+      uuid: attempt.uuid,
+      hubUrl: this.attemptUrl(attempt.uuid),
+    };
   }
 
-  async runAttempt(args: {
-    readonly formulationName: Name;
-    readonly tagName?: Name;
-    readonly parameters?: ReadonlyArray<g.ParameterInput>;
-    readonly dimensions?: ReadonlyArray<g.DimensionInput>;
-    readonly pinnedVariables?: ReadonlyArray<g.PinnedVariableInput>;
-    readonly relaxation?: g.RelaxationInput;
-  }): Promise<g.PolledAttemptFragment> {
-    const startRes = await this.sdk.StartAttempt({input: {...args}});
-    assertNoErrors(startRes);
-    const uuid = checkPresent(startRes.data).startAttempt.uuid;
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      await setTimeout(POLL_ATTEMPT_INTERVAL_MILLIS);
-      const pollRes = await this.sdk.PollAttempt({uuid});
-      assertNoErrors(pollRes);
-      const attempt = checkPresent(pollRes.data?.attempt);
-      const {status} = attempt;
-      if (status !== 'PENDING') {
-        return attempt;
-      }
-    }
+  /**
+   * Polls an attempt for its outcome, returning when the attempt has completed.
+   * If the attempt failed (error, infeasible, unbounded), the returned promise
+   * will reject.
+   */
+  async waitForOutcome(uuid: Uuid): Promise<OutcomeInfo> {
+    const xb = backoff.exponential();
+    return new Promise((ok, fail) => {
+      xb.on('ready', () => {
+        this.sdk
+          .PollAttempt({uuid})
+          .then((res) => {
+            assertNoErrors(res);
+            const attempt = checkPresent(res.data?.attempt);
+            switch (attempt.status) {
+              case 'PENDING':
+                xb.backoff();
+                return;
+              case 'INFEASIBLE':
+                throw new Error('Infeasible attempt');
+              case 'UNBOUNDED':
+                throw new Error('Unbounded attempt');
+            }
+            const outcome = checkPresent(attempt.outcome);
+            if (outcome.__typename === 'FailedOutcome') {
+              throw new Error(outcome.failure.message);
+            }
+            ok(outcome);
+          })
+          .catch(fail);
+      }).backoff();
+    });
   }
 
+  /** Fetches an attempt from its UUID. */
   async fetchAttempt(
     uuid: Uuid
   ): Promise<g.FetchedAttemptFragment | undefined> {
@@ -167,6 +278,7 @@ export class OpviousClient {
     return res.data?.attempt;
   }
 
+  /** Fetches an attempt's inputs from its UUID. */
   async fetchAttemptInputs(
     uuid: Uuid
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {
@@ -175,6 +287,10 @@ export class OpviousClient {
     return res.data?.attempt;
   }
 
+  /**
+   * Fetches an attempt's outputs from its UUID. This method will returned
+   * `undefined` if the attempt is not feasible (e.g. still pending).
+   * */
   async fetchAttemptOutputs(
     uuid: Uuid
   ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
@@ -187,31 +303,26 @@ export class OpviousClient {
     return outcome;
   }
 
-  async shareFormulation(args: {
-    readonly name: Name;
-    readonly tagName: Name;
-  }): Promise<SharedFormulation> {
-    const res = await this.sdk.StartSharingFormulation({input: args});
-    assertNoErrors(res);
-    const {sharedVia} = checkPresent(res.data).startSharingFormulation;
-    return {
-      apiUrl: new URL(`${this.apiEndpoint}/sharing/blueprints/${sharedVia}`),
-      hubUrl: new URL(`${this.hubEndpoint}/blueprints/${sharedVia}`),
-    };
+  private formulationUrl(formulation: string): URL {
+    return new URL(this.hubEndpoint + `/formulations/${formulation}`);
   }
 
-  async unshareFormulation(args: {
-    readonly name: Name;
-    readonly tagNames?: ReadonlyArray<Name>;
-  }): Promise<void> {
-    const res = await this.sdk.StopSharingFormulation({input: args});
-    assertNoErrors(res);
+  private specificationUrl(formulation: string, revno: number): URL {
+    const pathname = `/formulations/${formulation}/overview/${revno}`;
+    return new URL(this.hubEndpoint + pathname);
+  }
+
+  private attemptUrl(uuid: string): URL {
+    return new URL(this.hubEndpoint + `/attempts/${uuid}`);
   }
 }
 
 export interface OpviousClientOptions {
-  /** API authorization token, defaulting to `process.env.OPVIOUS_TOKEN`. */
-  readonly accessToken?: string;
+  /**
+   * API authorization header or access token, defaulting to
+   * `process.env.OPVIOUS_AUTHORIZATION`.
+   */
+  readonly authorization?: string;
 
   /**
    * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if
@@ -227,21 +338,60 @@ export interface OpviousClientOptions {
   readonly hubEndpoint?: string | URL;
 }
 
-export interface SharedFormulation {
+export interface AccountInfo {
+  readonly email: string;
+}
+
+export interface AuthorizationInfo {
+  readonly name: string;
+  readonly tokenSuffix: string;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly lastUsedAt?: string;
+}
+
+export interface Paginated<V> {
+  readonly info: g.PageInfo;
+  readonly totalCount: number;
+  readonly values: ReadonlyArray<V>;
+}
+
+export interface FormulationInfo {
+  readonly name: Name;
+  readonly displayName: string;
+  readonly hubUrl: URL;
+}
+
+export interface SpecificationInfo {
+  readonly formulation: FormulationInfo;
+  readonly revno: number;
+  readonly hubUrl: URL;
+}
+
+export interface AttemptInfo {
+  readonly uuid: Uuid;
+  readonly hubUrl: URL;
+}
+
+export interface OutcomeInfo {
+  readonly objectiveValue: number;
+  readonly relativeGap?: number;
+  readonly isOptimal: boolean;
+}
+
+export interface BlueprintInfo {
   readonly apiUrl: URL;
   readonly hubUrl: URL;
 }
 
-type Name = g.Scalars['Name'];
-type Uuid = g.Scalars['Uuid'];
+export type Name = g.Scalars['Name'];
+export type Uuid = g.Scalars['Uuid'];
 
 enum DefaultEndpoint {
-  API = 'https://api.opvious.io/',
-  HUB = 'https://hub.opvious.io/',
+  API = 'https://api.opvious.io',
+  HUB = 'https://hub.opvious.io',
 }
 
 const ENCODING_HEADER = 'content-encoding';
 
 const ENCODING_THRESHOLD = 2 ** 16; // 64 kiB
-
-const POLL_ATTEMPT_INTERVAL_MILLIS = 2_500;

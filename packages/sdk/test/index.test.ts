@@ -6,46 +6,84 @@ import * as sut from '../src';
 
 jest.setTimeout(30_000);
 
-const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
+const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
 
-(ACCESS_TOKEN ? describe : describe.skip)('client', () => {
+(AUTHORIZATION ? describe : describe.skip)('client', () => {
   let client: sut.OpviousClient;
 
   beforeAll(() => {
-    client = sut.OpviousClient.create();
+    client = sut.OpviousClient.create({authorization: AUTHORIZATION});
   });
 
   test('register and deletes specification', async () => {
-    const source = await readSource('n-queens.md');
     const formulationName = 'n-queens' + SUFFIX;
-    await client.registerSpecification({formulationName, source});
+    await registerSpecification(client, formulationName, 'n-queens.md');
     await client.deleteFormulation(formulationName);
   });
 
-  test('runs n-queens', async () => {
-    const source = await readSource('n-queens.md');
-    const formulationName = 'n-queens' + SUFFIX;
-    await client.registerSpecification({formulationName, source});
+  test('generates, lists, and revokes authorizations', async () => {
+    const name = 'test-token';
+    await client.revokeAuthorization(name);
+    const token = await client.generateAccessToken({name, ttlDays: 1});
+    const tokenClient = sut.OpviousClient.create({authorization: token});
+    const infos1 = await tokenClient.listAuthorizations();
+    expect(infos1.find((i) => i.name === name)).toBeDefined();
+    const revoked = await tokenClient.revokeAuthorization(name);
+    expect(revoked).toBe(true);
+    const infos2 = await client.listAuthorizations();
+    expect(infos2.find((i) => i.name === name)).toBeUndefined();
+  });
 
-    const polled = await client.runAttempt({
+  test('lists formulations', async () => {
+    const formulationName = 'n-queens' + SUFFIX;
+    await registerSpecification(client, formulationName, 'n-queens.md');
+    const infos1 = await client.listFormulations({
+      first: 10,
+      filter: {displayNameLike: formulationName},
+    });
+    expect(infos1).toMatchObject({values: [{name: formulationName}]});
+    await client.deleteFormulation(formulationName);
+    const infos2 = await client.listFormulations({first: 5});
+    expect(
+      infos2.values.find((f) => f.name === formulationName)
+    ).toBeUndefined();
+  });
+
+  test('shares a formulation', async () => {
+    const formulationName = 'n-queens' + SUFFIX;
+    await client.deleteFormulation(formulationName);
+    await registerSpecification(client, formulationName, 'n-queens.md');
+    const {apiUrl} = await client.shareFormulation({
+      name: formulationName,
+      tagName: 'latest',
+    });
+    const res1 = await fetch('' + apiUrl);
+    expect(res1.status).toEqual(200);
+    await client.unshareFormulation({name: formulationName});
+    const res2 = await fetch('' + apiUrl);
+    expect(res2.status).toEqual(404);
+  });
+
+  test('runs n-queens', async () => {
+    const formulationName = 'n-queens' + SUFFIX;
+    await registerSpecification(client, formulationName, 'n-queens.md');
+
+    const {uuid} = await client.startAttempt({
       formulationName,
       parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
     });
-    expect(polled).toMatchObject({
-      outcome: {
-        __typename: 'FeasibleOutcome',
-        isOptimal: true,
-      },
-    });
 
-    const fetched = await client.fetchAttempt(polled.uuid);
+    const outcome = await client.waitForOutcome(uuid);
+    expect(outcome).toMatchObject({isOptimal: true});
+
+    const fetched = await client.fetchAttempt(uuid);
     expect(fetched).toMatchObject({
       outline: {
         parameters: [{label: 'size', isIntegral: true}],
       },
     });
 
-    const inputs = await client.fetchAttemptInputs(polled.uuid);
+    const inputs = await client.fetchAttemptInputs(uuid);
     expect(inputs).toEqual({
       dimensions: [],
       parameters: [
@@ -59,10 +97,9 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
   });
 
   test('runs set-cover', async () => {
-    const source = await readSource('set-cover.md');
     const formulationName = 'set-cover' + SUFFIX;
-    await client.registerSpecification({formulationName, source});
-    const attempt = await client.runAttempt({
+    await registerSpecification(client, formulationName, 'set-cover.md');
+    const {uuid} = await client.startAttempt({
       formulationName,
       dimensions: [
         {label: 'sets', items: ['s1', 's2']},
@@ -80,36 +117,14 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
         },
       ],
     });
-    expect(attempt).toMatchObject({
-      outcome: {
-        __typename: 'FeasibleOutcome',
-        isOptimal: true,
-        objectiveValue: 2,
-      },
-    });
-  });
-
-  test('shares a formulation', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await client.deleteFormulation(formulationName);
-    const source = await readSource('n-queens.md');
-    await client.registerSpecification({formulationName, source});
-    const {apiUrl} = await client.shareFormulation({
-      name: formulationName,
-      tagName: 'latest',
-    });
-    const res1 = await fetch('' + apiUrl);
-    expect(res1.status).toEqual(200);
-    await client.unshareFormulation({name: formulationName});
-    const res2 = await fetch('' + apiUrl);
-    expect(res2.status).toEqual(404);
+    const outcome = await client.waitForOutcome(uuid);
+    expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
   });
 
   test('runs relaxed sudoku', async () => {
-    const source = await readSource('sudoku.md');
     const formulationName = 'sudoku' + SUFFIX;
-    await client.registerSpecification({formulationName, source});
-    const attempt = await client.runAttempt({
+    await registerSpecification(client, formulationName, 'sudoku.md');
+    const {uuid} = await client.startAttempt({
       formulationName,
       parameters: [
         {
@@ -128,13 +143,9 @@ const ACCESS_TOKEN = process.env.OPVIOUS_TOKEN;
         constraints: [{label: 'matchHint', deficitBound: -1}],
       },
     });
-    expect(attempt).toMatchObject({
-      outcome: {
-        __typename: 'FeasibleOutcome',
-        isOptimal: true,
-      },
-    });
-    const outputs = await client.fetchAttemptOutputs(attempt.uuid);
+    const outcome = await client.waitForOutcome(uuid);
+    expect(outcome).toMatchObject({isOptimal: true});
+    const outputs = await client.fetchAttemptOutputs(uuid);
     expect(outputs).toMatchObject({
       variables: [
         {
@@ -155,4 +166,17 @@ const DATA_DPATH = path.join(__dirname, 'data');
 
 function readSource(fname: string): Promise<string> {
   return readFile(path.join(DATA_DPATH, fname), 'utf8');
+}
+
+async function registerSpecification(
+  client: sut.OpviousClient,
+  name: string,
+  path: string
+): Promise<void> {
+  const src = await readSource(path);
+  const defs = await client.extractDefinitions(src);
+  await client.registerSpecification({
+    formulationName: name,
+    definitions: defs,
+  });
 }

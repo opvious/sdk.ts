@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 7
       - name: Set up Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           cache: pnpm
           registry-url: https://npm.pkg.github.com
@@ -31,7 +31,7 @@ jobs:
       - name: Test
         run: pnpm t
         env:
-          OPVIOUS_TOKEN: ${{ secrets.OPVIOUS_TOKEN }}
+          OPVIOUS_AUTHORIZATION: ${{ secrets.OPVIOUS_AUTHORIZATION }}
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
