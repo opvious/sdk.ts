@@ -37,11 +37,16 @@ const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
   test('lists formulations', async () => {
     const formulationName = 'n-queens' + SUFFIX;
     await registerSpecification(client, formulationName, 'n-queens.md');
-    const infos1 = await client.listFormulations({first: 10});
+    const infos1 = await client.listFormulations({
+      first: 10,
+      filter: {displayNameLike: formulationName},
+    });
     expect(infos1).toMatchObject({values: [{name: formulationName}]});
     await client.deleteFormulation(formulationName);
     const infos2 = await client.listFormulations({first: 5});
-    expect(infos2).toHaveLength(0);
+    expect(
+      infos2.values.find((f) => f.name === formulationName)
+    ).toBeUndefined();
   });
 
   test('shares a formulation', async () => {
