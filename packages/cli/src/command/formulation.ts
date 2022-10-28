@@ -18,6 +18,7 @@
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
+import {graph as g} from 'opvious';
 
 import {contextualAction, newCommand} from './common';
 
@@ -26,6 +27,7 @@ export function formulationCommand(): Command {
     .command('formulation')
     .description('formulation commands')
     .addCommand(listFormulationsCommand())
+    .addCommand(fetchOutlineCommand())
     .addCommand(registerSpecificationCommand())
     .addCommand(deleteFormulationCommand())
     .addCommand(shareFormulationCommand())
@@ -69,6 +71,95 @@ function listFormulationsCommand(): Command {
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} formulation(s).`);
         console.log('\n' + table);
+      })
+    );
+}
+
+function fetchOutlineCommand(): Command {
+  return newCommand()
+    .command('outline <name>')
+    .option('-t, --tag <name>', 'specification tag')
+    .description('display a formulation\'s outline')
+    .action(
+      contextualAction(async function (name, opts) {
+        const {client, spinner} = this;
+        spinner.start('Fetching outline...');
+        const outline = await client.fetchOutline(name, opts.tag);
+        spinner.succeed(`Fetched outline. [revno=${outline.revno}]`);
+
+        if (outline.objective) {
+          const table = new Table();
+          table.cell('is_maximization', outline.objective.isMaximization);
+          table.newRow();
+          console.log('\n# Objective\n\n' + table.printTransposed());
+        } else {
+          console.log('\n# No objective');
+        }
+
+        const {constraints, dimensions, parameters, variables} = outline;
+        if (dimensions.length) {
+          const table = new Table();
+          for (const dim of dimensions) {
+            table.cell('label', dim.label);
+            table.cell('numeric', dim.isNumeric);
+            table.newRow();
+          }
+          console.log('\n# Dimensions\n\n' + table);
+        } else {
+          console.log('\n# No dimensions');
+        }
+        if (parameters.length) {
+          const table = new Table();
+          for (const param of parameters) {
+            table.cell('label', param.label);
+            table.cell('integral', param.isIntegral);
+            table.cell('bounds', `[${param.lowerBound}, ${param.upperBound}]`);
+            table.cell('rank', param.bindings.length);
+            table.cell(
+              'bindings',
+              param.bindings.map(formatBinding).join(', ')
+            );
+            table.newRow();
+          }
+          console.log('\n# Parameters\n\n' + table);
+        } else {
+          console.log('\n# No parameters');
+        }
+        if (constraints.length) {
+          const table = new Table();
+          for (const constraint of constraints) {
+            table.cell('label', constraint.label);
+            table.cell('rank', constraint.bindings.length);
+            table.cell(
+              'bindings',
+              constraint.bindings.map(formatBinding).join(', ')
+            );
+            table.newRow();
+          }
+          console.log('\n# Constraints\n\n' + table);
+        } else {
+          console.log('\n# No constraints');
+        }
+        if (variables.length) {
+          const table = new Table();
+          for (const variable of variables) {
+            table.cell('label', variable.label);
+            table.cell('integral', variable.isIntegral);
+            table.cell(
+              'bounds',
+              `[${variable.lowerBound}, ${variable.upperBound}]`
+            );
+            table.cell('rank', variable.bindings.length);
+            table.cell(
+              'bindings',
+              variable.bindings.map(formatBinding).join(', ')
+            );
+            table.newRow();
+          }
+          console.log('\n# Variables\n\n' + table);
+        } else {
+          console.log('\n# No variables');
+        }
       })
     );
 }
@@ -117,6 +208,10 @@ function registerSpecificationCommand(): Command {
         spinner.succeed('Registered specification: ' + info.hubUrl);
       })
     );
+}
+
+function formatBinding(b: g.SourceBinding): string {
+  return (b.dimensionLabel ?? '-') + (b.qualifier ? ` (${b.qualifier})` : '');
 }
 
 function shareFormulationCommand(): Command {

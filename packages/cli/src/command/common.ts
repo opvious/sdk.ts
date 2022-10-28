@@ -42,7 +42,7 @@ export function contextualAction(
     spinner.start('Loading client...');
     try {
       const config = await loadConfig({profile: opts.profile});
-      spinner.info(`Loaded client. [profile=${config.profileName}]`);
+      spinner.succeed(`Loaded client. [profile=${config.profileName}]`);
       await fn.call({client: config.client, spinner}, ...args);
     } catch (cause: any) {
       spinner.fail(cause.message);
