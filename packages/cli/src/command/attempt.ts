@@ -18,7 +18,7 @@
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
-import {DateTime} from 'luxon';
+import {DateTime, Duration} from 'luxon';
 import {
   computeInputMapping,
   extractInputValues,
@@ -34,7 +34,7 @@ export function attemptCommand(): Command {
     .command('attempt')
     .description('attempt commands')
     .addCommand(listAttemptsCommand())
-    .addCommand(startAttemptCommand());
+    .addCommand(runAttemptCommand());
 }
 
 const PAGE_LIMIT = 25;
@@ -85,32 +85,59 @@ function listAttemptsCommand(): Command {
     );
 }
 
-function startAttemptCommand(): Command {
+function runAttemptCommand(): Command {
   return newCommand()
-    .command('start')
-    .description('start new attempt')
+    .command('run')
+    .description('run a new attempt')
     .requiredOption('-f, --formulation <name>', 'formulation name')
     .option('-t, --tag <name>', 'specification tag')
     .option<ReadonlyArray<string>>(
-      '--scalar <key=value>',
-      'scalar parameter value',
+      '-s, --sheet <path>',
+      'path to input spreadsheet. may be specified multiple times.',
       collect,
       []
     )
     .option<ReadonlyArray<string>>(
-      '-s, --sheet <path>',
-      'path to input spreadsheet',
+      '-r, --relax-constraint <label>',
+      'soften a constraint. may be specified multiple times.',
       collect,
       []
+    )
+    .option(
+      '-g, --relative-gap <gap>',
+      'relative gap threshold. 0.01 is 1%',
+      parseFloat,
+      0.01
+    )
+    .option<ReadonlyArray<string>>(
+      '--scalar <label=value>',
+      'scalar parameter value. may be specified multiple times.',
+      collect,
+      []
+    )
+    .option('--detach', 'do not wait for the attempt to complete')
+    .option('--solve-timeout <iso>', 'solve timeout', 'PT2M')
+    .option('--absolute-gap <gap>', 'absolute gap threshold', parseFloat)
+    .option(
+      '--relaxation-penalty <penalty>',
+      'penalization used for relaxed constraints',
+      'TOTAL_DEVIATION'
+    )
+    .option(
+      '--relaxation-objective-weight <weight>',
+      'original objective weight in the combined relaxed objective',
+      parseFloat,
+      0.1
     )
     .action(
       contextualAction(async function (opts) {
         const {client, spinner} = this;
         spinner.start('Fetching outline...');
         const outline = await client.fetchOutline(opts.formulation, opts.tag);
+
         spinner
-          .info(`Fetched outline. [revno=${outline.revno}]`)
-          .start('Collecting input values...');
+          .succeed(`Fetched outline. [revno=${outline.revno}]`)
+          .start('Gathering inputs...');
         const sheets = await Promise.all(
           opts.sheet.map(async (s: string) => [s, await readFile(s, 'utf8')])
         );
@@ -125,15 +152,36 @@ function startAttemptCommand(): Command {
         const tables = identifyTables(ss);
         const mapping = computeInputMapping(tables, outline);
         const inputs = extractInputValues(mapping, ss);
-        spinner.info('Collected input values.').start('Uploading...');
+
+        spinner.succeed('Gathered inputs.').start('Starting attempt...');
         const info = await client.startAttempt({
           formulationName: opts.formulation,
           specificationTagName: opts.tag,
           dimensions: inputs.dimensions,
           parameters: inputs.parameters,
           pinnedVariables: inputs.pinnedVariables,
+          relativeGapThreshold: opts.relativeGap,
+          absoluteGapThreshold: opts.absoluteGap,
+          solveTimeoutMillis: +Duration.fromISO(opts.solveTimeout),
+          relaxation: opts.relaxConstraint.length
+            ? {
+                penalty: opts.relaxationPenalty,
+                constraints: opts.relaxConstraint.map((l: string) => ({
+                  label: l,
+                })),
+                objectiveWeight: opts.relaxationObjectiveWeight,
+              }
+            : undefined,
         });
-        spinner.succeed('Started attempt: ' + info.hubUrl);
+        spinner.succeed(`Started attempt. [uuid=${info.uuid}]`);
+        if (!opts.detach) {
+          spinner.start('Waiting for outcome...');
+          const outcome = await client.waitForOutcome(info.uuid);
+          spinner.succeed(
+            `Attempt succeeded. [value=${outcome.objectiveValue}]`
+          );
+        }
+        console.log('Attempt URL: ' + info.hubUrl);
       })
     );
 }
