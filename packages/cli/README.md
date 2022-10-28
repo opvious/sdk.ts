@@ -24,8 +24,7 @@ profiles:
 You should now be able to run all CLI commands, for example:
 
 ```sh
-$ opvious formulation list # List all formulations
-$ opvious me # Show current credentials
+$ opvious formulation list # List available formulations
 $ opvious -h # Show help message
 ```
 

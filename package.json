@@ -1,9 +1,9 @@
 {
   "name": "@opvious/template-packages",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "private": true,
   "repository": "github:opvious/template.ts",
-  "author": "Opvious <oss@opvious.io>",
+  "author": "Opvious Engineering <oss@opvious.io>",
   "license": "UNLICENSED",
   "scripts": {
     "bump": "pnpm exec opvious-manage-versions update -b ${BUMP:-patch}",

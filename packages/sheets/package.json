@@ -1,16 +1,15 @@
 {
   "name": "opvious-sheets",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious spreadsheet utilities",
   "homepage": "https://www.opvious.io",
   "keywords": [
-    "opvious",
-    "sdk"
+    "opvious"
   ],
-  "author": "Opvious <oss@opvious.io>",
+  "author": "Opvious Engineering <oss@opvious.io>",
   "license": "Apache-2.0",
-  "main": "lib/",
+  "main": "./lib",
   "files": [
     "lib/"
   ],

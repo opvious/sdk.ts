@@ -10,6 +10,9 @@ Consider also using the higher level SDK exported by
 
 ## Quickstart
 
+> You'll need an Opvious API access token to call SDK methods. You can
+> generate one at https://hub.opvious.io/authorizations.
+
 ```typescript
 import {GraphQLClient} from 'graphql-request';
 import {getSdk} from 'opvious-graph';
@@ -24,9 +27,6 @@ const sdk = getSdk(
   <R, V>(query: string, vars: V) => client.rawRequest<R, V>(query, vars)
 );
 ```
-
-You can generate API tokens (used via `process.env.OPVIOUS_AUTHORIZATION` above)
-at https://hub.opvious.io/authorizations.
 
 ## Schema
 
