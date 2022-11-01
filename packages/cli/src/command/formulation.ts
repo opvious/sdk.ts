@@ -26,8 +26,8 @@ export function formulationCommand(): Command {
   return newCommand()
     .command('formulation')
     .description('formulation commands')
-    .addCommand(listFormulationsCommand())
     .addCommand(fetchOutlineCommand())
+    .addCommand(listFormulationsCommand())
     .addCommand(registerSpecificationCommand())
     .addCommand(deleteFormulationCommand())
     .addCommand(shareFormulationCommand())
@@ -35,45 +35,6 @@ export function formulationCommand(): Command {
 }
 
 const PAGE_LIMIT = 25;
-
-function listFormulationsCommand(): Command {
-  return newCommand()
-    .command('list')
-    .description('list formulations')
-    .option('-d, --display-name <like>', 'display name filter')
-    .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
-    .action(
-      contextualAction(async function (opts) {
-        const {client, spinner} = this;
-        spinner.start('Fetching formulations...');
-        const table = new Table();
-        const limit = +opts.limit;
-        let count = 0;
-        let cursor: string | undefined;
-        do {
-          const paginated = await client.paginateFormulations({
-            first: Math.min(PAGE_LIMIT, limit - count),
-            after: cursor,
-            filter: {
-              displayNameLike: opts.displayName,
-            },
-          });
-          for (const val of paginated.values) {
-            table.cell('name', val.displayName);
-            table.cell('url', val.hubUrl);
-            table.newRow();
-          }
-          const {hasNextPage, endCursor} = paginated.info;
-          cursor = hasNextPage ? endCursor : undefined;
-          count += paginated.values.length;
-          spinner.text =
-            `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
-        } while (cursor && count < limit);
-        spinner.succeed(`Fetched ${count} formulation(s).`);
-        console.log('\n' + table);
-      })
-    );
-}
 
 function fetchOutlineCommand(): Command {
   return newCommand()
@@ -164,6 +125,45 @@ function fetchOutlineCommand(): Command {
     );
 }
 
+function listFormulationsCommand(): Command {
+  return newCommand()
+    .command('list')
+    .description('list formulations')
+    .option('-d, --display-name <like>', 'display name filter')
+    .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
+    .action(
+      contextualAction(async function (opts) {
+        const {client, spinner} = this;
+        spinner.start('Fetching formulations...');
+        const table = new Table();
+        const limit = +opts.limit;
+        let count = 0;
+        let cursor: string | undefined;
+        do {
+          const paginated = await client.paginateFormulations({
+            first: Math.min(PAGE_LIMIT, limit - count),
+            after: cursor,
+            filter: {
+              displayNameLike: opts.displayName,
+            },
+          });
+          for (const val of paginated.values) {
+            table.cell('name', val.displayName);
+            table.cell('url', val.hubUrl);
+            table.newRow();
+          }
+          const {hasNextPage, endCursor} = paginated.info;
+          cursor = hasNextPage ? endCursor : undefined;
+          count += paginated.values.length;
+          spinner.text =
+            `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
+        } while (cursor && count < limit);
+        spinner.succeed(`Fetched ${count} formulation(s).`);
+        console.log('\n' + table);
+      })
+    );
+}
+
 function deleteFormulationCommand(): Command {
   return newCommand()
     .command('delete <name>')
@@ -216,16 +216,15 @@ function formatBinding(b: g.SourceBinding): string {
 
 function shareFormulationCommand(): Command {
   return newCommand()
-    .command('share')
+    .command('share <name>')
     .description('start sharing a formulation')
-    .requiredOption('-f, --formulation <name>', 'formulation name')
     .requiredOption('-t, --tag <name>', 'tag name to share')
     .action(
-      contextualAction(async function (opts) {
+      contextualAction(async function (name, opts) {
         const {client, spinner} = this;
         spinner.start('Sharing formulation...');
         const info = await client.shareFormulation({
-          name: opts.formulation,
+          name,
           tagName: opts.tag,
         });
         spinner.succeed('Shared formulation: ' + info.hubUrl);
@@ -235,19 +234,18 @@ function shareFormulationCommand(): Command {
 
 function unshareFormulationCommand(): Command {
   return newCommand()
-    .command('unshare')
+    .command('unshare <name>')
     .description('stop sharing a formulation')
-    .requiredOption('-f, --formulation <name>', 'formulation name')
     .option(
       '-t, --tags <names>',
       'comma-separated names to unshare, defaults to all'
     )
     .action(
-      contextualAction(async function (opts) {
+      contextualAction(async function (name, opts) {
         const {client, spinner} = this;
         spinner.start('Unsharing formulation...');
         await client.unshareFormulation({
-          name: opts.formulation,
+          name,
           tagNames: opts.tags ? opts.tags.split(',') : undefined,
         });
         spinner.succeed('Unshared formulation.');

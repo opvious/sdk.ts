@@ -54,3 +54,4 @@ generates:
         TensorBound: number | string
         Url: string
         Uuid: string
+      useTypeImports: true

@@ -33,11 +33,30 @@ export function attemptCommand(): Command {
   return newCommand()
     .command('attempt')
     .description('attempt commands')
+    .addCommand(downloadAttemptCommand())
     .addCommand(listAttemptsCommand())
     .addCommand(runAttemptCommand());
 }
 
 const PAGE_LIMIT = 25;
+
+function downloadAttemptCommand(): Command {
+  return newCommand()
+    .command('download <uuid>')
+    .description('download attempt data')
+    .option('-i, --inputs', 'include inputs')
+    .action(
+      contextualAction(async function (uuid, opts) {
+        const {client, spinner} = this;
+        spinner.start('Downloading attempt...');
+        await client.fetchAttemptOutputs(uuid);
+        if (opts.inputs) {
+          await client.fetchAttemptInputs(uuid);
+        }
+        spinner.succeed('Downloaded attempt.');
+      })
+    );
+}
 
 function listAttemptsCommand(): Command {
   return newCommand()
