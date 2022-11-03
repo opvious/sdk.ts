@@ -16,6 +16,7 @@
  */
 
 import backoff from 'backoff';
+import events from 'events';
 import {GraphQLClient} from 'graphql-request';
 import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
@@ -280,37 +281,61 @@ export class OpviousClient {
   }
 
   /**
-   * Polls an attempt for its outcome, returning when the attempt has completed.
-   * If the attempt failed (error, infeasible, unbounded), the returned promise
-   * will reject.
+   * Track an attempt until its outcome is decided, emitting it as `'outcome'`.
+   * `'notification'` events will periodically be emitted containing the
+   * attempt's latest progress. If the attempt failed (error, infeasible,
+   * unbounded), the event emitter will emit an error.
+   */
+  trackAttempt(uuid: Uuid): events.EventEmitter {
+    const ee = new events.EventEmitter();
+    const xb = backoff.exponential();
+    xb.on('ready', () => {
+      this.sdk
+        .PollAttempt({uuid})
+        .then((res) => {
+          assertNoErrors(res);
+          const attempt = checkPresent(res.data?.attempt);
+          switch (attempt.status) {
+            case 'PENDING': {
+              const notif = attempt.notifications.edges[0]?.node;
+              if (notif) {
+                ee.emit('notification', notif);
+              }
+              xb.backoff();
+              return;
+            }
+            case 'INFEASIBLE':
+              throw new Error('Infeasible attempt');
+            case 'UNBOUNDED':
+              throw new Error('Unbounded attempt');
+          }
+          const outcome = checkPresent(attempt.outcome);
+          if (outcome.__typename === 'FailedOutcome') {
+            throw new Error(outcome.failure.message);
+          }
+          ee.emit('outcome', outcome);
+        })
+        .catch((err) => {
+          ee.emit('error', err);
+        });
+    }).backoff();
+    return ee;
+  }
+
+  /**
+   * Convenience method which resolves when the attempt is solved. Consider
+   * using `trackAttempt` to get access to progress notifications.
    */
   async waitForOutcome(uuid: Uuid): Promise<OutcomeInfo> {
-    const xb = backoff.exponential();
-    return new Promise((ok, fail) => {
-      xb.on('ready', () => {
-        this.sdk
-          .PollAttempt({uuid})
-          .then((res) => {
-            assertNoErrors(res);
-            const attempt = checkPresent(res.data?.attempt);
-            switch (attempt.status) {
-              case 'PENDING':
-                xb.backoff();
-                return;
-              case 'INFEASIBLE':
-                throw new Error('Infeasible attempt');
-              case 'UNBOUNDED':
-                throw new Error('Unbounded attempt');
-            }
-            const outcome = checkPresent(attempt.outcome);
-            if (outcome.__typename === 'FailedOutcome') {
-              throw new Error(outcome.failure.message);
-            }
-            ok(outcome);
-          })
-          .catch(fail);
-      }).backoff();
-    });
+    const ee = this.trackAttempt(uuid);
+    const [outcome] = await events.once(ee, 'outcome');
+    return outcome;
+  }
+
+  /** Cancels a pending attempt. */
+  async cancelAttempt(uuid: Uuid): Promise<void> {
+    const res = await this.sdk.CancelAttempt({uuid});
+    assertNoErrors(res);
   }
 
   /** Fetches an attempt from its UUID. */
@@ -320,6 +345,20 @@ export class OpviousClient {
     const res = await this.sdk.FetchAttempt({uuid});
     assertNoErrors(res);
     return res.data?.attempt;
+  }
+
+  /** Paginates an attempt's notifications. */
+  async paginateAttemptNotifications(
+    vars: g.PaginateAttemptNotificationsQueryVariables
+  ): Promise<Paginated<g.AttemptNotification>> {
+    const res = await this.sdk.PaginateAttemptNotifications(vars);
+    assertNoErrors(res);
+    const notifs = checkPresent(res.data?.attempt).notifications;
+    return {
+      info: notifs.pageInfo,
+      totalCount: notifs.totalCount,
+      values: notifs.edges.map((e) => e.node),
+    };
   }
 
   /** Fetches an attempt's inputs from its UUID. */
