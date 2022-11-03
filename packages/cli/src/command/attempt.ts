@@ -17,6 +17,7 @@
 
 import {Command} from 'commander';
 import Table from 'easy-table';
+import events from 'events';
 import {readFile} from 'fs/promises';
 import {DateTime, Duration} from 'luxon';
 import {
@@ -35,7 +36,8 @@ export function attemptCommand(): Command {
     .description('attempt commands')
     .addCommand(downloadAttemptCommand())
     .addCommand(listAttemptsCommand())
-    .addCommand(runAttemptCommand());
+    .addCommand(runAttemptCommand())
+    .addCommand(listAttemptNotificationsCommand());
 }
 
 const PAGE_LIMIT = 25;
@@ -99,6 +101,45 @@ function listAttemptsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'attempts...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} attempt(s).`);
+        console.log('\n' + table);
+      })
+    );
+}
+
+function listAttemptNotificationsCommand(): Command {
+  return newCommand()
+    .command('notifications <uuid>')
+    .description('list attempt notificationss')
+    .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
+    .action(
+      contextualAction(async function (uuid, opts) {
+        const {client, spinner} = this;
+        spinner.start('Fetching notifications...');
+        const table = new Table();
+        const limit = +opts.limit;
+        let count = 0;
+        let cursor: string | undefined;
+        do {
+          const paginated = await client.paginateAttemptNotifications({
+            uuid,
+            last: Math.min(PAGE_LIMIT, limit - count),
+            before: cursor,
+          });
+          for (const val of [...paginated.values].reverse()) {
+            const effectiveAt = DateTime.fromISO(val.effectiveAt);
+            table.cell('effective', effectiveAt.toRelative());
+            table.cell('relative_gap', val.relativeGap ?? 'Infinity');
+            table.cell('cuts', val.cutCount ?? '-');
+            table.cell('lp_iterations', val.lpIterationCount ?? '-');
+            table.newRow();
+          }
+          const {hasPreviousPage, startCursor} = paginated.info;
+          cursor = hasPreviousPage ? startCursor : undefined;
+          count += paginated.values.length;
+          spinner.text =
+            `Fetched ${count} of ${paginated.totalCount} ` + 'notifications...';
+        } while (cursor && count < limit);
+        spinner.succeed(`Fetched ${count} notification(s).`);
         console.log('\n' + table);
       })
     );
@@ -194,10 +235,17 @@ function runAttemptCommand(): Command {
         });
         spinner.succeed(`Started attempt. [uuid=${info.uuid}]`);
         if (!opts.detach) {
-          spinner.start('Waiting for outcome...');
-          const outcome = await client.waitForOutcome(info.uuid);
+          spinner.start('Solving...');
+          const ee = client
+            .trackAttempt(info.uuid)
+            .on('notification', (notif) => {
+              spinner.text =
+                `Solving... [gap=${percent(notif.relativeGap)}, ` +
+                `cuts=${notif.cutCount}, iters=${notif.lpIterationCount}]`;
+            });
+          const [outcome] = await events.once(ee, 'outcome');
           spinner.succeed(
-            `Attempt succeeded. [value=${outcome.objectiveValue}]`
+            `Attempt solved. [objective=${outcome.objectiveValue}]\n`
           );
         }
         console.log('Attempt URL: ' + info.hubUrl);
@@ -207,4 +255,11 @@ function runAttemptCommand(): Command {
 
 function collect<V>(val: V, acc: ReadonlyArray<V>): ReadonlyArray<V> {
   return acc.concat([val]);
+}
+
+function percent(arg: number): string {
+  if (arg == null || !isFinite(arg)) {
+    return 'inf';
+  }
+  return ((10_000 * arg) | 0) / 100 + '%';
 }

@@ -37,6 +37,8 @@ generates:
       strictScalars: true
       scalars:
         AccessToken: string
+        AttemptLimit: number
+        AttemptNotificationLimit: number
         Cursor: string
         DateTime: string
         Description: string
