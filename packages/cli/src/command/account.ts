@@ -21,18 +21,34 @@ import {DateTime} from 'luxon';
 
 import {contextualAction, newCommand} from './common';
 
-export function authorizationCommand(): Command {
+export function accountCommand(): Command {
   return newCommand()
-    .command('authorization')
-    .description('authorization commands')
+    .command('account')
+    .description('account commands')
+    .addCommand(showCredentialsCommand())
     .addCommand(listAuthorizationsCommand())
     .addCommand(generateAuthorizationCommand())
     .addCommand(revokeAuthorizationCommand());
 }
 
+function showCredentialsCommand(): Command {
+  return newCommand()
+    .command('credentials')
+    .description('display current credentials')
+    .action(
+      contextualAction(async function () {
+        const {client, spinner} = this;
+        spinner.start('Fetching credentials...');
+        const info = await client.fetchAccount();
+        spinner.succeed('Fetched credentials.');
+        console.log(info.email);
+      })
+    );
+}
+
 function listAuthorizationsCommand(): Command {
   return newCommand()
-    .command('list')
+    .command('authorizations')
     .description('list authorizations')
     .action(
       contextualAction(async function () {
@@ -63,7 +79,7 @@ function listAuthorizationsCommand(): Command {
 
 function generateAuthorizationCommand(): Command {
   return newCommand()
-    .command('generate <name>')
+    .command('generate-authorization <name>')
     .description('create an access token')
     .option('-t, --ttl <days>', 'authorization TTL', '30')
     .action(
@@ -82,7 +98,7 @@ function generateAuthorizationCommand(): Command {
 
 function revokeAuthorizationCommand(): Command {
   return newCommand()
-    .command('revoke <name>')
+    .command('revoke-authorization <name>')
     .description('revoke authorization')
     .action(
       contextualAction(async function (name) {

@@ -1,6 +1,6 @@
 {
   "name": "opvious-cli",
-  "version": "0.1.35",
+  "version": "0.1.36",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious CLI",
   "homepage": "https://www.opvious.io",

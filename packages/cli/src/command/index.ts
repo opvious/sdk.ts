@@ -18,9 +18,9 @@
 import {Command} from 'commander';
 
 import {COMMAND_NAME} from '../common';
+import {accountCommand} from './account';
 import {attemptCommand} from './attempt';
-import {authorizationCommand} from './authorization';
-import {contextualAction, newCommand} from './common';
+import { newCommand} from './common';
 import {formulationCommand} from './formulation';
 
 export function mainCommand(): Command {
@@ -28,23 +28,7 @@ export function mainCommand(): Command {
     .name(COMMAND_NAME)
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
+    .addCommand(accountCommand())
     .addCommand(attemptCommand())
-    .addCommand(authorizationCommand())
-    .addCommand(formulationCommand())
-    .addCommand(showAccountCommand());
-}
-
-function showAccountCommand(): Command {
-  return newCommand()
-    .command('me')
-    .description('display current credentials')
-    .action(
-      contextualAction(async function () {
-        const {client, spinner} = this;
-        spinner.start('Fetching account...');
-        const info = await client.fetchAccount();
-        spinner.succeed('Fetched account.');
-        console.log(info.email);
-      })
-    );
+    .addCommand(formulationCommand());
 }
