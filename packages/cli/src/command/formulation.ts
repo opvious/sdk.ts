@@ -18,7 +18,7 @@
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
-import {graph as g} from 'opvious';
+import * as g from 'opvious/graph';
 
 import {contextualAction, newCommand} from './common';
 

@@ -12,6 +12,7 @@ importers:
       lint-staged: ^12.1.4
       prettier: ^2.6.1
       typedoc: ^0.23.17
+      typedoc-plugin-mermaid: ^1.9.0
       typescript: ^4.8.4
     devDependencies:
       '@opvious/eslint-plugin': 0.1.14_vhsckgnokn2tf7m5xkrurmvfv4
@@ -22,6 +23,7 @@ importers:
       lint-staged: 12.5.0
       prettier: 2.6.2
       typedoc: 0.23.17_typescript@4.8.4
+      typedoc-plugin-mermaid: 1.9.0_typedoc@0.23.17
       typescript: 4.8.4
 
   packages/cli:
@@ -3756,6 +3758,10 @@ packages:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
     dev: true
 
+  /html-escaper/3.0.3:
+    resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
+    dev: true
+
   /http-proxy-agent/4.0.1:
     resolution: {integrity: sha512-k0zdNgqWTGA6aeIRVpvfVob4fL52dTfaehylg0Y4UvSySvOq/Y+BOyPrgpUrA7HylqvU8vIZGsRuXmspskV0Tg==}
     engines: {node: '>= 6'}
@@ -6098,6 +6104,15 @@ packages:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
     dependencies:
       is-typedarray: 1.0.0
+    dev: true
+
+  /typedoc-plugin-mermaid/1.9.0_typedoc@0.23.17:
+    resolution: {integrity: sha512-nZUTrgqx7tTwWcdekayFXA6qHbTUFdBYVp4uhHVgQM65+i+DVHsMGn/AjJLCMY0bEdtc9HWS2BuaKkBq1PKNlg==}
+    peerDependencies:
+      typedoc: '>=0.23.0'
+    dependencies:
+      html-escaper: 3.0.3
+      typedoc: 0.23.17_typescript@4.8.4
     dev: true
 
   /typedoc/0.23.17_typescript@4.8.4:

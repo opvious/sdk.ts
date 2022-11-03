@@ -1,0 +1,16 @@
+{
+  "categorizeByGroup": false,
+  "disableSources": true,
+  "entryPointStrategy": "packages",
+  "entryPoints": "packages/*",
+  "name": "TypeScript packages",
+  "navigationLinks": {
+    "Guides": "https://docs.opvious.io",
+    "Hub": "https://hub.opvious.io"
+  },
+  "plugin": [
+    "typedoc-plugin-mermaid"
+  ],
+  "readme": "README.public.md",
+  "sort": "alphabetical"
+}

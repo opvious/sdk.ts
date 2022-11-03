@@ -1,6 +1,6 @@
 {
   "name": "@opvious/template-packages",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "private": true,
   "repository": "github:opvious/template.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
@@ -8,7 +8,7 @@
   "scripts": {
     "bump": "pnpm exec opvious-manage-versions update -b ${BUMP:-patch}",
     "clean": "pnpm -r -F !. run clean && rm -rf docs node_modules out",
-    "docs": "pnpm exec typedoc --entryPointStrategy packages packages/* --readme none --categorizeByGroup false --sort alphabetical",
+    "docs": "pnpm exec typedoc",
     "fix": "prettier --write 'packages/*/{src,test}/**/*.{ts,tsx}' && pnpm run lint --fix",
     "lint": "eslint 'packages/*/{src,test}/**/*.{ts,tsx}'",
     "test": "pnpm -r run test --coverage"
@@ -22,6 +22,7 @@
     "lint-staged": "^12.1.4",
     "prettier": "^2.6.1",
     "typedoc": "^0.23.17",
+    "typedoc-plugin-mermaid": "^1.9.0",
     "typescript": "^4.8.4"
   },
   "lint-staged": {

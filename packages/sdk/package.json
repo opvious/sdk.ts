@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io",
@@ -10,10 +10,18 @@
   ],
   "author": "Opvious Engineering <oss@opvious.io>",
   "license": "Apache-2.0",
-  "main": "./lib",
   "files": [
     "lib/"
   ],
+  "exports": {
+    ".": "./lib",
+    "./graph": "./lib/graph"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./lib/*"]
+    }
+  },
   "scripts": {
     "build": "tsc -p src",
     "clean": "rm -rf lib node_modules out",

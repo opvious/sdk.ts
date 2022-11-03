@@ -14,7 +14,7 @@ This package provides a command line interface to the Opvious API.
 To get started, create a configuration file with at least one profile (its
 location can be changed by setting the `OPVIOUS_CONFIG` environment variable):
 
-```yml
+```yaml
 # ~/.config/opvious/cli.yml
 profiles:
   - name: my-profile

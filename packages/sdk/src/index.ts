@@ -29,8 +29,6 @@ import {
   strippingTrailingSlashes,
 } from './common';
 
-export * as graph from 'opvious-graph';
-
 /** Opvious API client. */
 export class OpviousClient {
   private constructor(
