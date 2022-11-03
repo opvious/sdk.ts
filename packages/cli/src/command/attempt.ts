@@ -89,10 +89,11 @@ function runAttemptCommand(): Command {
       contextualAction(async function (opts) {
         const {client, spinner} = this;
         spinner.start('Fetching outline...');
-        const outline = await client.fetchOutline(opts.formulation, opts.tag);
+        const form = await client.fetchOutline(opts.formulation, opts.tag);
+        const spec = form.tag.specification;
 
         spinner
-          .succeed(`Fetched outline. [revno=${outline.revno}]`)
+          .succeed(`Fetched outline. [revno=${spec.revno}]`)
           .start('Gathering inputs...');
         const sheets = await Promise.all(
           opts.sheet.map(async (s: string) => [s, await readFile(s, 'utf8')])
@@ -106,11 +107,11 @@ function runAttemptCommand(): Command {
         }
         const ss = InMemorySpreadsheet.forCsvs(Object.fromEntries(sheets));
         const tables = identifyTables(ss);
-        const mapping = computeInputMapping(tables, outline);
+        const mapping = computeInputMapping(tables, spec.outline);
         const inputs = extractInputValues(mapping, ss);
 
         spinner.succeed('Gathered inputs.').start('Starting attempt...');
-        const info = await client.startAttempt({
+        const attempt = await client.startAttempt({
           formulationName: opts.formulation,
           specificationTagName: opts.tag,
           dimensions: inputs.dimensions,
@@ -129,11 +130,11 @@ function runAttemptCommand(): Command {
               }
             : undefined,
         });
-        spinner.succeed(`Started attempt. [uuid=${info.uuid}]`);
+        spinner.succeed(`Started attempt. [uuid=${attempt.uuid}]`);
         if (!opts.detach) {
           spinner.start('Solving...');
           const ee = client
-            .trackAttempt(info.uuid)
+            .trackAttempt(attempt.uuid)
             .on('notification', (notif) => {
               spinner.text =
                 `Solving... [gap=${percent(notif.relativeGap)}, ` +
@@ -144,7 +145,7 @@ function runAttemptCommand(): Command {
             `Attempt solved. [objective=${outcome.objectiveValue}]\n`
           );
         }
-        console.log('Attempt URL: ' + info.hubUrl);
+        console.log('Attempt URL: ' + client.attemptUrl(attempt.uuid));
       })
     );
 }
@@ -201,25 +202,28 @@ function listAttemptsCommand(): Command {
             last: Math.min(PAGE_LIMIT, limit - count),
             before: cursor,
           });
-          for (const val of [...paginated.values].reverse()) {
-            const startedAt = DateTime.fromISO(val.startedAt);
-            const endedAt = val.endedAt
-              ? DateTime.fromISO(val.endedAt)
+          for (const attempt of [...paginated.nodes].reverse()) {
+            const startedAt = DateTime.fromISO(attempt.startedAt);
+            const endedAt = attempt.endedAt
+              ? DateTime.fromISO(attempt.endedAt)
               : undefined;
-            table.cell('formulation', val.formulationName);
-            table.cell('revno', val.specificationRevno);
-            table.cell('status', val.status);
+            const spec = attempt.pristineSpecification;
+            table.cell('uuid', attempt.uuid);
+            table.cell('formulation', spec.formulation.displayName);
+            table.cell('tag', attempt.specificationTagName);
+            table.cell('revno', spec.revno);
+            table.cell('status', attempt.status);
             table.cell('started', startedAt.toRelative());
             table.cell(
               'runtime',
               endedAt ? humanizeMillis(+endedAt.diff(startedAt)) : ''
             );
-            table.cell('url', val.hubUrl);
+            table.cell('url', client.attemptUrl(attempt.uuid));
             table.newRow();
           }
           const {hasPreviousPage, startCursor} = paginated.info;
           cursor = hasPreviousPage ? startCursor : undefined;
-          count += paginated.values.length;
+          count += paginated.nodes.length;
           spinner.text =
             `Fetched ${count} of ${paginated.totalCount} ` + 'attempts...';
         } while (cursor && count < limit);
@@ -248,17 +252,20 @@ function listAttemptNotificationsCommand(): Command {
             last: Math.min(PAGE_LIMIT, limit - count),
             before: cursor,
           });
-          for (const val of [...paginated.values].reverse()) {
-            const effectiveAt = DateTime.fromISO(val.effectiveAt);
+          for (const attempt of [...paginated.nodes].reverse()) {
+            const effectiveAt = DateTime.fromISO(attempt.effectiveAt);
             table.cell('effective', effectiveAt.toRelative());
-            table.cell('relative_gap', percent(val.relativeGap ?? Infinity));
-            table.cell('cuts', val.cutCount ?? '-');
-            table.cell('lp_iterations', val.lpIterationCount ?? '-');
+            table.cell(
+              'relative_gap',
+              percent(attempt.relativeGap ?? Infinity)
+            );
+            table.cell('cuts', attempt.cutCount ?? '-');
+            table.cell('lp_iterations', attempt.lpIterationCount ?? '-');
             table.newRow();
           }
           const {hasPreviousPage, startCursor} = paginated.info;
           cursor = hasPreviousPage ? startCursor : undefined;
-          count += paginated.values.length;
+          count += paginated.nodes.length;
           spinner.text =
             `Fetched ${count} of ${paginated.totalCount} ` + 'notifications...';
         } while (cursor && count < limit);
@@ -272,7 +279,7 @@ function collect<V>(val: V, acc: ReadonlyArray<V>): ReadonlyArray<V> {
   return acc.concat([val]);
 }
 
-function percent(arg: null | number | string): string {
+function percent(arg: number | string | undefined): string {
   if (typeof arg != 'number' || !isFinite(arg)) {
     return 'inf';
   }

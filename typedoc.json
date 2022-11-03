@@ -9,7 +9,8 @@
     "Hub": "https://hub.opvious.io"
   },
   "plugin": [
-    "typedoc-plugin-mermaid"
+    "typedoc-plugin-mermaid",
+    "typedoc-plugin-resolve-crossmodule-references"
   ],
   "readme": "README.public.md",
   "sort": "alphabetical",

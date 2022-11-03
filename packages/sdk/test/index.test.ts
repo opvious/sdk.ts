@@ -41,11 +41,11 @@ const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
       first: 10,
       filter: {displayNameLike: formulationName},
     });
-    expect(infos1).toMatchObject({values: [{name: formulationName}]});
+    expect(infos1).toMatchObject({nodes: [{name: formulationName}]});
     await client.deleteFormulation(formulationName);
     const infos2 = await client.paginateFormulations({first: 5});
     expect(
-      infos2.values.find((f) => f.name === formulationName)
+      infos2.nodes.find((f) => f.name === formulationName)
     ).toBeUndefined();
   });
 
@@ -53,10 +53,11 @@ const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
     const formulationName = 'n-queens' + SUFFIX;
     await client.deleteFormulation(formulationName);
     await registerSpecification(client, formulationName, 'n-queens.md');
-    const {apiUrl} = await client.shareFormulation({
+    const tag = await client.shareFormulation({
       name: formulationName,
       tagName: 'latest',
     });
+    const {apiUrl} = client.blueprintUrls(tag.sharedVia);
     const res1 = await fetch('' + apiUrl);
     expect(res1.status).toEqual(200);
     await client.unshareFormulation({name: formulationName});

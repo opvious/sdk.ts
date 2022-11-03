@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious.html",
@@ -14,8 +14,8 @@
     "lib/"
   ],
   "exports": {
-    ".": "./lib",
-    "./graph": "./lib/graph"
+    ".": "./lib/index.js",
+    "./graph": "./lib/graph.js"
   },
   "typesVersions": {
     "*": {
@@ -35,7 +35,8 @@
     "backoff": "^2.5.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
-    "opvious-graph": "workspace:*"
+    "opvious-graph": "workspace:*",
+    "tiny-typed-emitter": "^2.1.0"
   },
   "devDependencies": {
     "@types/backoff": "^2.5.2",

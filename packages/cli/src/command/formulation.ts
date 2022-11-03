@@ -18,6 +18,7 @@
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
+import {DateTime} from 'luxon';
 import * as g from 'opvious/graph';
 
 import {contextualAction, newCommand} from './common';
@@ -26,9 +27,9 @@ export function formulationCommand(): Command {
   return newCommand()
     .command('formulation')
     .description('formulation commands')
-    .addCommand(fetchOutlineCommand())
-    .addCommand(listFormulationsCommand())
     .addCommand(registerSpecificationCommand())
+    .addCommand(listFormulationsCommand())
+    .addCommand(fetchOutlineCommand())
     .addCommand(deleteFormulationCommand())
     .addCommand(shareFormulationCommand())
     .addCommand(unshareFormulationCommand());
@@ -45,8 +46,9 @@ function fetchOutlineCommand(): Command {
       contextualAction(async function (name, opts) {
         const {client, spinner} = this;
         spinner.start('Fetching outline...');
-        const outline = await client.fetchOutline(name, opts.tag);
-        spinner.succeed(`Fetched outline. [revno=${outline.revno}]`);
+        const form = await client.fetchOutline(name, opts.tag);
+        const {revno, outline} = form.tag.specification;
+        spinner.succeed(`Fetched outline. [revno=${revno}]`);
 
         if (outline.objective) {
           const table = new Table();
@@ -147,14 +149,23 @@ function listFormulationsCommand(): Command {
               displayNameLike: opts.displayName,
             },
           });
-          for (const val of paginated.values) {
-            table.cell('name', val.displayName);
-            table.cell('url', val.hubUrl);
+          for (const node of paginated.nodes) {
+            table.cell('name', node.displayName);
+            table.cell(
+              'created',
+              DateTime.fromISO(node.createdAt).toRelative()
+            );
+            table.cell(
+              'updated',
+              DateTime.fromISO(node.lastSpecifiedAt).toRelative()
+            );
+            table.cell('specifications', node.specifications.totalCount);
+            table.cell('url', client.formulationUrl(node.name));
             table.newRow();
           }
           const {hasNextPage, endCursor} = paginated.info;
           cursor = hasNextPage ? endCursor : undefined;
-          count += paginated.values.length;
+          count += paginated.nodes.length;
           spinner.text =
             `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
         } while (cursor && count < limit);
@@ -199,13 +210,14 @@ function registerSpecificationCommand(): Command {
         spinner
           .info(`Extracted ${defs.length} definition(s).`)
           .start('Registering specification...');
-        const info = await client.registerSpecification({
+        const spec = await client.registerSpecification({
           formulationName: opts.formulation,
           definitions: defs,
           description: opts.description ?? src,
           tagNames: opts.tags?.split(','),
         });
-        spinner.succeed('Registered specification: ' + info.hubUrl);
+        const url = client.specificationUrl(spec.formulation.name, spec.revno);
+        spinner.succeed('Registered specification: ' + url);
       })
     );
 }
@@ -223,11 +235,12 @@ function shareFormulationCommand(): Command {
       contextualAction(async function (name, opts) {
         const {client, spinner} = this;
         spinner.start('Sharing formulation...');
-        const info = await client.shareFormulation({
+        const tag = await client.shareFormulation({
           name,
           tagName: opts.tag,
         });
-        spinner.succeed('Shared formulation: ' + info.hubUrl);
+        const {hubUrl} = client.blueprintUrls(tag.sharedVia);
+        spinner.succeed('Shared formulation: ' + hubUrl);
       })
     );
 }

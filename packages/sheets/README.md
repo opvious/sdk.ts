@@ -1,4 +1,4 @@
-# Opvious spreadsheet utilities
+# Opvious spreadsheet utilities [![NPM version](https://img.shields.io/npm/v/opvious-sheets.svg)](https://www.npmjs.com/package/opvious-sheets)
 
 ```sh
 npm i opvious-sheets

@@ -29,7 +29,7 @@ export type SyncSdk = {
   readonly [K in keyof Sdk]: Syncify<Sdk[K]>;
 };
 
-type Syncify<F> = F extends (...args: infer A) => infer R
+export type Syncify<F> = F extends (...args: infer A) => infer R
   ? R extends Promise<infer V>
     ? (...args: A) => V
     : R extends AsyncIterable<infer V>

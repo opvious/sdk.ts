@@ -1,4 +1,4 @@
-# Opvious SDK
+# Opvious SDK [![NPM version](https://img.shields.io/npm/v/opvious.svg)](https://www.npmjs.com/package/opvious)
 
 ```sh
 npm i opvious

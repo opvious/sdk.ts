@@ -1,4 +1,4 @@
-# Opvious GraphQL API types
+# Opvious GraphQL API types [![NPM version](https://img.shields.io/npm/v/opvious-graph.svg)](https://www.npmjs.com/package/opvious-graph)
 
 ```sh
 npm i opvious-graph

@@ -39,9 +39,9 @@ function showCredentialsCommand(): Command {
       contextualAction(async function () {
         const {client, spinner} = this;
         spinner.start('Fetching credentials...');
-        const info = await client.fetchAccount();
+        const account = await client.fetchMyAccount();
         spinner.succeed('Fetched credentials.');
-        console.log(info.email);
+        console.log(account.holder.email);
       })
     );
 }

@@ -19,6 +19,8 @@ export {
   computeInputMapping,
   DimensionMapping,
   InputMapping,
+  KeyBox,
+  KeyBoxKind,
   TensorMapping,
 } from './mapping';
 export {extractInputValues, InputValues} from './values';

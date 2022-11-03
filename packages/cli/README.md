@@ -1,4 +1,4 @@
-# Opvious CLI
+# Opvious CLI [![NPM version](https://img.shields.io/npm/v/opvious-cli.svg)](https://www.npmjs.com/package/opvious-cli)
 
 ```sh
 npm i opvious-cli
