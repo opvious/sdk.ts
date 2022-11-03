@@ -353,7 +353,10 @@ export class OpviousClient {
   ): Promise<Paginated<g.AttemptNotification>> {
     const res = await this.sdk.PaginateAttemptNotifications(vars);
     assertNoErrors(res);
-    const notifs = checkPresent(res.data?.attempt).notifications;
+    const notifs = checkPresent(res.data).attempt?.notifications;
+    if (!notifs) {
+      throw attemptNotFoundError(vars.uuid);
+    }
     return {
       info: notifs.pageInfo,
       totalCount: notifs.totalCount,
@@ -367,7 +370,11 @@ export class OpviousClient {
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptInputs({uuid});
     assertNoErrors(res);
-    return res.data?.attempt;
+    const attempt = checkPresent(res.data).attempt;
+    if (!attempt) {
+      throw attemptNotFoundError(uuid);
+    }
+    return attempt;
   }
 
   /**
@@ -379,11 +386,12 @@ export class OpviousClient {
   ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptOutputs({uuid});
     assertNoErrors(res);
-    const outcome = res.data?.attempt?.outcome;
-    if (outcome?.__typename !== 'FeasibleOutcome') {
-      return undefined;
+    const attempt = checkPresent(res.data).attempt;
+    if (!attempt) {
+      throw attemptNotFoundError(uuid);
     }
-    return outcome;
+    const {outcome} = attempt;
+    return outcome?.__typename === 'FeasibleOutcome' ? outcome : undefined;
   }
 
   private formulationUrl(formulation: string): URL {
@@ -487,3 +495,7 @@ enum DefaultEndpoint {
 const ENCODING_HEADER = 'content-encoding';
 
 const ENCODING_THRESHOLD = 2 ** 16; // 64 kiB
+
+function attemptNotFoundError(uuid: Uuid): Error {
+  return new Error('Attempt not found: ' + uuid);
+}
