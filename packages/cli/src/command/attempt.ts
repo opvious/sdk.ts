@@ -128,7 +128,7 @@ function listAttemptNotificationsCommand(): Command {
           for (const val of [...paginated.values].reverse()) {
             const effectiveAt = DateTime.fromISO(val.effectiveAt);
             table.cell('effective', effectiveAt.toRelative());
-            table.cell('relative_gap', val.relativeGap ?? 'Infinity');
+            table.cell('relative_gap', percent(val.relativeGap ?? Infinity));
             table.cell('cuts', val.cutCount ?? '-');
             table.cell('lp_iterations', val.lpIterationCount ?? '-');
             table.newRow();
@@ -257,8 +257,8 @@ function collect<V>(val: V, acc: ReadonlyArray<V>): ReadonlyArray<V> {
   return acc.concat([val]);
 }
 
-function percent(arg: number): string {
-  if (arg == null || !isFinite(arg)) {
+function percent(arg: null | number | string): string {
+  if (typeof arg != 'number' || !isFinite(arg)) {
     return 'inf';
   }
   return ((10_000 * arg) | 0) / 100 + '%';
