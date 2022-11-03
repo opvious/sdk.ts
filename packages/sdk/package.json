@@ -1,9 +1,9 @@
 {
   "name": "opvious",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
-  "homepage": "https://www.opvious.io",
+  "homepage": "https://www.opvious.io/sdk.ts/modules/opvious.html",
   "keywords": [
     "opvious",
     "sdk"
@@ -19,7 +19,9 @@
   },
   "typesVersions": {
     "*": {
-      "*": ["./lib/*"]
+      "*": [
+        "./lib/*"
+      ]
     }
   },
   "scripts": {

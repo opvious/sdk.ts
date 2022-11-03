@@ -12,5 +12,6 @@
     "typedoc-plugin-mermaid"
   ],
   "readme": "README.public.md",
-  "sort": "alphabetical"
+  "sort": "alphabetical",
+  "titleLink": "https://www.opvious.io/sdk.ts"
 }

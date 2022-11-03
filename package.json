@@ -1,6 +1,6 @@
 {
   "name": "@opvious/template-packages",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "private": true,
   "repository": "github:opvious/template.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
