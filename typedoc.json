@@ -5,11 +5,11 @@
   "entryPoints": "packages/*",
   "name": "TypeScript packages",
   "navigationLinks": {
+    "Source": "https://github.com/opvious/sdk.ts",
     "Guides": "https://docs.opvious.io",
     "Hub": "https://hub.opvious.io"
   },
   "plugin": [
-    "typedoc-plugin-mermaid",
     "typedoc-plugin-resolve-crossmodule-references"
   ],
   "readme": "README.public.md",

@@ -6,25 +6,23 @@ importers:
     specifiers:
       '@opvious/eslint-plugin': ^0.1.14
       '@opvious/prettier-typescript': ^0.1.14
-      '@opvious/stl': ^0.13.3
+      '@opvious/stl': ^0.13.5
       eslint: ^8.12.0
       husky: ^7.0.4
       lint-staged: ^12.1.4
       prettier: ^2.6.1
       typedoc: ^0.23.17
-      typedoc-plugin-mermaid: ^1.9.0
       typedoc-plugin-resolve-crossmodule-references: ^0.3.2
       typescript: ^4.8.4
     devDependencies:
       '@opvious/eslint-plugin': 0.1.14_vhsckgnokn2tf7m5xkrurmvfv4
       '@opvious/prettier-typescript': 0.1.14
-      '@opvious/stl': 0.13.3
+      '@opvious/stl': 0.13.5
       eslint: 8.17.0
       husky: 7.0.4
       lint-staged: 12.5.0
       prettier: 2.6.2
       typedoc: 0.23.17_typescript@4.8.4
-      typedoc-plugin-mermaid: 1.9.0_typedoc@0.23.17
       typedoc-plugin-resolve-crossmodule-references: 0.3.2_typedoc@0.23.17
       typescript: 4.8.4
 
@@ -78,7 +76,7 @@ importers:
       '@graphql-codegen/typescript': ^2.7.3
       '@graphql-codegen/typescript-generic-sdk': ^3.0.1
       '@graphql-codegen/typescript-operations': ^2.5.3
-      '@opvious/api-graph': ^0.8.2
+      '@opvious/api-graph': ^0.8.3
       '@types/node': ^18.11.7
       graphql: ^16.6.0
       graphql-tag: ^2.12.6
@@ -92,7 +90,7 @@ importers:
       '@graphql-codegen/typescript': 2.7.3_graphql@16.6.0
       '@graphql-codegen/typescript-generic-sdk': 3.0.1_sy4knu3obj4ys7pjcqbyfxmqle
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
-      '@opvious/api-graph': 0.8.2
+      '@opvious/api-graph': 0.8.3
       '@types/node': 18.11.7
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_evej5wzm4hojmu6uzxwpspdmsu
@@ -1772,8 +1770,8 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
-  /@opvious/account-graph/0.8.1:
-    resolution: {integrity: sha512-LbiWT+DHQyjJ3Ue3fW2QmfmGAzJHPDZe2hANON5xlYtIaDVJWvHM1g/5IyC+IKiOFL1OLH/sYY7GbMFTgX0IPw==, tarball: download/@opvious/account-graph/0.8.1/507ac3c40dd15bc8dc5b1936349dbb166dbd93a6}
+  /@opvious/account-graph/0.8.2:
+    resolution: {integrity: sha512-dwI3cxKPCm4vlAW14H0Q58s6njnr1ceonUzzin5Gp/Tt1PtBKylTdE8XcoIfF+pAyMqJkNsj+6C6lxjKL/pAdA==, tarball: download/@opvious/account-graph/0.8.2/c50e6bd2dc4ac705e8f85f01668e671e180aaa68}
     engines: {node: '>=16'}
     dependencies:
       graphql: 16.6.0
@@ -1783,22 +1781,22 @@ packages:
       - encoding
     dev: true
 
-  /@opvious/api-graph/0.8.2:
-    resolution: {integrity: sha512-H/RdK/3phD28pNLSL6E2s9Ir/ZMlEQ/MuZAfxb67b/6A1vBfnX1nz4lH95mePnQ42Y8/A/9xaca+wovuyHAxBA==, tarball: download/@opvious/api-graph/0.8.2/efff44ea97cc6c02326d027c539cbfaa3d9e8e1b}
+  /@opvious/api-graph/0.8.3:
+    resolution: {integrity: sha512-uj8xr7+CEnzFsZpveYV5ZDMdNkvhw8ZyX4UBQy75IFmab+nQFJ4TmTX9c7jYPM6xI9hqDRh17cd2XTZP5T1AAw==, tarball: download/@opvious/api-graph/0.8.3/a5159b895814790070b834ba1227da7637b675b1}
     dependencies:
-      '@opvious/account-graph': 0.8.1
-      '@opvious/attempt-graph': 0.11.0
-      '@opvious/formulation-graph': 0.14.14
+      '@opvious/account-graph': 0.8.2
+      '@opvious/attempt-graph': 0.11.3
+      '@opvious/formulation-graph': 0.14.16
     transitivePeerDependencies:
       - encoding
     dev: true
 
-  /@opvious/attempt-graph/0.11.0:
-    resolution: {integrity: sha512-3iJ3PZQBtSYGwEWgYUEqJ7wfB5ZuTcobb70mmol+4/1GYNxYD7e2KVbo3RyfrgjVBo5xl0FF6c8p6G0xJvjYKQ==, tarball: download/@opvious/attempt-graph/0.11.0/286707883e7639ed82da6125b72dbb13298fa11e}
+  /@opvious/attempt-graph/0.11.3:
+    resolution: {integrity: sha512-+gSL038Xm+jpkLOh8BOSrc3Mwgo2f9+AxRaKy70iI7o7ahHX0YbfX5RL2tLE72Kj282sMcEfotaCK4uIZekSfQ==, tarball: download/@opvious/attempt-graph/0.11.3/f91ab955af07f3210169a8932dfaed73eca619e7}
     engines: {node: '>=16'}
     dependencies:
-      '@opvious/formulation-graph': 0.14.14
-      '@opvious/stl': 0.13.3
+      '@opvious/formulation-graph': 0.14.16
+      '@opvious/stl': 0.13.5
       graphql: 16.6.0
       graphql-request: 4.3.0_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
@@ -1822,12 +1820,12 @@ packages:
       - typescript
     dev: true
 
-  /@opvious/formulation-graph/0.14.14:
-    resolution: {integrity: sha512-T14W1eRdt+mxKa4/KoC9CnoqVjg/njf4jtWWP5D/17xg4eD+Qg+xfCyZubij6uuf6fjGN9DwmRJGjWjbKlY48Q==, tarball: download/@opvious/formulation-graph/0.14.14/7d12c67240360d92fa2987908374724463a8b719}
+  /@opvious/formulation-graph/0.14.16:
+    resolution: {integrity: sha512-Rq8kgaFCvLdGfBOxVbd5mV6aKW8tCroBwyOPPvr3M2YNQUriv/n3beqU4MOS8isX33QByzH7yHlJhnSPvl0yIg==, tarball: download/@opvious/formulation-graph/0.14.16/51ce52a96b53a8cc72fd84dfc25a4b8ddaf83638}
     engines: {node: '>=16'}
     dependencies:
-      '@opvious/stl-errors': 0.13.3
-      '@opvious/stl-utils': 0.13.3
+      '@opvious/stl-errors': 0.13.5
+      '@opvious/stl-utils': 0.13.5
       ajv: 8.11.0
       graphql: 16.6.0
       graphql-request: 4.3.0_graphql@16.6.0
@@ -1841,8 +1839,8 @@ packages:
     resolution: {integrity: sha512-FO0LCkTh/IpPWoOtwgYpPVf9XoHNN8UmueRAF9uOA5zRpiUyU+PeLRGVN6FNhSDW9+6LYC7L95WSw4V+t5nW9g==, tarball: download/@opvious/prettier-typescript/0.1.14/735bebeb8ffd56aac5a402ca60adaf0f6661c618}
     dev: true
 
-  /@opvious/stl-errors/0.13.3:
-    resolution: {integrity: sha512-bmMt+32E9xuFu9wZcYZm1AESLY3vbM276vXAifUSkEKjkkw8pzuRWTXw9BDVjnINR4/sWn4w70zS/59QJdj6vQ==, tarball: download/@opvious/stl-errors/0.13.3/da5c2a05510ab413fe5d095a5155e347b8358719}
+  /@opvious/stl-errors/0.13.5:
+    resolution: {integrity: sha512-oYtOBPT0nu6Sv5cFfewyyuJM9f06gEaN5/T7a02fAjKtaohP43Ba5py0q4ztpmG9+z6vZvXtZjFTmAk/fI7+2Q==, tarball: download/@opvious/stl-errors/0.13.5/796dafebda7c34250cbd60a2a945b8db5248dc56}
     dependencies:
       '@opentelemetry/api': 1.2.0
       change-case: 4.1.2
@@ -1850,31 +1848,31 @@ packages:
       upper-case-first: 2.0.2
     dev: true
 
-  /@opvious/stl-settings/0.13.3:
-    resolution: {integrity: sha512-8fW5COSXrfH+n3f7bP+JRt87Jqt1QVgieLMLxR1Wf9idZY52/qnIyahzqwR3j05B45B7cvQhugsBk6rE/PyJkQ==, tarball: download/@opvious/stl-settings/0.13.3/10da4b60a692a127b4f870b8172a4467916d90c4}
+  /@opvious/stl-settings/0.13.5:
+    resolution: {integrity: sha512-JBAiu3K6gUMmrQp3dClCGkF9OfB9MBJIUqGCvY8WxzARua/DsBG6YCVtRQfKLZdzJiIF3V0uuwVU0koL0qqH3A==, tarball: download/@opvious/stl-settings/0.13.5/ebed27c73520967670f5afac0c1debac77b1ae9d}
     dependencies:
-      '@opvious/stl-errors': 0.13.3
+      '@opvious/stl-errors': 0.13.5
     dev: true
 
-  /@opvious/stl-utils/0.13.3:
-    resolution: {integrity: sha512-7N3LGBRcxcSdOYnklSqoQGMjpCDq6qNM/R3XZAFlx/cpVmGlc3wVBxowUKOxdEpLs3jXpRsanvlyypKvy7XZ7Q==, tarball: download/@opvious/stl-utils/0.13.3/4490d7500e1cf45785622e47247dfe473f0fa312}
+  /@opvious/stl-utils/0.13.5:
+    resolution: {integrity: sha512-OuvZuSPgcQesoe40cCqckL/4QBGGcWeotUlrHEs7524m2BivXRfuZZgrIhapz1iKQdzfOXnuboZLbhGmeNy0aw==, tarball: download/@opvious/stl-utils/0.13.5/e2f352b19ee3b1640f61b504eba99b1adcab7768}
     dependencies:
-      '@opvious/stl-errors': 0.13.3
+      '@opvious/stl-errors': 0.13.5
       change-case: 4.1.2
       picomatch: 2.3.1
       untruncate-json: 0.0.1
     dev: true
 
-  /@opvious/stl/0.13.3:
-    resolution: {integrity: sha512-BEWn2m/2Rpz/vXBOXHK9Yxi+poRl3uvd7K7hGze94zeJ4iDPTpx+ODfV4y1iIuj0POPpo0ug3bZJkVHc4Ib5Eg==, tarball: download/@opvious/stl/0.13.3/1add4c201e72aee90d72e5c8bc008672d85e2893}
+  /@opvious/stl/0.13.5:
+    resolution: {integrity: sha512-q2GJmYFXZmfkY6l6aUEztpzu2HBTJVSJVPttxpZNL8H6vv7pY6lD8rr/r8aiQSH3c/K3Z3yLt/a7Eoqsj4NKng==, tarball: download/@opvious/stl/0.13.5/fa7250f874ec6cc3f722f95ff7df341a1aa4c3be}
     hasBin: true
     dependencies:
       '@opentelemetry/api': 1.2.0
       '@opentelemetry/api-metrics': 0.32.0
       '@opentelemetry/resources': 1.7.0_@opentelemetry+api@1.2.0
-      '@opvious/stl-errors': 0.13.3
-      '@opvious/stl-settings': 0.13.3
-      '@opvious/stl-utils': 0.13.3
+      '@opvious/stl-errors': 0.13.5
+      '@opvious/stl-settings': 0.13.5
+      '@opvious/stl-utils': 0.13.5
       bytes-iec: 3.1.1
       change-case: 4.1.2
       luxon: 2.5.0
@@ -3758,10 +3756,6 @@ packages:
 
   /html-escaper/2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
-    dev: true
-
-  /html-escaper/3.0.3:
-    resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
     dev: true
 
   /http-proxy-agent/4.0.1:
@@ -6111,15 +6105,6 @@ packages:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
     dependencies:
       is-typedarray: 1.0.0
-    dev: true
-
-  /typedoc-plugin-mermaid/1.9.0_typedoc@0.23.17:
-    resolution: {integrity: sha512-nZUTrgqx7tTwWcdekayFXA6qHbTUFdBYVp4uhHVgQM65+i+DVHsMGn/AjJLCMY0bEdtc9HWS2BuaKkBq1PKNlg==}
-    peerDependencies:
-      typedoc: '>=0.23.0'
-    dependencies:
-      html-escaper: 3.0.3
-      typedoc: 0.23.17_typescript@4.8.4
     dev: true
 
   /typedoc-plugin-resolve-crossmodule-references/0.3.2_typedoc@0.23.17:

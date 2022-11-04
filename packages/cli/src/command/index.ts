@@ -20,7 +20,7 @@ import {Command} from 'commander';
 import {COMMAND_NAME} from '../common';
 import {accountCommand} from './account';
 import {attemptCommand} from './attempt';
-import { newCommand} from './common';
+import {newCommand} from './common';
 import {formulationCommand} from './formulation';
 
 export function mainCommand(): Command {

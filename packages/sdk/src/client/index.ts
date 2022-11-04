@@ -18,7 +18,12 @@
 import backoff from 'backoff';
 import events from 'events';
 import {GraphQLClient} from 'graphql-request';
-import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
+import fetch, {
+  Headers,
+  RequestInfo,
+  RequestInit,
+  Response,
+} from 'node-fetch';
 import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
@@ -67,25 +72,30 @@ export class OpviousClient {
         ? '' + opts.apiEndpoint
         : process.env.OPVIOUS_API_ENDPOINT ?? DefaultEndpoint.API
     );
-    const threshold = ENCODING_THRESHOLD;
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
       headers: {
+        'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
         authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
         'opvious-client': 'TypeScript SDK',
       },
       fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
         const {body} = init;
-        if (typeof body != 'string' || body.length <= threshold) {
+        assert(typeof body == 'string');
+        if (body.length <= COMPRESSION_THRESHOLD) {
           return fetch(info, init);
         }
         const headers = new Headers(init.headers);
-        assert(!headers.get(ENCODING_HEADER));
-        headers.set(ENCODING_HEADER, 'gzip');
-        const gzip = zlib.createGzip();
-        process.nextTick(() => {
-          gzip.end(body);
+        headers.set(ENCODING_HEADER, 'br');
+        const compressed = zlib.createBrotliCompress({
+          params: {
+            [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+            [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+          },
         });
-        return fetch(info, {...init, headers, body: gzip});
+        process.nextTick(() => {
+          compressed.end(body);
+        });
+        return fetch(info, {...init, headers, body: compressed});
       },
     });
     const sdk = g.getSdk(<R, V>(query: string, vars: V) =>
@@ -427,7 +437,9 @@ enum DefaultEndpoint {
 
 const ENCODING_HEADER = 'content-encoding';
 
-const ENCODING_THRESHOLD = 2 ** 16; // 64 kiB
+const BROTLI_QUALITY = 4;
+
+const COMPRESSION_THRESHOLD = 2 ** 16; // 64 kiB
 
 function attemptNotFoundError(uuid: Uuid): Error {
   return new Error('Attempt not found: ' + uuid);

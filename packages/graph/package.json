@@ -1,6 +1,6 @@
 {
   "name": "opvious-graph",
-  "version": "0.1.43",
+  "version": "0.1.44",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious GraphQL API",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_graph.html",
@@ -29,7 +29,7 @@
     "@graphql-codegen/typescript": "^2.7.3",
     "@graphql-codegen/typescript-generic-sdk": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^2.5.3",
-    "@opvious/api-graph": "^0.8.2",
+    "@opvious/api-graph": "^0.8.3",
     "@types/node": "^18.11.7",
     "graphql-tag": "^2.12.6",
     "ts-node": "^10.9.1",
