@@ -27,7 +27,3 @@ const sdk = getSdk(
   <R, V>(query: string, vars: V) => client.rawRequest<R, V>(query, vars)
 );
 ```
-
-## Schema
-
-The aggregated schema is available as `resources/schema.graphql`.

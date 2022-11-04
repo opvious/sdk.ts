@@ -1,6 +1,6 @@
 {
   "name": "opvious-graph",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious GraphQL API",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_graph.html",
@@ -11,8 +11,7 @@
   "license": "Apache-2.0",
   "main": "./lib",
   "files": [
-    "lib/",
-    "resources/"
+    "lib/"
   ],
   "scripts": {
     "build": "tsc -p src",
@@ -27,7 +26,6 @@
   "devDependencies": {
     "@graphql-codegen/add": "^3.2.1",
     "@graphql-codegen/cli": "^2.6.2",
-    "@graphql-codegen/schema-ast": "^2.5.1",
     "@graphql-codegen/typescript": "^2.7.3",
     "@graphql-codegen/typescript-generic-sdk": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^2.5.3",
