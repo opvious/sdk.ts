@@ -150,6 +150,15 @@ export class OpviousClient {
     return defs;
   }
 
+  /** Validates that the definitions are valid for registration. */
+  async validateDefinitions(
+    defs: ReadonlyArray<g.Definition>
+  ): Promise<ReadonlyArray<string>> {
+    const res = await this.sdk.ValidateDefinitions({definitions: defs});
+    assertNoErrors(res);
+    return checkPresent(res.data).validateDefinitions.warnings ?? [];
+  }
+
   /** Adds a new specification. */
   async registerSpecification(
     input: g.RegisterSpecificationInput

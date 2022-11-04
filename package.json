@@ -1,8 +1,8 @@
 {
-  "name": "@opvious/template-packages",
-  "version": "0.1.41",
+  "name": "@opvious/sdk-ts-packages",
+  "version": "0.1.42",
   "private": true,
-  "repository": "github:opvious/template.ts",
+  "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
   "license": "UNLICENSED",
   "scripts": {
