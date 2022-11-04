@@ -20,6 +20,7 @@ import Table from 'easy-table';
 import {readFile} from 'fs/promises';
 import {DateTime} from 'luxon';
 import * as g from 'opvious/graph';
+import path from 'path';
 
 import {contextualAction, newCommand} from './common';
 
@@ -28,6 +29,7 @@ export function formulationCommand(): Command {
     .command('formulation')
     .description('formulation commands')
     .addCommand(registerSpecificationCommand())
+    .addCommand(validateSpecificationCommand())
     .addCommand(listFormulationsCommand())
     .addCommand(fetchOutlineCommand())
     .addCommand(deleteFormulationCommand())
@@ -195,29 +197,50 @@ function deleteFormulationCommand(): Command {
 
 function registerSpecificationCommand(): Command {
   return newCommand()
-    .command('register')
+    .command('register <path>')
     .description('add a new specification')
-    .requiredOption('-f, --formulation <name>', 'matching formulation name')
-    .requiredOption('-s, --source <path>', 'path to specification source')
+    .option(
+      '-f, --formulation <name>',
+      'formulation name, defaults to the trimmed source\'s file name'
+    )
     .option('-d, --description <text>', 'description text, defaults to source')
     .option('-t, --tags <names>', 'comma-separated tag names')
     .action(
-      contextualAction(async function (opts) {
+      contextualAction(async function (srcPath, opts) {
         const {client, spinner} = this;
         spinner.start('Extracting definitions...');
-        const src = await readFile(opts.source, 'utf8');
+        const src = await readFile(srcPath, 'utf8');
         const defs = await client.extractDefinitions(src);
         spinner
-          .info(`Extracted ${defs.length} definition(s).`)
+          .succeed(`Extracted ${defs.length} definition(s).`)
           .start('Registering specification...');
         const spec = await client.registerSpecification({
-          formulationName: opts.formulation,
+          formulationName: opts.formulation ?? path.parse(srcPath).name,
           definitions: defs,
           description: opts.description ?? src,
           tagNames: opts.tags?.split(','),
         });
         const url = client.specificationUrl(spec.formulation.name, spec.revno);
         spinner.succeed('Registered specification: ' + url);
+      })
+    );
+}
+
+function validateSpecificationCommand(): Command {
+  return newCommand()
+    .command('validate <path>')
+    .description('validate a specification\'s source')
+    .action(
+      contextualAction(async function (srcPath) {
+        const {client, spinner} = this;
+        spinner.start('Extracting definitions...');
+        const src = await readFile(srcPath, 'utf8');
+        const defs = await client.extractDefinitions(src);
+        spinner
+          .succeed(`Extracted ${defs.length} definition(s).`)
+          .start('Validating definitions...');
+        await client.validateDefinitions(defs);
+        spinner.succeed('Validated definitions.');
       })
     );
 }
