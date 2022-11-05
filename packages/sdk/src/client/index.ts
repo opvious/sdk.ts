@@ -15,26 +15,19 @@
  * the License.
  */
 
+import * as otel from '@opentelemetry/api';
+import {assert, check} from '@opvious/stl-errors';
+import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
+import {MarkPresent} from '@opvious/stl-utils';
 import backoff from 'backoff';
 import events from 'events';
 import {GraphQLClient} from 'graphql-request';
-import fetch, {
-  Headers,
-  RequestInfo,
-  RequestInit,
-  Response,
-} from 'node-fetch';
+import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
 
-import {
-  assert,
-  assertNoErrors,
-  checkPresent,
-  MarkPresent,
-  strippingTrailingSlashes,
-} from '../common';
+import {assertNoErrors, packageInfo, strippingTrailingSlashes} from '../common';
 import {
   AttemptTracker,
   AttemptTrackerListeners,
@@ -54,6 +47,7 @@ export {
 /** Opvious API client. */
 export class OpviousClient {
   private constructor(
+    private readonly telemetry: Telemetry,
     /** Base endpoint to the GraphQL API. */
     readonly apiEndpoint: string,
     /** Base optimization hub endpoint. */
@@ -63,6 +57,9 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
+    const tel = (opts?.telemetry ?? noopTelemetry()).via(packageInfo);
+    const {logger} = tel;
+
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
     if (!auth) {
       throw new Error('Missing authorization');
@@ -76,44 +73,79 @@ export class OpviousClient {
       headers: {
         'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
         authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-        'opvious-client': 'TypeScript SDK',
+        'opvious-client': 'TypeScript SDK v' + packageInfo.version,
       },
-      fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
+      async fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
         const {body} = init;
-        assert(typeof body == 'string');
-        if (body.length <= COMPRESSION_THRESHOLD) {
-          return fetch(info, init);
-        }
         const headers = new Headers(init.headers);
-        headers.set(ENCODING_HEADER, 'br');
-        const compressed = zlib.createBrotliCompress({
-          params: {
-            [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-            [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+        otel.propagation.inject(otel.context.active(), headers);
+        assert(typeof body == 'string', 'Non-string body');
+        let res;
+        if (body.length <= COMPRESSION_THRESHOLD) {
+          logger.debug(
+            {data: {req: {body, headers: Object.fromEntries(headers)}}},
+            'Sending uncompressed API request...'
+          );
+          res = await fetch(info, {...init, headers});
+        } else {
+          const headers = new Headers(init.headers);
+          headers.set(ENCODING_HEADER, 'br');
+          const compressed = zlib.createBrotliCompress({
+            params: {
+              [zlib.constants.BROTLI_PARAM_MODE]:
+                zlib.constants.BROTLI_MODE_TEXT,
+              [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+            },
+          });
+          process.nextTick(() => {
+            compressed.end(body);
+          });
+          logger.debug(
+            {
+              data: {
+                req: {
+                  bodyLength: body.length,
+                  headers: Object.fromEntries(headers),
+                },
+              },
+            },
+            'Sending compressed API request...'
+          );
+          res = await fetch(info, {...init, headers, body: compressed});
+        }
+        logger.info(
+          {
+            data: {
+              res: {
+                headers: Object.fromEntries(res.headers),
+                statusCode: res.status,
+              },
+            },
           },
-        });
-        process.nextTick(() => {
-          compressed.end(body);
-        });
-        return fetch(info, {...init, headers, body: compressed});
+          'Got API response.'
+        );
+        return res;
       },
     });
-    const sdk = g.getSdk(<R, V>(query: string, vars: V) =>
-      client.rawRequest<R, V>(query, vars)
-    );
+    const sdk = g.getSdk(<R, V>(query: string, vars: V) => {
+      logger.info({data: {query}}, 'Executing API query...');
+      return client.rawRequest<R, V>(query, vars);
+    });
     const hubEndpoint = strippingTrailingSlashes(
       opts?.hubEndpoint
         ? '' + opts.hubEndpoint
         : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.HUB
     );
-    return new OpviousClient(apiEndpoint, hubEndpoint, sdk);
+
+    logger.info('Created new client.');
+    return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk);
   }
 
   /** Fetch currently active account information. */
   async fetchMyAccount(): Promise<g.MyAccountFragment> {
     const res = await this.sdk.FetchMyAccount();
     assertNoErrors(res);
-    return checkPresent(res.data?.me);
+    return check.isPresent(res.data?.me);
   }
 
   /** Lists all available authorizations. */
@@ -122,7 +154,7 @@ export class OpviousClient {
   > {
     const res = await this.sdk.ListMyAuthorizations();
     assertNoErrors(res);
-    return checkPresent(res.data?.me.holder).authorizations;
+    return check.isPresent(res.data?.me.holder).authorizations;
   }
 
   /** Creates a new access token for an authorization with the given name. */
@@ -131,14 +163,14 @@ export class OpviousClient {
   ): Promise<string> {
     const res = await this.sdk.GenerateAuthorization({input});
     assertNoErrors(res);
-    return checkPresent(res.data).generateAuthorization.token;
+    return check.isPresent(res.data).generateAuthorization.token;
   }
 
   /** Revokes an authorization from its name, returning true if one existed. */
   async revokeAuthorization(name: string): Promise<boolean> {
     const res = await this.sdk.RevokeAuthorization({name});
     assertNoErrors(res);
-    return checkPresent(res.data).revokeAuthorization;
+    return check.isPresent(res.data).revokeAuthorization;
   }
 
   /**
@@ -151,7 +183,7 @@ export class OpviousClient {
     const res = await this.sdk.ExtractDefinitions({sources});
     assertNoErrors(res);
     const defs: any[] = [];
-    for (const slice of checkPresent(res.data).extractDefinitions.slices) {
+    for (const slice of check.isPresent(res.data).extractDefinitions.slices) {
       if (slice.__typename === 'InvalidSourceSlice') {
         throw new Error(slice.errorMessage);
       }
@@ -166,7 +198,7 @@ export class OpviousClient {
   ): Promise<ReadonlyArray<string>> {
     const res = await this.sdk.ValidateDefinitions({definitions: defs});
     assertNoErrors(res);
-    return checkPresent(res.data).validateDefinitions.warnings ?? [];
+    return check.isPresent(res.data).validateDefinitions.warnings ?? [];
   }
 
   /** Adds a new specification. */
@@ -175,7 +207,7 @@ export class OpviousClient {
   ): Promise<g.RegisteredSpecificationFragment> {
     const res = await this.sdk.RegisterSpecification({input});
     assertNoErrors(res);
-    return checkPresent(res.data).registerSpecification;
+    return check.isPresent(res.data).registerSpecification;
   }
 
   /** Updates a formulation's metadata. */
@@ -184,7 +216,7 @@ export class OpviousClient {
   ): Promise<g.UpdatedFormulationFragment> {
     const res = await this.sdk.UpdateFormulation({input});
     assertNoErrors(res);
-    return checkPresent(res.data).updateFormulation;
+    return check.isPresent(res.data).updateFormulation;
   }
 
   /** Fetches a formulation's outline. */
@@ -197,7 +229,7 @@ export class OpviousClient {
       tagName,
     });
     assertNoErrors(res);
-    const form = checkPresent(res.data).formulation;
+    const form = check.isPresent(res.data).formulation;
     if (!form?.tag) {
       throw new Error('No such specification');
     }
@@ -210,7 +242,7 @@ export class OpviousClient {
   ): Promise<Paginated<g.PaginatedFormulationFragment>> {
     const res = await this.sdk.PaginateFormulations(vars);
     assertNoErrors(res);
-    const forms = checkPresent(res.data).formulations;
+    const forms = check.isPresent(res.data).formulations;
     return {
       info: forms.pageInfo,
       totalCount: forms.totalCount,
@@ -222,7 +254,7 @@ export class OpviousClient {
   async deleteFormulation(name: Name): Promise<boolean> {
     const res = await this.sdk.DeleteFormulation({name});
     assertNoErrors(res);
-    return checkPresent(res.data).deleteFormulation.specificationCount > 0;
+    return check.isPresent(res.data).deleteFormulation.specificationCount > 0;
   }
 
   /**
@@ -234,8 +266,8 @@ export class OpviousClient {
   ): Promise<MarkPresent<g.SharedSpecificationTagFragment, 'sharedVia'>> {
     const res = await this.sdk.StartSharingFormulation({input});
     assertNoErrors(res);
-    const tag = checkPresent(res.data).startSharingFormulation;
-    return {...tag, sharedVia: checkPresent(tag.sharedVia)};
+    const tag = check.isPresent(res.data).startSharingFormulation;
+    return {...tag, sharedVia: check.isPresent(tag.sharedVia)};
   }
 
   /**
@@ -255,7 +287,7 @@ export class OpviousClient {
   ): Promise<Paginated<g.PaginatedAttemptFragment>> {
     const res = await this.sdk.PaginateAttempts(vars);
     assertNoErrors(res);
-    const forms = checkPresent(res.data).attempts;
+    const forms = check.isPresent(res.data).attempts;
     return {
       info: forms.pageInfo,
       totalCount: forms.totalCount,
@@ -271,7 +303,7 @@ export class OpviousClient {
   async startAttempt(input: g.AttemptInput): Promise<g.StartedAttemptFragment> {
     const startRes = await this.sdk.StartAttempt({input});
     assertNoErrors(startRes);
-    return checkPresent(startRes.data).startAttempt;
+    return check.isPresent(startRes.data).startAttempt;
   }
 
   /**
@@ -288,7 +320,7 @@ export class OpviousClient {
         .PollAttempt({uuid})
         .then((res) => {
           assertNoErrors(res);
-          const attempt = checkPresent(res.data?.attempt);
+          const attempt = check.isPresent(res.data?.attempt);
           switch (attempt.status) {
             case 'PENDING': {
               const notif = attempt.notifications.edges[0]?.node;
@@ -303,7 +335,7 @@ export class OpviousClient {
             case 'UNBOUNDED':
               throw new Error('Unbounded attempt');
           }
-          const outcome = checkPresent(attempt.outcome);
+          const outcome = check.isPresent(attempt.outcome);
           if (outcome.__typename === 'FailedOutcome') {
             throw new Error(outcome.failure.message);
           }
@@ -338,7 +370,7 @@ export class OpviousClient {
   ): Promise<g.FetchedAttemptFragment | undefined> {
     const res = await this.sdk.FetchAttempt({uuid});
     assertNoErrors(res);
-    return checkPresent(res.data).attempt;
+    return check.isPresent(res.data).attempt;
   }
 
   /** Paginates an attempt's notifications. */
@@ -347,7 +379,7 @@ export class OpviousClient {
   ): Promise<Paginated<g.FullAttemptNotificationFragment>> {
     const res = await this.sdk.PaginateAttemptNotifications(vars);
     assertNoErrors(res);
-    const notifs = checkPresent(res.data).attempt?.notifications;
+    const notifs = check.isPresent(res.data).attempt?.notifications;
     if (!notifs) {
       throw attemptNotFoundError(vars.uuid);
     }
@@ -364,7 +396,7 @@ export class OpviousClient {
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptInputs({uuid});
     assertNoErrors(res);
-    const attempt = checkPresent(res.data).attempt;
+    const attempt = check.isPresent(res.data).attempt;
     if (!attempt) {
       throw attemptNotFoundError(uuid);
     }
@@ -380,7 +412,7 @@ export class OpviousClient {
   ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptOutputs({uuid});
     assertNoErrors(res);
-    const attempt = checkPresent(res.data).attempt;
+    const attempt = check.isPresent(res.data).attempt;
     if (!attempt) {
       throw attemptNotFoundError(uuid);
     }
@@ -415,6 +447,9 @@ export interface OpviousClientOptions {
    * `process.env.OPVIOUS_AUTHORIZATION`.
    */
   readonly authorization?: string;
+
+  /** Telemetry instance used for logging, etc. */
+  readonly telemetry?: Telemetry;
 
   /**
    * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if

@@ -16,4 +16,3 @@
  */
 
 export * from './client';
-export {MarkPresent} from './common';

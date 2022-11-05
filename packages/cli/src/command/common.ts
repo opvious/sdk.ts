@@ -15,16 +15,30 @@
  * the License.
  */
 
+import {errorFactories, errorMessage} from '@opvious/stl-errors';
+import {withActiveSpan,WithActiveSpanParams} from '@opvious/stl-telemetry';
 import {Command} from 'commander';
 import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
 
+import {telemetry} from '../common';
 import {loadConfig} from '../config';
 
+const [errors, codes] = errorFactories({
+  definitions: {
+    setupFailed: {},
+    actionFailed: {},
+    commandAborted: {},
+  },
+});
+
+export const commandAbortedError = errors.commandAborted;
+export const commandCodes = codes;
+
 export function newCommand(): Command {
-  return new Command().exitOverride((err) => {
-    throw err;
+  return new Command().exitOverride((cause) => {
+    throw errors.commandAborted({cause, tags: {exitCode: cause.exitCode}});
   });
 }
 
@@ -39,15 +53,33 @@ export function contextualAction(
     const opts = cmd.opts();
     const spinner = ora({isSilent: !!opts.quiet});
 
-    spinner.start('Loading client...');
-    try {
-      const config = await loadConfig({profile: opts.profile});
-      spinner.succeed(`Loaded client. [profile=${config.profileName}]`);
-      await fn.call({client: config.client, spinner}, ...args);
-    } catch (cause: any) {
-      spinner.fail(cause.message);
-      throw cause;
-    }
+    const spanParams: WithActiveSpanParams = {
+      name: 'CLI command',
+      tracer: telemetry.tracer,
+    };
+    return withActiveSpan(spanParams, async (span) => {
+      const sctx = span.spanContext();
+      const {traceId} = sctx;
+      spinner
+        .info(`Initialized context. [trace=${traceId}]`)
+        .start('Loading client...');
+
+      let config;
+      try {
+        config = await loadConfig({profile: opts.profile});
+        spinner.succeed(`Loaded client. [profile=${config.profileName}]`);
+      } catch (cause) {
+        spinner.fail(errorMessage(cause));
+        throw errors.setupFailed({cause});
+      }
+
+      try {
+        await fn.call({client: config.client, spinner}, ...args);
+      } catch (cause) {
+        spinner.fail(errorMessage(cause));
+        throw errors.actionFailed({cause});
+      }
+    });
   };
 }
 

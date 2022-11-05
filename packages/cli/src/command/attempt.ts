@@ -28,6 +28,7 @@ import {
 } from 'opvious-sheets';
 
 import {humanizeMillis} from '../common';
+import {display} from '../io';
 import {contextualAction, newCommand} from './common';
 
 export function attemptCommand(): Command {
@@ -145,7 +146,7 @@ function runAttemptCommand(): Command {
             `Attempt solved. [objective=${outcome.objectiveValue}]\n`
           );
         }
-        console.log('Attempt URL: ' + client.attemptUrl(attempt.uuid));
+        display('Attempt URL: ' + client.attemptUrl(attempt.uuid));
       })
     );
 }
@@ -227,8 +228,8 @@ function listAttemptsCommand(): Command {
           spinner.text =
             `Fetched ${count} of ${paginated.totalCount} ` + 'attempts...';
         } while (cursor && count < limit);
-        spinner.succeed(`Fetched ${count} attempt(s).`);
-        console.log('\n' + table);
+        spinner.succeed(`Fetched ${count} attempt(s).\n`);
+        display('' + table);
       })
     );
 }
@@ -269,8 +270,8 @@ function listAttemptNotificationsCommand(): Command {
           spinner.text =
             `Fetched ${count} of ${paginated.totalCount} ` + 'notifications...';
         } while (cursor && count < limit);
-        spinner.succeed(`Fetched ${count} notification(s).`);
-        console.log('\n' + table);
+        spinner.succeed(`Fetched ${count} notification(s).\n`);
+        display('' + table);
       })
     );
 }

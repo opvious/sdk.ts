@@ -17,24 +17,6 @@
 
 import * as g from 'opvious-graph';
 
-export function assert(pred: unknown, msg?: string): asserts pred {
-  if (!pred) {
-    throw new Error('Assertion failed' + msg == null ? '' : ': ' + msg);
-  }
-}
-
-export function checkPresent<V>(arg: V | undefined | null): V {
-  assert(arg != null);
-  return arg;
-}
-
-export function ifPresent<V, W>(
-  val: V | null | undefined,
-  fn: (v: Exclude<V, null | undefined>) => W
-): W | undefined {
-  return val === null || val === undefined ? undefined : fn(val as any);
-}
-
 export type KeyItem = g.Scalars['KeyItem'];
 export type Label = g.Scalars['Label'];
 

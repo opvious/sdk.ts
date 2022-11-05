@@ -19,6 +19,7 @@ import {Command} from 'commander';
 import Table from 'easy-table';
 import {DateTime} from 'luxon';
 
+import {display} from '../io';
 import {contextualAction, newCommand} from './common';
 
 export function accountCommand(): Command {
@@ -40,8 +41,8 @@ function showCredentialsCommand(): Command {
         const {client, spinner} = this;
         spinner.start('Fetching credentials...');
         const account = await client.fetchMyAccount();
-        spinner.succeed('Fetched credentials.');
-        console.log(account.holder.email);
+        spinner.succeed('Fetched credentials.\n');
+        display(account.holder.email);
       })
     );
 }
@@ -69,9 +70,9 @@ function listAuthorizationsCommand(): Command {
           table.cell('token_suffix', info.tokenSuffix);
           table.newRow();
         }
-        spinner.succeed(`Fetched ${infos.length} authorizations(s).`);
+        spinner.succeed(`Fetched ${infos.length} authorizations(s).\n`);
         if (infos.length) {
-          console.log('\n' + table);
+          display('' + table);
         }
       })
     );
@@ -90,8 +91,8 @@ function generateAuthorizationCommand(): Command {
           name,
           ttlDays: +opts.ttl,
         });
-        spinner.succeed('Authorization created.');
-        console.log(token);
+        spinner.succeed('Authorization created.\n');
+        display(token);
       })
     );
 }

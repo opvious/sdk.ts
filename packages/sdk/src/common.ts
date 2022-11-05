@@ -15,13 +15,10 @@
  * the License.
  */
 
+import {enclosingPackageInfo} from '@opvious/stl-telemetry';
 import * as gql from 'graphql';
 
-export function assert(pred: unknown): asserts pred {
-  if (!pred) {
-    throw new Error('Assertion failed');
-  }
-}
+export const packageInfo = enclosingPackageInfo(__dirname);
 
 export function assertNoErrors<V>(res: gql.ExecutionResult<V, unknown>): void {
   if (res.errors?.length) {
@@ -29,18 +26,6 @@ export function assertNoErrors<V>(res: gql.ExecutionResult<V, unknown>): void {
   }
 }
 
-export function checkPresent<V>(arg: V | undefined | null): V {
-  assert(arg != null);
-  return arg;
-}
-
 export function strippingTrailingSlashes(arg: string): string {
   return arg.replace(/\/+$/, '');
 }
-
-export type MarkPresent<O extends object, F extends keyof O> = Omit<O, F> & {
-  // We don't add readonly here because it would cause writable properties to
-  // become readonly. The default behavior works as expected: readonly
-  // properties remain readonly.
-  [K in F]-?: NonNullable<O[K]>;
-};

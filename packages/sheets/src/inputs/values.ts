@@ -15,9 +15,10 @@
  * the License.
  */
 
+import {assert} from '@opvious/stl-errors';
 import * as g from 'opvious-graph';
 
-import {assert, isAlmost, KeyItem, Label} from '../common';
+import {isAlmost, KeyItem, Label} from '../common';
 import {Column, Columns, Range, Spreadsheet, Value} from '../spreadsheet';
 import {commonHeight} from '../table';
 import {InputMapping, TensorMapping} from './mapping';

@@ -15,9 +15,10 @@
  * the License.
  */
 
+import {assert} from '@opvious/stl-errors';
 import * as g from 'opvious-graph';
 
-import {assert, isIndicator, Label} from '../common';
+import {isIndicator, Label} from '../common';
 import {A1, Range, rangeA1} from '../spreadsheet';
 import {Header, newHeader, Table} from '../table';
 
@@ -158,7 +159,7 @@ class TensorMappingBuilder {
       }
     }
     if (box) {
-      assert(header != null);
+      assert(header != null, 'Null header');
       if (usedBlocks.has(header)) {
         throw new Error('Reused binding header ' + header);
       }

@@ -6,6 +6,8 @@ import os from 'os';
 import path from 'path';
 import {DeepWritable} from 'ts-essentials';
 
+import {telemetry} from './common';
+
 export interface Config {
   readonly profileName: string;
   readonly client: OpviousClient;
@@ -30,7 +32,7 @@ export async function loadConfig(params: LoadConfigParams): Promise<Config> {
     : profile.authorization;
   return {
     profileName: profile.name,
-    client: OpviousClient.create({authorization}),
+    client: OpviousClient.create({authorization, telemetry}),
   };
 }
 

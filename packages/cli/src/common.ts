@@ -15,9 +15,24 @@
  * the License.
  */
 
+import {appTelemetry} from '@opvious/stl-bootstrap';
+import {errorFactories} from '@opvious/stl-errors';
+import {enclosingPackageInfo} from '@opvious/stl-telemetry';
 import humanizeDuration from 'humanize-duration';
+import os from 'os';
+import path from 'path';
+
+export const [errors, codes] = errorFactories({
+  definitions: {
+    setupFailed: {},
+    actionFailed: {},
+    commandAborted: {},
+  },
+});
 
 export const COMMAND_NAME = 'opvious';
+
+export const packageInfo = enclosingPackageInfo(__dirname);
 
 export function isCommanderError(err: unknown): boolean {
   const code = (err as any)?.code;
@@ -29,3 +44,14 @@ export function humanizeMillis(millis: number): string {
     ? 'less than a second'
     : humanizeDuration(millis, {largest: 1, round: true});
 }
+
+export function logPath(): string {
+  return path.join(os.tmpdir(), COMMAND_NAME + '.log');
+}
+
+export const telemetry = appTelemetry(packageInfo, {
+  loggerOptions: {
+    destination: logPath(),
+    redact: ['data.req.headers.authorization'],
+  },
+});
