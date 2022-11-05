@@ -29,7 +29,7 @@
     "@graphql-codegen/typescript": "^2.7.3",
     "@graphql-codegen/typescript-generic-sdk": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^2.5.3",
-    "@opvious/api-graph": "^0.8.3",
+    "@opvious/api-graph": "^0.8.4",
     "@types/node": "^18.11.7",
     "graphql-tag": "^2.12.6",
     "ts-node": "^10.9.1",

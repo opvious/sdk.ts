@@ -33,7 +33,8 @@ import {
   AttemptTrackerListeners,
   BlueprintUrls,
   clientErrors,
-  Name,
+  InvalidSourceSnippet,
+  invalidSourceSnippet,
   Paginated,
   resultData,
   Uuid,
@@ -77,12 +78,16 @@ export class OpviousClient {
       headers: {
         'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
         authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-        'opvious-client': 'TypeScript SDK v' + packageInfo.version,
+        'opvious-sdk': 'TypeScript v' + packageInfo.version,
       },
       async fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
         const {body} = init;
         const headers = new Headers(init.headers);
-        otel.propagation.inject(otel.context.active(), headers);
+        otel.propagation.inject(otel.context.active(), headers, {
+          set(carrier, key, value) {
+            carrier.set(key, value);
+          },
+        });
         assert(typeof body == 'string', 'Non-string body');
         let res;
         if (body.length <= COMPRESSION_THRESHOLD) {
@@ -117,7 +122,7 @@ export class OpviousClient {
           );
           res = await fetch(info, {...init, headers, body: compressed});
         }
-        logger.info(
+        logger.debug(
           {
             data: {
               res: {
@@ -145,7 +150,7 @@ export class OpviousClient {
         : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.HUB
     );
 
-    logger.info('Created new client.');
+    logger.debug('Created new client.');
     return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk);
   }
 
@@ -186,11 +191,17 @@ export class OpviousClient {
   ): Promise<ReadonlyArray<g.Definition>> {
     const res = await this.sdk.ExtractDefinitions({sources});
     const defs: any[] = [];
+    const snips: InvalidSourceSnippet[] = [];
     for (const slice of resultData(res).extractDefinitions.slices) {
       if (slice.__typename === 'InvalidSourceSlice') {
-        throw new Error(slice.errorMessage);
+        const src = check.isPresent(sources[slice.index]);
+        snips.push(invalidSourceSnippet(slice, src));
+      } else {
+        defs.push(slice.definition);
       }
-      defs.push(slice.definition);
+    }
+    if (snips.length) {
+      throw clientErrors.unparseableSource(snips);
     }
     return defs;
   }
@@ -221,8 +232,8 @@ export class OpviousClient {
 
   /** Fetches a formulation's outline. */
   async fetchOutline(
-    formulationName: Name,
-    tagName?: Name
+    formulationName: string,
+    tagName?: string
   ): Promise<MarkPresent<g.FetchedOutlineFormulationFragment, 'tag'>> {
     const res = await this.sdk.FetchOutline({
       formulationName,
@@ -249,7 +260,7 @@ export class OpviousClient {
   }
 
   /** Deletes a formulation, returning true if a formulation was deleted. */
-  async deleteFormulation(name: Name): Promise<boolean> {
+  async deleteFormulation(name: string): Promise<boolean> {
     const res = await this.sdk.DeleteFormulation({name});
     return resultData(res).deleteFormulation.specificationCount > 0;
   }
@@ -410,11 +421,11 @@ export class OpviousClient {
     return outcome?.__typename === 'FeasibleOutcome' ? outcome : undefined;
   }
 
-  formulationUrl(name: Name): URL {
+  formulationUrl(name: string): URL {
     return new URL(this.hubEndpoint + `/formulations/${name}`);
   }
 
-  specificationUrl(formulation: Name, revno: number): URL {
+  specificationUrl(formulation: string, revno: number): URL {
     const pathname = `/formulations/${formulation}/overview/${revno}`;
     return new URL(this.hubEndpoint + pathname);
   }

@@ -15,6 +15,7 @@
  * the License.
  */
 
+import {codeFrameColumns} from '@babel/code-frame';
 import {check, errorFactories} from '@opvious/stl-errors';
 import * as gql from 'graphql';
 import {ClientError} from 'graphql-request';
@@ -35,6 +36,12 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
         'API response included errors: ' + errs.map(formatError).join(', '),
       tags: {errors: errs},
     }),
+    unparseableSource: (snippets: ReadonlyArray<InvalidSourceSnippet>) => ({
+      message:
+        `Encountered ${snippets.length} error(s) while parsing source:\n\n` +
+        snippets.map((s) => s.preview).join('\n'),
+      tags: {snippets},
+    }),
     missingAuthorization: 'No authorization found',
     unknownAttempt: (uuid: Uuid) => ({
       message: `Attempt ${uuid} was not found`,
@@ -49,6 +56,24 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
   },
 });
 
+export interface InvalidSourceSnippet {
+  readonly slice: g.InvalidSourceSlice;
+  readonly preview: string;
+}
+
+export function invalidSourceSnippet(
+  slice: g.InvalidSourceSlice,
+  src: string
+): InvalidSourceSnippet {
+  const {start, end} = slice.range;
+  const preview = codeFrameColumns(
+    src,
+    {start, end: {line: end.line, column: end.column + 2}},
+    {linesAbove: 1, linesBelow: 1, message: slice.errorMessage}
+  );
+  return {slice, preview};
+}
+
 export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
   if (res.errors?.length) {
     throw clientErrors.apiResponseErrored(res.errors);
@@ -59,7 +84,11 @@ export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
 function formatError(err: gql.GraphQLError): string {
   let msg = err.message;
   if (err.extensions) {
-    msg += ` (${JSON.stringify(err.extensions)})`;
+    const details = Object.entries(err.extensions).map(
+      (e) =>
+        `${e[0]}: ${typeof e[1] === 'string' ? e[1] : JSON.stringify(e[1])}`
+    );
+    msg += ` (${details.join(', ')})`;
   }
   return msg;
 }
@@ -71,7 +100,6 @@ export interface Paginated<V> {
 }
 
 export type Label = g.Scalars['Label'];
-export type Name = g.Scalars['Name'];
 export type Uuid = g.Scalars['Uuid'];
 
 export interface AttemptTrackerListeners {

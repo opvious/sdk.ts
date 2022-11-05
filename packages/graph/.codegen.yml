@@ -19,6 +19,7 @@ generates:
         AccessToken: string
         AttemptLimit: number
         AttemptNotificationLimit: number
+        AuthorizationName: string
         Cursor: string
         DateTime: string
         Description: string
@@ -26,13 +27,14 @@ generates:
         Duration: number
         ExtendedFloat: number | string
         Failure: any
+        FormulationName: string
         KeyItem: number | string
         Label: string
         Limit: number
         Long: string
-        Name: string
         Slug: string
         Source: string
+        TagName: string
         TensorBound: number | string
         Url: string
         Uuid: string

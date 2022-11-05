@@ -22,7 +22,7 @@ import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
 
-import {telemetry} from '../common';
+import {COMMAND_NAME, telemetry} from '../common';
 import {loadConfig} from '../config';
 
 const [errors, codes] = errorFactories({
@@ -58,7 +58,7 @@ export function contextualAction(
     const spinner = ora({isSilent: !!opts.quiet});
 
     const spanParams: WithActiveSpanParams = {
-      name: 'CLI command',
+      name: COMMAND_NAME + ' command',
       tracer: telemetry.tracer,
     };
     return withActiveSpan(spanParams, async (span) => {
@@ -71,7 +71,11 @@ export function contextualAction(
       let config;
       try {
         config = await loadConfig({profile: opts.profile});
-        spinner.succeed(`Loaded client. [profile=${config.profileName}]`);
+        let msg = 'Loaded client.';
+        if (config.profileName) {
+          msg += ` [profile=${config.profileName}]`;
+        }
+        spinner.succeed(msg);
       } catch (cause) {
         spinner.fail(errorMessage(cause));
         throw errors.setupFailed(cause);
