@@ -16,8 +16,8 @@
  */
 
 import {errorFactories, errorMessage} from '@opvious/stl-errors';
-import {withActiveSpan,WithActiveSpanParams} from '@opvious/stl-telemetry';
-import {Command} from 'commander';
+import {withActiveSpan, WithActiveSpanParams} from '@opvious/stl-telemetry';
+import {Command, CommanderError} from 'commander';
 import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
@@ -27,9 +27,13 @@ import {loadConfig} from '../config';
 
 const [errors, codes] = errorFactories({
   definitions: {
-    setupFailed: {},
-    actionFailed: {},
-    commandAborted: {},
+    setupFailed: (cause: unknown) => ({message: 'Setup failed', cause}),
+    actionFailed: (cause: unknown) => ({message: 'Command failed', cause}),
+    commandAborted: (cause: CommanderError) => ({
+      message: 'Command aborted',
+      cause,
+      tags: {exitCode: cause.exitCode},
+    }),
   },
 });
 
@@ -38,7 +42,7 @@ export const commandCodes = codes;
 
 export function newCommand(): Command {
   return new Command().exitOverride((cause) => {
-    throw errors.commandAborted({cause, tags: {exitCode: cause.exitCode}});
+    throw errors.commandAborted(cause);
   });
 }
 
@@ -70,14 +74,14 @@ export function contextualAction(
         spinner.succeed(`Loaded client. [profile=${config.profileName}]`);
       } catch (cause) {
         spinner.fail(errorMessage(cause));
-        throw errors.setupFailed({cause});
+        throw errors.setupFailed(cause);
       }
 
       try {
         await fn.call({client: config.client, spinner}, ...args);
       } catch (cause) {
         spinner.fail(errorMessage(cause));
-        throw errors.actionFailed({cause});
+        throw errors.actionFailed(cause);
       }
     });
   };

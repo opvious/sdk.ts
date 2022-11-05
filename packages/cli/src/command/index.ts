@@ -82,10 +82,7 @@ function lastCommandLines(fp: string): Promise<ReadonlyArray<string>> {
     .on('error', cb)
     .on('line', (line) => {
       const {ctx} = JSON.parse(line);
-      if (!ctx) {
-        return;
-      }
-      if (ctx.t === tid) {
+      if (!ctx || ctx.t === tid) {
         lines.push(line);
       } else {
         lines = [line];

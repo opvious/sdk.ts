@@ -15,8 +15,54 @@
  * the License.
  */
 
+import {check, errorFactories} from '@opvious/stl-errors';
+import * as gql from 'graphql';
+import {ClientError} from 'graphql-request';
 import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
+
+export const [clientErrors, clientErrorCodes] = errorFactories({
+  definitions: {
+    apiRequestFailed: (cause: ClientError) => ({
+      message:
+        'API request failed to send: ' +
+          cause.response.errors?.map(formatError).join(', ') ?? cause.message,
+      cause,
+      tags: {errors: cause.response.errors},
+    }),
+    apiResponseErrored: (errs: ReadonlyArray<gql.GraphQLError>) => ({
+      message:
+        'API response included errors: ' + errs.map(formatError).join(', '),
+      tags: {errors: errs},
+    }),
+    missingAuthorization: 'No authorization found',
+    unknownAttempt: (uuid: Uuid) => ({
+      message: `Attempt ${uuid} was not found`,
+      tags: {uuid},
+    }),
+    unknownFormulation: (formulation: string, tag?: string) => ({
+      message:
+        `Formulation ${formulation} ${tag ? ` (${tag})` : ''}` +
+        'was not found',
+      tags: {formulation, tag},
+    }),
+  },
+});
+
+export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
+  if (res.errors?.length) {
+    throw clientErrors.apiResponseErrored(res.errors);
+  }
+  return check.isPresent(res.data);
+}
+
+function formatError(err: gql.GraphQLError): string {
+  let msg = err.message;
+  if (err.extensions) {
+    msg += ` (${JSON.stringify(err.extensions)})`;
+  }
+  return msg;
+}
 
 export interface Paginated<V> {
   readonly info: g.PageInfo;
