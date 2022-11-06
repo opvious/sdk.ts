@@ -17,11 +17,16 @@
  * the License.
  */
 
-const {isCommanderError, mainCommand} = require('../lib');
+const {packageCodes, mainCommand, telemetry} = require('../lib');
 
 mainCommand().parseAsync(process.argv).catch((err) => {
+  if (err.code === packageCodes.CommandAborted) {
+    process.exitCode = err.tags?.exitCode ?? 0;
+    return;
+  }
   process.exitCode = 1;
-  if (!isCommanderError(err)) {
+  telemetry.logger.fatal({err}, 'Command failed.');
+  if (!packageCodes.has(err.code)) {
     console.error(err);
   }
 });

@@ -15,45 +15,43 @@
  * the License.
  */
 
+import * as otel from '@opentelemetry/api';
+import {assert, assertCause, check} from '@opvious/stl-errors';
+import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
+import {MarkPresent} from '@opvious/stl-utils';
 import backoff from 'backoff';
 import events from 'events';
-import {GraphQLClient} from 'graphql-request';
-import fetch, {
-  Headers,
-  RequestInfo,
-  RequestInit,
-  Response,
-} from 'node-fetch';
+import {ClientError, GraphQLClient} from 'graphql-request';
+import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
 
-import {
-  assert,
-  assertNoErrors,
-  checkPresent,
-  MarkPresent,
-  strippingTrailingSlashes,
-} from '../common';
+import {packageInfo, strippingTrailingSlashes} from '../common';
 import {
   AttemptTracker,
   AttemptTrackerListeners,
   BlueprintUrls,
-  Name,
+  clientErrors,
+  InvalidSourceSnippet,
+  invalidSourceSnippet,
   Paginated,
+  resultData,
   Uuid,
-} from './types';
+} from './common';
 
 export {
   AttemptTracker,
   AttemptTrackerListeners,
   BlueprintUrls,
+  clientErrorCodes,
   Paginated,
-} from './types';
+} from './common';
 
 /** Opvious API client. */
 export class OpviousClient {
   private constructor(
+    private readonly telemetry: Telemetry,
     /** Base endpoint to the GraphQL API. */
     readonly apiEndpoint: string,
     /** Base optimization hub endpoint. */
@@ -63,9 +61,12 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
+    const tel = (opts?.telemetry ?? noopTelemetry()).via(packageInfo);
+    const {logger} = tel;
+
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
     if (!auth) {
-      throw new Error('Missing authorization');
+      throw clientErrors.missingAuthorization();
     }
     const apiEndpoint = strippingTrailingSlashes(
       opts?.apiEndpoint
@@ -73,47 +74,90 @@ export class OpviousClient {
         : process.env.OPVIOUS_API_ENDPOINT ?? DefaultEndpoint.API
     );
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
+      errorPolicy: 'all',
       headers: {
         'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
         authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-        'opvious-client': 'TypeScript SDK',
+        'opvious-sdk': 'TypeScript v' + packageInfo.version,
       },
-      fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
+      async fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
         const {body} = init;
-        assert(typeof body == 'string');
-        if (body.length <= COMPRESSION_THRESHOLD) {
-          return fetch(info, init);
-        }
         const headers = new Headers(init.headers);
-        headers.set(ENCODING_HEADER, 'br');
-        const compressed = zlib.createBrotliCompress({
-          params: {
-            [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-            [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+        otel.propagation.inject(otel.context.active(), headers, {
+          set(carrier, key, value) {
+            carrier.set(key, value);
           },
         });
-        process.nextTick(() => {
-          compressed.end(body);
-        });
-        return fetch(info, {...init, headers, body: compressed});
+        assert(typeof body == 'string', 'Non-string body');
+        let res;
+        if (body.length <= COMPRESSION_THRESHOLD) {
+          logger.debug(
+            {data: {req: {body, headers: Object.fromEntries(headers)}}},
+            'Sending uncompressed API request...'
+          );
+          res = await fetch(info, {...init, headers});
+        } else {
+          const headers = new Headers(init.headers);
+          headers.set(ENCODING_HEADER, 'br');
+          const compressed = zlib.createBrotliCompress({
+            params: {
+              [zlib.constants.BROTLI_PARAM_MODE]:
+                zlib.constants.BROTLI_MODE_TEXT,
+              [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+            },
+          });
+          process.nextTick(() => {
+            compressed.end(body);
+          });
+          logger.debug(
+            {
+              data: {
+                req: {
+                  bodyLength: body.length,
+                  headers: Object.fromEntries(headers),
+                },
+              },
+            },
+            'Sending compressed API request...'
+          );
+          res = await fetch(info, {...init, headers, body: compressed});
+        }
+        logger.debug(
+          {
+            data: {
+              res: {
+                headers: Object.fromEntries(res.headers),
+                statusCode: res.status,
+              },
+            },
+          },
+          'Got API response.'
+        );
+        return res;
       },
     });
-    const sdk = g.getSdk(<R, V>(query: string, vars: V) =>
-      client.rawRequest<R, V>(query, vars)
-    );
+    const sdk = g.getSdk(async <R, V>(query: string, vars: V) => {
+      try {
+        return await client.rawRequest<R, V>(query, vars);
+      } catch (err) {
+        assertCause(err instanceof ClientError, err);
+        throw clientErrors.apiRequestFailed(err);
+      }
+    });
     const hubEndpoint = strippingTrailingSlashes(
       opts?.hubEndpoint
         ? '' + opts.hubEndpoint
         : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.HUB
     );
-    return new OpviousClient(apiEndpoint, hubEndpoint, sdk);
+
+    logger.debug('Created new client.');
+    return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk);
   }
 
   /** Fetch currently active account information. */
   async fetchMyAccount(): Promise<g.MyAccountFragment> {
     const res = await this.sdk.FetchMyAccount();
-    assertNoErrors(res);
-    return checkPresent(res.data?.me);
+    return resultData(res).me;
   }
 
   /** Lists all available authorizations. */
@@ -121,8 +165,7 @@ export class OpviousClient {
     ReadonlyArray<g.ListedAuthorizationFragment>
   > {
     const res = await this.sdk.ListMyAuthorizations();
-    assertNoErrors(res);
-    return checkPresent(res.data?.me.holder).authorizations;
+    return resultData(res).me.holder.authorizations;
   }
 
   /** Creates a new access token for an authorization with the given name. */
@@ -130,15 +173,13 @@ export class OpviousClient {
     input: g.GenerateAuthorizationInput
   ): Promise<string> {
     const res = await this.sdk.GenerateAuthorization({input});
-    assertNoErrors(res);
-    return checkPresent(res.data).generateAuthorization.token;
+    return resultData(res).generateAuthorization.token;
   }
 
   /** Revokes an authorization from its name, returning true if one existed. */
   async revokeAuthorization(name: string): Promise<boolean> {
     const res = await this.sdk.RevokeAuthorization({name});
-    assertNoErrors(res);
-    return checkPresent(res.data).revokeAuthorization;
+    return resultData(res).revokeAuthorization;
   }
 
   /**
@@ -149,13 +190,18 @@ export class OpviousClient {
     ...sources: string[]
   ): Promise<ReadonlyArray<g.Definition>> {
     const res = await this.sdk.ExtractDefinitions({sources});
-    assertNoErrors(res);
     const defs: any[] = [];
-    for (const slice of checkPresent(res.data).extractDefinitions.slices) {
+    const snips: InvalidSourceSnippet[] = [];
+    for (const slice of resultData(res).extractDefinitions.slices) {
       if (slice.__typename === 'InvalidSourceSlice') {
-        throw new Error(slice.errorMessage);
+        const src = check.isPresent(sources[slice.index]);
+        snips.push(invalidSourceSnippet(slice, src));
+      } else {
+        defs.push(slice.definition);
       }
-      defs.push(slice.definition);
+    }
+    if (snips.length) {
+      throw clientErrors.unparseableSource(snips);
     }
     return defs;
   }
@@ -165,8 +211,7 @@ export class OpviousClient {
     defs: ReadonlyArray<g.Definition>
   ): Promise<ReadonlyArray<string>> {
     const res = await this.sdk.ValidateDefinitions({definitions: defs});
-    assertNoErrors(res);
-    return checkPresent(res.data).validateDefinitions.warnings ?? [];
+    return resultData(res).validateDefinitions.warnings ?? [];
   }
 
   /** Adds a new specification. */
@@ -174,8 +219,7 @@ export class OpviousClient {
     input: g.RegisterSpecificationInput
   ): Promise<g.RegisteredSpecificationFragment> {
     const res = await this.sdk.RegisterSpecification({input});
-    assertNoErrors(res);
-    return checkPresent(res.data).registerSpecification;
+    return resultData(res).registerSpecification;
   }
 
   /** Updates a formulation's metadata. */
@@ -183,23 +227,21 @@ export class OpviousClient {
     input: g.UpdateFormulationInput
   ): Promise<g.UpdatedFormulationFragment> {
     const res = await this.sdk.UpdateFormulation({input});
-    assertNoErrors(res);
-    return checkPresent(res.data).updateFormulation;
+    return resultData(res).updateFormulation;
   }
 
   /** Fetches a formulation's outline. */
   async fetchOutline(
-    formulationName: Name,
-    tagName?: Name
+    formulationName: string,
+    tagName?: string
   ): Promise<MarkPresent<g.FetchedOutlineFormulationFragment, 'tag'>> {
     const res = await this.sdk.FetchOutline({
       formulationName,
       tagName,
     });
-    assertNoErrors(res);
-    const form = checkPresent(res.data).formulation;
+    const form = resultData(res).formulation;
     if (!form?.tag) {
-      throw new Error('No such specification');
+      throw clientErrors.unknownFormulation(formulationName, tagName);
     }
     return {...form, tag: form.tag};
   }
@@ -209,8 +251,7 @@ export class OpviousClient {
     vars: g.PaginateFormulationsQueryVariables
   ): Promise<Paginated<g.PaginatedFormulationFragment>> {
     const res = await this.sdk.PaginateFormulations(vars);
-    assertNoErrors(res);
-    const forms = checkPresent(res.data).formulations;
+    const forms = resultData(res).formulations;
     return {
       info: forms.pageInfo,
       totalCount: forms.totalCount,
@@ -219,10 +260,9 @@ export class OpviousClient {
   }
 
   /** Deletes a formulation, returning true if a formulation was deleted. */
-  async deleteFormulation(name: Name): Promise<boolean> {
+  async deleteFormulation(name: string): Promise<boolean> {
     const res = await this.sdk.DeleteFormulation({name});
-    assertNoErrors(res);
-    return checkPresent(res.data).deleteFormulation.specificationCount > 0;
+    return resultData(res).deleteFormulation.specificationCount > 0;
   }
 
   /**
@@ -233,9 +273,8 @@ export class OpviousClient {
     input: g.StartSharingFormulationInput
   ): Promise<MarkPresent<g.SharedSpecificationTagFragment, 'sharedVia'>> {
     const res = await this.sdk.StartSharingFormulation({input});
-    assertNoErrors(res);
-    const tag = checkPresent(res.data).startSharingFormulation;
-    return {...tag, sharedVia: checkPresent(tag.sharedVia)};
+    const tag = resultData(res).startSharingFormulation;
+    return {...tag, sharedVia: check.isPresent(tag.sharedVia)};
   }
 
   /**
@@ -244,9 +283,9 @@ export class OpviousClient {
    */
   async unshareFormulation(
     input: g.StopSharingFormulationInput
-  ): Promise<void> {
+  ): Promise<g.UnsharedFormulationFragment> {
     const res = await this.sdk.StopSharingFormulation({input});
-    assertNoErrors(res);
+    return resultData(res).stopSharingFormulation;
   }
 
   /** Paginates available attempts. */
@@ -254,8 +293,7 @@ export class OpviousClient {
     vars: g.PaginateAttemptsQueryVariables
   ): Promise<Paginated<g.PaginatedAttemptFragment>> {
     const res = await this.sdk.PaginateAttempts(vars);
-    assertNoErrors(res);
-    const forms = checkPresent(res.data).attempts;
+    const forms = resultData(res).attempts;
     return {
       info: forms.pageInfo,
       totalCount: forms.totalCount,
@@ -269,9 +307,8 @@ export class OpviousClient {
    * outputs, etc.
    */
   async startAttempt(input: g.AttemptInput): Promise<g.StartedAttemptFragment> {
-    const startRes = await this.sdk.StartAttempt({input});
-    assertNoErrors(startRes);
-    return checkPresent(startRes.data).startAttempt;
+    const res = await this.sdk.StartAttempt({input});
+    return resultData(res).startAttempt;
   }
 
   /**
@@ -287,8 +324,8 @@ export class OpviousClient {
       this.sdk
         .PollAttempt({uuid})
         .then((res) => {
-          assertNoErrors(res);
-          const attempt = checkPresent(res.data?.attempt);
+          const {attempt} = resultData(res);
+          assert(attempt, 'Unknown attempt');
           switch (attempt.status) {
             case 'PENDING': {
               const notif = attempt.notifications.edges[0]?.node;
@@ -303,7 +340,7 @@ export class OpviousClient {
             case 'UNBOUNDED':
               throw new Error('Unbounded attempt');
           }
-          const outcome = checkPresent(attempt.outcome);
+          const outcome = check.isPresent(attempt.outcome);
           if (outcome.__typename === 'FailedOutcome') {
             throw new Error(outcome.failure.message);
           }
@@ -327,9 +364,9 @@ export class OpviousClient {
   }
 
   /** Cancels a pending attempt. */
-  async cancelAttempt(uuid: Uuid): Promise<void> {
+  async cancelAttempt(uuid: Uuid): Promise<g.CancelledAttemptFragment> {
     const res = await this.sdk.CancelAttempt({uuid});
-    assertNoErrors(res);
+    return resultData(res).cancelAttempt;
   }
 
   /** Fetches an attempt from its UUID. */
@@ -337,8 +374,7 @@ export class OpviousClient {
     uuid: Uuid
   ): Promise<g.FetchedAttemptFragment | undefined> {
     const res = await this.sdk.FetchAttempt({uuid});
-    assertNoErrors(res);
-    return checkPresent(res.data).attempt;
+    return resultData(res).attempt;
   }
 
   /** Paginates an attempt's notifications. */
@@ -346,10 +382,9 @@ export class OpviousClient {
     vars: g.PaginateAttemptNotificationsQueryVariables
   ): Promise<Paginated<g.FullAttemptNotificationFragment>> {
     const res = await this.sdk.PaginateAttemptNotifications(vars);
-    assertNoErrors(res);
-    const notifs = checkPresent(res.data).attempt?.notifications;
+    const notifs = resultData(res).attempt?.notifications;
     if (!notifs) {
-      throw attemptNotFoundError(vars.uuid);
+      throw clientErrors.unknownAttempt(vars.uuid);
     }
     return {
       info: notifs.pageInfo,
@@ -363,10 +398,9 @@ export class OpviousClient {
     uuid: Uuid
   ): Promise<g.FetchedAttemptInputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptInputs({uuid});
-    assertNoErrors(res);
-    const attempt = checkPresent(res.data).attempt;
+    const {attempt} = resultData(res);
     if (!attempt) {
-      throw attemptNotFoundError(uuid);
+      throw clientErrors.unknownAttempt(uuid);
     }
     return attempt;
   }
@@ -379,20 +413,19 @@ export class OpviousClient {
     uuid: Uuid
   ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptOutputs({uuid});
-    assertNoErrors(res);
-    const attempt = checkPresent(res.data).attempt;
+    const {attempt} = resultData(res);
     if (!attempt) {
-      throw attemptNotFoundError(uuid);
+      throw clientErrors.unknownAttempt(uuid);
     }
     const {outcome} = attempt;
     return outcome?.__typename === 'FeasibleOutcome' ? outcome : undefined;
   }
 
-  formulationUrl(name: Name): URL {
+  formulationUrl(name: string): URL {
     return new URL(this.hubEndpoint + `/formulations/${name}`);
   }
 
-  specificationUrl(formulation: Name, revno: number): URL {
+  specificationUrl(formulation: string, revno: number): URL {
     const pathname = `/formulations/${formulation}/overview/${revno}`;
     return new URL(this.hubEndpoint + pathname);
   }
@@ -415,6 +448,9 @@ export interface OpviousClientOptions {
    * `process.env.OPVIOUS_AUTHORIZATION`.
    */
   readonly authorization?: string;
+
+  /** Telemetry instance used for logging, etc. */
+  readonly telemetry?: Telemetry;
 
   /**
    * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if
@@ -440,7 +476,3 @@ const ENCODING_HEADER = 'content-encoding';
 const BROTLI_QUALITY = 4;
 
 const COMPRESSION_THRESHOLD = 2 ** 16; // 64 kiB
-
-function attemptNotFoundError(uuid: Uuid): Error {
-  return new Error('Attempt not found: ' + uuid);
-}

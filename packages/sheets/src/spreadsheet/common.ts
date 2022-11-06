@@ -15,7 +15,8 @@
  * the License.
  */
 
-import {assert, ifPresent} from '../common';
+import {assert} from '@opvious/stl-errors';
+import {ifPresent} from '@opvious/stl-utils';
 
 /** Column-oriented spreadsheet interface. */
 export interface Spreadsheet {
@@ -49,7 +50,7 @@ export function rangeA1(rg: Range): A1 {
 }
 
 function columnSeqnoToName(seqno: ColumnSeqno): string {
-  assert(seqno > 0);
+  assert(seqno > 0, 'Non-positive seqno: %s', seqno);
   let ret = '';
   let rem: number;
   while (seqno > 0) {

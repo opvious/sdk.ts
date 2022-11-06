@@ -15,7 +15,8 @@
  * the License.
  */
 
-import {ifPresent} from '../common';
+import {ifPresent} from '@opvious/stl-utils';
+
 import {
   BySheet,
   Columns,

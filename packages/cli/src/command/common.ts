@@ -15,16 +15,34 @@
  * the License.
  */
 
-import {Command} from 'commander';
+import {errorFactories, errorMessage} from '@opvious/stl-errors';
+import {withActiveSpan, WithActiveSpanParams} from '@opvious/stl-telemetry';
+import {Command, CommanderError} from 'commander';
 import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
 
+import {COMMAND_NAME, telemetry} from '../common';
 import {loadConfig} from '../config';
 
+const [errors, codes] = errorFactories({
+  definitions: {
+    setupFailed: (cause: unknown) => ({message: 'Setup failed', cause}),
+    actionFailed: (cause: unknown) => ({message: 'Command failed', cause}),
+    commandAborted: (cause: CommanderError) => ({
+      message: 'Command aborted',
+      cause,
+      tags: {exitCode: cause.exitCode},
+    }),
+  },
+});
+
+export const commandAbortedError = errors.commandAborted;
+export const commandCodes = codes;
+
 export function newCommand(): Command {
-  return new Command().exitOverride((err) => {
-    throw err;
+  return new Command().exitOverride((cause) => {
+    throw errors.commandAborted(cause);
   });
 }
 
@@ -39,15 +57,37 @@ export function contextualAction(
     const opts = cmd.opts();
     const spinner = ora({isSilent: !!opts.quiet});
 
-    spinner.start('Loading client...');
-    try {
-      const config = await loadConfig({profile: opts.profile});
-      spinner.succeed(`Loaded client. [profile=${config.profileName}]`);
-      await fn.call({client: config.client, spinner}, ...args);
-    } catch (cause: any) {
-      spinner.fail(cause.message);
-      throw cause;
-    }
+    const spanParams: WithActiveSpanParams = {
+      name: COMMAND_NAME + ' command',
+      tracer: telemetry.tracer,
+    };
+    return withActiveSpan(spanParams, async (span) => {
+      const sctx = span.spanContext();
+      const {traceId} = sctx;
+      spinner
+        .info(`Initialized context. [trace=${traceId}]`)
+        .start('Loading client...');
+
+      let config;
+      try {
+        config = await loadConfig({profile: opts.profile});
+        let msg = 'Loaded client.';
+        if (config.profileName) {
+          msg += ` [profile=${config.profileName}]`;
+        }
+        spinner.succeed(msg);
+      } catch (cause) {
+        spinner.fail(errorMessage(cause));
+        throw errors.setupFailed(cause);
+      }
+
+      try {
+        await fn.call({client: config.client, spinner}, ...args);
+      } catch (cause) {
+        spinner.fail(errorMessage(cause));
+        throw errors.actionFailed(cause);
+      }
+    });
   };
 }
 

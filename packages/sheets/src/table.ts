@@ -15,11 +15,11 @@
  * the License.
  */
 
+import {ifPresent} from '@opvious/stl-utils';
 import {noCase} from 'change-case';
 import {singular} from 'pluralize';
 import {Opaque} from 'ts-essentials';
 
-import {ifPresent} from './common';
 import {
   Columns,
   isEmptyColumn,

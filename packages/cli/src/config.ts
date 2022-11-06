@@ -6,37 +6,46 @@ import os from 'os';
 import path from 'path';
 import {DeepWritable} from 'ts-essentials';
 
+import {telemetry} from './common';
+
+const {logger} = telemetry;
+
 export interface Config {
-  readonly profileName: string;
+  readonly profileName?: string;
   readonly client: OpviousClient;
 }
 
-export async function loadConfig(params: LoadConfigParams): Promise<Config> {
-  const env = params.env ?? process.env;
+export async function loadConfig(args: {
+  readonly profile?: string;
+  readonly env?: {readonly [evar: string]: string};
+}): Promise<Config> {
+  logger.debug({data: {profile: args.profile}}, 'Loading config...');
+
+  const env = args.env ?? process.env;
   const dpath = env[CONFIG_DPATH_EVAR] ?? DEFAULT_CONFIG_DPATH;
 
-  const {profiles} = await loadConfigFile(dpath);
+  const cfgFile = await loadConfigFile(dpath);
+  let auth: string | undefined;
   let profile: Profile | undefined;
-  if (params.profile) {
-    profile = profiles.find((p) => p.name === params.profile);
+  if (cfgFile) {
+    if (args.profile) {
+      profile = cfgFile.profiles.find((p) => p.name === args.profile);
+    } else {
+      profile = cfgFile.profiles[0];
+    }
+    if (!profile) {
+      throw new Error('Unknown or missing profile');
+    }
+    auth = profile.authorization.startsWith('$')
+      ? process.env[profile.authorization.substring(1)]
+      : profile.authorization;
   } else {
-    profile = profiles[0];
+    auth = process.env.OPVIOUS_AUTHORIZATION;
   }
-  if (!profile) {
-    throw new Error('Unknown or missing profile');
-  }
-  const authorization = profile.authorization.startsWith('$')
-    ? process.env[profile.authorization.substring(1)]
-    : profile.authorization;
   return {
-    profileName: profile.name,
-    client: OpviousClient.create({authorization}),
+    profileName: profile?.name,
+    client: OpviousClient.create({authorization: auth, telemetry}),
   };
-}
-
-export interface LoadConfigParams {
-  readonly env?: {readonly [evar: string]: string};
-  readonly profile?: string;
 }
 
 interface ConfigFile {
@@ -72,14 +81,16 @@ const CONFIG_DPATH_EVAR = 'OPVIOUS_CONFIG';
 const DEFAULT_CONFIG_DPATH = path.join(os.homedir(), '.config', 'opvious');
 const CONFIG_FNAME = 'cli.yml';
 
-async function loadConfigFile(dp: string): Promise<ConfigFile> {
+async function loadConfigFile(dp: string): Promise<ConfigFile | undefined> {
   const fp = path.join(dp, CONFIG_FNAME);
   let str;
   try {
     str = await readFile(fp, 'utf8');
-  } catch (err: any) {
-    throw new Error(`Unable to load config file at ${fp}: ${err.message}`);
+  } catch (err) {
+    logger.info({err}, 'Unabled to load config from %s.', fp);
+    return undefined;
   }
+  logger.info('Loaded config from %s.', fp);
   const obj = yaml.load(str);
   if (validate(obj)) {
     return obj;

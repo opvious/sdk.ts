@@ -22,6 +22,7 @@ import {DateTime} from 'luxon';
 import * as g from 'opvious/graph';
 import path from 'path';
 
+import {display} from '../io';
 import {contextualAction, newCommand} from './common';
 
 export function formulationCommand(): Command {
@@ -50,15 +51,15 @@ function fetchOutlineCommand(): Command {
         spinner.start('Fetching outline...');
         const form = await client.fetchOutline(name, opts.tag);
         const {revno, outline} = form.tag.specification;
-        spinner.succeed(`Fetched outline. [revno=${revno}]`);
+        spinner.succeed(`Fetched outline. [revno=${revno}]\n`);
 
         if (outline.objective) {
           const table = new Table();
           table.cell('is_maximization', outline.objective.isMaximization);
           table.newRow();
-          console.log('\n# Objective\n\n' + table.printTransposed());
+          display('\n# Objective\n\n' + table.printTransposed());
         } else {
-          console.log('\n# No objective');
+          display('\n# No objective');
         }
 
         const {constraints, dimensions, parameters, variables} = outline;
@@ -69,9 +70,9 @@ function fetchOutlineCommand(): Command {
             table.cell('numeric', dim.isNumeric);
             table.newRow();
           }
-          console.log('\n# Dimensions\n\n' + table);
+          display('\n# Dimensions\n\n' + table);
         } else {
-          console.log('\n# No dimensions');
+          display('\n# No dimensions');
         }
         if (parameters.length) {
           const table = new Table();
@@ -86,9 +87,9 @@ function fetchOutlineCommand(): Command {
             );
             table.newRow();
           }
-          console.log('\n# Parameters\n\n' + table);
+          display('\n# Parameters\n\n' + table);
         } else {
-          console.log('\n# No parameters');
+          display('\n# No parameters');
         }
         if (constraints.length) {
           const table = new Table();
@@ -101,9 +102,9 @@ function fetchOutlineCommand(): Command {
             );
             table.newRow();
           }
-          console.log('\n# Constraints\n\n' + table);
+          display('\n# Constraints\n\n' + table);
         } else {
-          console.log('\n# No constraints');
+          display('\n# No constraints');
         }
         if (variables.length) {
           const table = new Table();
@@ -121,9 +122,9 @@ function fetchOutlineCommand(): Command {
             );
             table.newRow();
           }
-          console.log('\n# Variables\n\n' + table);
+          display('\n# Variables\n\n' + table);
         } else {
-          console.log('\n# No variables');
+          display('\n# No variables');
         }
       })
     );
@@ -171,8 +172,8 @@ function listFormulationsCommand(): Command {
           spinner.text =
             `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
         } while (cursor && count < limit);
-        spinner.succeed(`Fetched ${count} formulation(s).`);
-        console.log('\n' + table);
+        spinner.succeed(`Fetched ${count} formulation(s).\n`);
+        display('' + table);
       })
     );
 }
