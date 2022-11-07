@@ -1,4 +1,4 @@
-*.gen.ts
+*.gen.*
 *.local
 docs/
 lib/
