@@ -35,7 +35,7 @@ jobs:
         env:
           OPVIOUS_AUTHORIZATION: ${{ secrets.OPVIOUS_AUTHORIZATION }}
       - name: Upload coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: out/coverage
@@ -45,7 +45,7 @@ jobs:
           PACKAGE_VERSION="$(node -p 'require("./package.json").version')"
           echo "::set-output name=version::$PACKAGE_VERSION"
       - name: Check if tag exists
-        uses: mukunku/tag-exists-action@v1.0.0
+        uses: mukunku/tag-exists-action@v1.1.0
         id: check-version
         with:
           tag: v${{ steps.extract-version.outputs.version }}
