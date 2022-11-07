@@ -1,4 +1,4 @@
-# Opvious SDK
+# Opvious TypeScript SDK
 
 ## Artifacts
 
@@ -8,6 +8,8 @@
 + [`opvious-cli`](packages/cli)
 + [`opvious-graph`](packages/graph)
 + [`opvious-sheets`](packages/sheets)
+
+TypeDoc documentation: https://opvious.github.io/sdk.ts
 
 ## Developing
 

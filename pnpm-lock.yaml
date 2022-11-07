@@ -88,7 +88,7 @@ importers:
       '@graphql-codegen/typescript': ^2.7.3
       '@graphql-codegen/typescript-generic-sdk': ^3.0.1
       '@graphql-codegen/typescript-operations': ^2.5.3
-      '@opvious/api-graph': ^0.8.4
+      '@opvious/api-operations': ^0.8.9
       '@types/node': ^18.11.7
       graphql: ^16.6.0
       graphql-tag: ^2.12.6
@@ -102,7 +102,7 @@ importers:
       '@graphql-codegen/typescript': 2.7.3_graphql@16.6.0
       '@graphql-codegen/typescript-generic-sdk': 3.0.1_sy4knu3obj4ys7pjcqbyfxmqle
       '@graphql-codegen/typescript-operations': 2.5.3_graphql@16.6.0
-      '@opvious/api-graph': 0.8.4
+      '@opvious/api-operations': 0.8.9
       '@types/node': 18.11.7
       graphql-tag: 2.12.6_graphql@16.6.0
       ts-node: 10.9.1_evej5wzm4hojmu6uzxwpspdmsu
@@ -1950,39 +1950,10 @@ packages:
     resolution: {integrity: sha512-FGBx/Qd09lMaqQcogCHyYrFEpTx4cAjeS+48lMIR12z7LdH+zofGDVQSubN59nL6IpubfKqTeIDu9rNO28iHVA==}
     engines: {node: '>=14'}
 
-  /@opvious/account-graph/0.8.4:
-    resolution: {integrity: sha512-9tlYPq8up4kVnrsDVztps0slyC00HtAJbkU+GnUELGHgKw/CWJfw5qy33JKWIOOYMVVK3+5hSOWM7jrL8g58CA==, tarball: download/@opvious/account-graph/0.8.4/9df37b8cdaa4a1f89a2c4d548f63f5374c39da14}
-    engines: {node: '>=16'}
+  /@opvious/api-operations/0.8.9:
+    resolution: {integrity: sha512-RlEswLC3fHFXhlohm47Wc5Hkxe9u0KWUhuYsAfOg9Mikj1aFWdsOe93kTRexqujIyGaOFF+u4IXiPMM+z1jhYA==, tarball: download/@opvious/api-operations/0.8.9/99cd146fa7ce0b18872921600fab33f2d81ff074}
     dependencies:
       graphql: 16.6.0
-      graphql-request: 4.3.0_graphql@16.6.0
-      graphql-tag: 2.12.6_graphql@16.6.0
-    transitivePeerDependencies:
-      - encoding
-    dev: true
-
-  /@opvious/api-graph/0.8.4:
-    resolution: {integrity: sha512-Me8Sx30HmG785lJ4S9w2Vjt5A1GsKT6sQ/3nNrDG6gJa/bHTqxHeTHWvWSayJXC5bXIpL8D/0ACiYvLHzqizZw==, tarball: download/@opvious/api-graph/0.8.4/7e7ce49f3ac73d2b403666b325b63fef7e30aab3}
-    dependencies:
-      '@opvious/account-graph': 0.8.4
-      '@opvious/attempt-graph': 0.11.4
-      '@opvious/formulation-graph': 0.14.18
-    transitivePeerDependencies:
-      - encoding
-    dev: true
-
-  /@opvious/attempt-graph/0.11.4:
-    resolution: {integrity: sha512-G8TdKYReuqDeez2upO5KvtNkfc0no5ksHoVo/EPFyVgxQxQwva5Vk86Pf/6C+0hzizyWr86GmHvU2rvDO7C2+w==, tarball: download/@opvious/attempt-graph/0.11.4/89c740f1c73b322dc5c333db3b2c7de6e91d78b7}
-    engines: {node: '>=16'}
-    dependencies:
-      '@opvious/formulation-graph': 0.14.18
-      '@opvious/stl': 0.14.0
-      graphql: 16.6.0
-      graphql-request: 4.3.0_graphql@16.6.0
-      graphql-tag: 2.12.6_graphql@16.6.0
-      luxon: 2.5.0
-    transitivePeerDependencies:
-      - encoding
     dev: true
 
   /@opvious/eslint-plugin/0.1.17_vhsckgnokn2tf7m5xkrurmvfv4:
@@ -1998,21 +1969,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
-    dev: true
-
-  /@opvious/formulation-graph/0.14.18:
-    resolution: {integrity: sha512-hnSYXXvi1GGT1ZYk1E6i8Pl/tf2R4krx4FBq3LmGrpKYeMh/fcGApZDtsISvNMOGx3TAkRbenAIstSXLiZf6GQ==, tarball: download/@opvious/formulation-graph/0.14.18/d86fbcc75465387c5db30a516202d4bea018cdc7}
-    engines: {node: '>=16'}
-    dependencies:
-      '@opvious/stl-errors': 0.14.0
-      '@opvious/stl-utils': 0.14.0
-      ajv: 8.11.0
-      graphql: 16.6.0
-      graphql-request: 4.3.0_graphql@16.6.0
-      graphql-tag: 2.12.6_graphql@16.6.0
-      luxon: 2.5.0
-    transitivePeerDependencies:
-      - encoding
     dev: true
 
   /@opvious/prettier-typescript/0.1.17:
@@ -2543,6 +2499,7 @@ packages:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
+    dev: false
 
   /ansi-escapes/4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
@@ -3866,19 +3823,6 @@ packages:
       - utf-8-validate
     dev: true
 
-  /graphql-request/4.3.0_graphql@16.6.0:
-    resolution: {integrity: sha512-2v6hQViJvSsifK606AliqiNiijb1uwWp6Re7o0RTyH+uRTv/u7Uqm2g4Fjq/LgZIzARB38RZEvVBFOQOVdlBow==}
-    peerDependencies:
-      graphql: 14 - 16
-    dependencies:
-      cross-fetch: 3.1.5
-      extract-files: 9.0.0
-      form-data: 3.0.1
-      graphql: 16.6.0
-    transitivePeerDependencies:
-      - encoding
-    dev: true
-
   /graphql-request/5.0.0_graphql@16.6.0:
     resolution: {integrity: sha512-SpVEnIo2J5k2+Zf76cUkdvIRaq5FMZvGQYnA4lUWYbc99m+fHh4CZYRRO/Ff4tCLQ613fzCm3SiDT64ubW5Gyw==}
     peerDependencies:
@@ -4866,6 +4810,7 @@ packages:
 
   /json-schema-traverse/1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
+    dev: false
 
   /json-stable-stringify-without-jsonify/1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
@@ -5699,6 +5644,7 @@ packages:
   /require-from-string/2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+    dev: false
 
   /require-main-filename/2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}

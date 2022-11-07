@@ -12,7 +12,7 @@
   "plugin": [
     "typedoc-plugin-resolve-crossmodule-references"
   ],
-  "readme": "README.public.md",
+  "readme": "README.typedoc.md",
   "sort": "alphabetical",
   "titleLink": "https://www.opvious.io/sdk.ts"
 }

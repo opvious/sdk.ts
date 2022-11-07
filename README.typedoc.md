@@ -1,6 +1,3 @@
-> You'll need an Opvious API access token to use the packages below. You can
-> generate one at https://hub.opvious.io/authorizations.
-
 # Libraries
 
 + [`opvious`](modules/opvious.html), primary SDK. This package provides a high

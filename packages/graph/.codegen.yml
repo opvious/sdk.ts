@@ -1,6 +1,6 @@
 schema:
-  - ./node_modules/@opvious/api-graph/resources/schema.gen.gql
-documents: ./node_modules/@opvious/api-graph/resources/operations/**/*.graphql
+  - ./node_modules/@opvious/api-operations/resources/schema.gql
+documents: ./node_modules/@opvious/api-operations/resources/operations/**/*.graphql
 generates:
   ./src/graph.gen.ts:
     plugins:
