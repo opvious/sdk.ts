@@ -4,7 +4,7 @@
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "scripts": {
     "bump": "pnpm exec opvious-manage-versions update -b ${BUMP:-patch}",
     "clean": "pnpm -r -F !. run clean && rm -rf docs node_modules out",
