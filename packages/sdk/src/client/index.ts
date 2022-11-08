@@ -18,7 +18,6 @@
 import * as otel from '@opentelemetry/api';
 import {assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
-import {MarkPresent} from '@opvious/stl-utils';
 import backoff from 'backoff';
 import events from 'events';
 import {ClientError, GraphQLClient} from 'graphql-request';
@@ -27,7 +26,7 @@ import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
 
-import {packageInfo, strippingTrailingSlashes} from '../common';
+import {MarkPresent, packageInfo, strippingTrailingSlashes} from '../common';
 import {
   AttemptTracker,
   AttemptTrackerListeners,

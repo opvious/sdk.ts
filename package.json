@@ -1,6 +1,6 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
@@ -14,9 +14,9 @@
     "test": "pnpm -r run test --coverage"
   },
   "devDependencies": {
-    "@opvious/eslint-plugin": "^0.1.17",
-    "@opvious/prettier-typescript": "^0.1.17",
-    "@opvious/stl": "^0.14.0",
+    "@opvious/eslint-plugin": "^0.1.20",
+    "@opvious/prettier-typescript": "^0.1.20",
+    "@opvious/stl": "^0.14.1",
     "eslint": "^8.12.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.4",

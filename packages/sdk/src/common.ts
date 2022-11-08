@@ -29,3 +29,14 @@ export function assertNoErrors<V>(res: gql.ExecutionResult<V, unknown>): void {
 export function strippingTrailingSlashes(arg: string): string {
   return arg.replace(/\/+$/, '');
 }
+
+/**
+ * Marks properties in a type as present (required and non-nullable). The
+ * `readonly`-ness of properties is preserved.
+ */
+export type MarkPresent<O extends object, F extends keyof O> = Omit<O, F> & {
+  // We don't add readonly here because it would cause writable properties to
+  // become readonly. The default behavior works as expected: readonly
+  // properties remain readonly.
+  [K in F]-?: NonNullable<O[K]>;
+};

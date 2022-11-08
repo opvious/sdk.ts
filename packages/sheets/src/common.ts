@@ -29,3 +29,11 @@ const EPSILON = 1e-6;
 export function isAlmost(arg: number, target: number): boolean {
   return Math.abs(arg - target) < EPSILON;
 }
+
+/** Runs a function if the argument is not null or undefined. */
+export function ifPresent<V, W>(
+  val: V | null | undefined,
+  fn: (v: Exclude<V, null | undefined>) => W
+): W | undefined {
+  return val === null || val === undefined ? undefined : fn(val as any);
+}
