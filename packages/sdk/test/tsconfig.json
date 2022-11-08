@@ -1,5 +1,5 @@
 {
-  "extends": "../.tsconfig.json",
+  "extends": "@opvious/tsconfig",
   "compilerOptions": {
     "composite": true,
     "noImplicitAny": false,

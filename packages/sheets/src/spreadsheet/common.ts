@@ -16,8 +16,7 @@
  */
 
 import {assert} from '@opvious/stl-errors';
-
-import {ifPresent} from '../common';
+import {ifPresent} from '@opvious/stl-utils/functions';
 
 /** Column-oriented spreadsheet interface. */
 export interface Spreadsheet {
