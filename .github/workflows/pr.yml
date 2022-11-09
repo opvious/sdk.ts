@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
       - name: Install
         run: pnpm i
         env:
@@ -31,7 +31,7 @@ jobs:
       - name: Test
         run: pnpm t
         env:
-          OPVIOUS_AUTHORIZATION: ${{ secrets.OPVIOUS_AUTHORIZATION }}
+          OPVIOUS_TOKEN: ${{ secrets.OPVIOUS_AUTHORIZATION }}
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
