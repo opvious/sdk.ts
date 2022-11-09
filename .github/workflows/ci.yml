@@ -23,15 +23,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
       - name: Install
         run: pnpm i
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
       - name: Lint
         run: pnpm run lint
       - name: Test
         run: pnpm t
         env:
-          OPVIOUS_AUTHORIZATION: ${{ secrets.OPVIOUS_AUTHORIZATION }}
+          OPVIOUS_TOKEN: ${{ secrets.OPVIOUS_TOKEN }}
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
@@ -74,9 +76,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
       - name: Install
         run: pnpm i
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
       - name: Build docs
         run: pnpm run docs
       - name: Deploy docs
@@ -101,9 +105,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
       - name: Install
         run: pnpm i
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_RO_TOKEN }}
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
       - name: Publish
         run: pnpm -r exec pnpm publish
         env:

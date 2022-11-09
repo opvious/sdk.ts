@@ -444,7 +444,7 @@ export class OpviousClient {
 export interface OpviousClientOptions {
   /**
    * API authorization header or access token, defaulting to
-   * `process.env.OPVIOUS_AUTHORIZATION`.
+   * `process.env.OPVIOUS_TOKEN`.
    */
   readonly authorization?: string;
 

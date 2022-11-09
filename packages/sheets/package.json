@@ -1,6 +1,6 @@
 {
   "name": "opvious-sheets",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious spreadsheet utilities",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_sheets.html",
@@ -21,20 +21,14 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "@opvious/stl-errors": "^0.14.1",
+    "@opvious/stl-errors": "^0.14.2",
+    "@opvious/stl-utils": "^0.14.2",
     "change-case": "^4.1.2",
     "opvious-graph": "workspace:*",
     "pluralize": "^8.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.3",
-    "@types/node": "^18.11.7",
-    "@types/pluralize": "^0.0.29",
-    "jest": "^27.4.5",
-    "jest-extended": "^1.1.0",
-    "ts-essentials": "^9.3.0",
-    "ts-jest": "^27.1.2",
-    "typescript": "^4.8.4"
+    "@types/pluralize": "^0.0.29"
   },
   "jest": {
     "coverageDirectory": "../../out/coverage/sheets",
@@ -42,12 +36,6 @@
       "<rootDir>/node_modules/",
       "<rootDir>/test/"
     ],
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "test/tsconfig.json"
-      }
-    },
-    "preset": "ts-jest",
     "setupFilesAfterEnv": [
       "jest-extended/all"
     ],
@@ -56,7 +44,17 @@
       ".d.ts",
       ".js"
     ],
-    "transform": {}
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "babelConfig": {
+            "compact": false
+          },
+          "tsconfig": "test/tsconfig.json"
+        }
+      ]
+    }
   },
   "typedoc": {
     "entryPoint": "src/index.ts"

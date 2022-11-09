@@ -40,7 +40,7 @@ export async function loadConfig(args: {
       ? process.env[profile.authorization.substring(1)]
       : profile.authorization;
   } else {
-    auth = process.env.OPVIOUS_AUTHORIZATION;
+    auth = process.env.OPVIOUS_TOKEN;
   }
   return {
     profileName: profile?.name,

@@ -1,6 +1,6 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
@@ -16,11 +16,18 @@
   "devDependencies": {
     "@opvious/eslint-plugin": "^0.1.20",
     "@opvious/prettier-typescript": "^0.1.20",
-    "@opvious/stl": "^0.14.1",
+    "@opvious/stl": "^0.14.2",
+    "@opvious/tsconfig": "^0.1.20",
+    "@types/jest": "^29.2.2",
+    "@types/node": "^18.11.7",
     "eslint": "^8.12.0",
     "husky": "^7.0.4",
+    "jest": "^29.3.1",
+    "jest-extended": "^3.1.0",
     "lint-staged": "^12.1.4",
     "prettier": "^2.6.1",
+    "ts-essentials": "^9.3.0",
+    "ts-jest": "^29.0.3",
     "typedoc": "^0.23.17",
     "typedoc-plugin-resolve-crossmodule-references": "^0.3.2",
     "typescript": "^4.8.4"

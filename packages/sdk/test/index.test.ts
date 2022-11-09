@@ -6,13 +6,13 @@ import * as sut from '../src';
 
 jest.setTimeout(30_000);
 
-const AUTHORIZATION = process.env.OPVIOUS_AUTHORIZATION;
+const TOKEN = process.env.OPVIOUS_TOKEN;
 
-(AUTHORIZATION ? describe : describe.skip)('client', () => {
+(TOKEN ? describe : describe.skip)('client', () => {
   let client: sut.OpviousClient;
 
   beforeAll(() => {
-    client = sut.OpviousClient.create({authorization: AUTHORIZATION});
+    client = sut.OpviousClient.create({authorization: TOKEN});
   });
 
   test('register and deletes specification', async () => {
