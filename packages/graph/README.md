@@ -19,7 +19,7 @@ import {getSdk} from 'opvious-graph';
 
 // Underlying generic GraphQL client.
 const client = new GraphQLClient('https://api.opvious.io/graphql', {
-  headers: {authorization: process.env.OPVIOUS_AUTHORIZATION},
+  headers: {authorization: process.env.OPVIOUS_TOKEN},
 });
 
 // Typesafe GraphQL SDK.

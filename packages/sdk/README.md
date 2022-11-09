@@ -14,9 +14,9 @@ This package exposes a typesafe SDK for the Opvious API.
 ```typescript
 import {OpviousClient} from 'opvious';
 
-// Generates a client using the authorization stored in the
-// `OPVIOUS_AUTHORIZATION` environment variable. You can also
-// pass one explicitly via the `authorization` option.
+// Generates a client using the access token stored in the
+// `OPVIOUS_TOKEN` environment variable. You can also pass
+// one explicitly via the `authorization` option.
 const client = OpviousClient.create();
 
 // Starts an optimization.
