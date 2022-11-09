@@ -15,8 +15,8 @@
  * the License.
  */
 
+import * as api from '@opvious/api-operations';
 import {assert} from '@opvious/stl-errors';
-import * as g from 'opvious-graph';
 
 import {isIndicator, Label} from '../common';
 import {A1, Range, rangeA1} from '../spreadsheet';
@@ -24,7 +24,7 @@ import {Header, newHeader, Table} from '../table';
 
 export function computeInputMapping(
   tables: ReadonlyArray<Table>,
-  sig: g.Outline
+  sig: api.Outline
 ): InputMapping {
   validateNoHeaderCollisions(sig);
 
@@ -80,7 +80,7 @@ export function computeInputMapping(
 
 function tensorMapping(
   tables: ReadonlyArray<Table>,
-  tsr: g.TensorOutline,
+  tsr: api.TensorOutline,
   reg?: ItemRangeRegistry
 ): TensorMapping | undefined {
   const {label} = tsr;
@@ -102,7 +102,7 @@ class TensorMappingBuilder {
   private isProjected = false;
   private readonly usedBlocks = new Set<Header>();
   private constructor(
-    private readonly tensor: g.TensorOutline,
+    private readonly tensor: api.TensorOutline,
     private valueRange: Range,
     private keyBoxes: ReadonlyMap<Header, KeyBox>,
     private readonly itemRangeRegistry?: ItemRangeRegistry
@@ -110,7 +110,7 @@ class TensorMappingBuilder {
 
   static ifCompatible(
     table: Table,
-    tsr: g.TensorOutline,
+    tsr: api.TensorOutline,
     reg?: ItemRangeRegistry
   ): TensorMappingBuilder | undefined {
     const block = table.blocks.get(newHeader(tsr.label));
@@ -144,7 +144,7 @@ class TensorMappingBuilder {
     };
   }
 
-  private bindingKeyBox(binding: g.SourceBinding): KeyBox {
+  private bindingKeyBox(binding: api.SourceBinding): KeyBox {
     const {keyBoxes, tensor, usedBlocks} = this;
     const {dimensionLabel: dim, qualifier: qual} = binding;
     if (dim == null && qual == null) {
@@ -225,7 +225,7 @@ export interface KeyBox {
   readonly range: Range;
 }
 
-function validateNoHeaderCollisions(sig: g.Outline): void {
+function validateNoHeaderCollisions(sig: api.Outline): void {
   const byHeader = new Map<Header, Label>();
   for (const dim of sig.dimensions) {
     addLabel(dim.label);
@@ -252,7 +252,7 @@ function validateNoHeaderCollisions(sig: g.Outline): void {
     byHeader.set(h, next);
   }
 
-  function checkQualifiers(tsr: g.TensorOutline): void {
+  function checkQualifiers(tsr: api.TensorOutline): void {
     const quals = new Set<Header>();
     for (const {qualifier: qual} of tsr.bindings) {
       if (!qual) {

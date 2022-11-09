@@ -15,4 +15,4 @@
  * the License.
  */
 
-export * from 'opvious-graph';
+export * from '@opvious/api-operations';
