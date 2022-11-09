@@ -16,10 +16,10 @@
  */
 
 import {codeFrameColumns} from '@babel/code-frame';
+import * as api from '@opvious/api-operations';
 import {check, errorFactories} from '@opvious/stl-errors';
 import * as gql from 'graphql';
 import {ClientError} from 'graphql-request';
-import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
 
 export const [clientErrors, clientErrorCodes] = errorFactories({
@@ -57,12 +57,12 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
 });
 
 export interface InvalidSourceSnippet {
-  readonly slice: g.InvalidSourceSlice;
+  readonly slice: api.InvalidSourceSlice;
   readonly preview: string;
 }
 
 export function invalidSourceSnippet(
-  slice: g.InvalidSourceSlice,
+  slice: api.InvalidSourceSlice,
   src: string
 ): InvalidSourceSnippet {
   const {start, end} = slice.range;
@@ -94,26 +94,26 @@ function formatError(err: gql.GraphQLError): string {
 }
 
 export interface Paginated<V> {
-  readonly info: g.PageInfo;
+  readonly info: api.PageInfo;
   readonly totalCount: number;
   readonly nodes: ReadonlyArray<V>;
 }
 
-export type Label = g.Scalars['Label'];
-export type Uuid = g.Scalars['Uuid'];
+export type Label = api.Scalars['Label'];
+export type Uuid = api.Scalars['Uuid'];
 
 export interface AttemptTrackerListeners {
   /**
    * The attempt is still being solved, with current status as reported in the
    * argument notification.
    */
-  notification(frag: g.FullAttemptNotificationFragment): void;
+  notification(frag: api.FullAttemptNotificationFragment): void;
 
   /**
    * The attempt completed with the given outcome. Once this event is emitted,
    * no more events will be emitted on this tracker instance.
    */
-  outcome(frag: g.PolledAttemptOutcomeFragment): void;
+  outcome(frag: api.PolledAttemptOutcomeFragment): void;
 
   /** The attempt errored. */
   error(err: Error): void;

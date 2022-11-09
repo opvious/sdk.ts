@@ -16,13 +16,13 @@
  */
 
 import * as otel from '@opentelemetry/api';
+import * as api from '@opvious/api-operations';
 import {assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import backoff from 'backoff';
 import events from 'events';
 import {ClientError, GraphQLClient} from 'graphql-request';
 import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
-import * as g from 'opvious-graph';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
 
@@ -55,7 +55,7 @@ export class OpviousClient {
     readonly apiEndpoint: string,
     /** Base optimization hub endpoint. */
     readonly hubEndpoint: string,
-    private readonly sdk: g.Sdk
+    private readonly sdk: api.Sdk
   ) {}
 
   /** Creates a new client. */
@@ -135,7 +135,7 @@ export class OpviousClient {
         return res;
       },
     });
-    const sdk = g.getSdk(async <R, V>(query: string, vars: V) => {
+    const sdk = api.getSdk(async <R, V>(query: string, vars: V) => {
       try {
         return await client.rawRequest<R, V>(query, vars);
       } catch (err) {
@@ -154,14 +154,14 @@ export class OpviousClient {
   }
 
   /** Fetch currently active account information. */
-  async fetchMyAccount(): Promise<g.MyAccountFragment> {
+  async fetchMyAccount(): Promise<api.MyAccountFragment> {
     const res = await this.sdk.FetchMyAccount();
     return resultData(res).me;
   }
 
   /** Lists all available authorizations. */
   async listAuthorizations(): Promise<
-    ReadonlyArray<g.ListedAuthorizationFragment>
+    ReadonlyArray<api.ListedAuthorizationFragment>
   > {
     const res = await this.sdk.ListMyAuthorizations();
     return resultData(res).me.holder.authorizations;
@@ -169,7 +169,7 @@ export class OpviousClient {
 
   /** Creates a new access token for an authorization with the given name. */
   async generateAccessToken(
-    input: g.GenerateAuthorizationInput
+    input: api.GenerateAuthorizationInput
   ): Promise<string> {
     const res = await this.sdk.GenerateAuthorization({input});
     return resultData(res).generateAuthorization.token;
@@ -187,7 +187,7 @@ export class OpviousClient {
    */
   async extractDefinitions(
     ...sources: string[]
-  ): Promise<ReadonlyArray<g.Definition>> {
+  ): Promise<ReadonlyArray<api.Definition>> {
     const res = await this.sdk.ExtractDefinitions({sources});
     const defs: any[] = [];
     const snips: InvalidSourceSnippet[] = [];
@@ -207,7 +207,7 @@ export class OpviousClient {
 
   /** Validates that the definitions are valid for registration. */
   async validateDefinitions(
-    defs: ReadonlyArray<g.Definition>
+    defs: ReadonlyArray<api.Definition>
   ): Promise<ReadonlyArray<string>> {
     const res = await this.sdk.ValidateDefinitions({definitions: defs});
     return resultData(res).validateDefinitions.warnings ?? [];
@@ -215,16 +215,16 @@ export class OpviousClient {
 
   /** Adds a new specification. */
   async registerSpecification(
-    input: g.RegisterSpecificationInput
-  ): Promise<g.RegisteredSpecificationFragment> {
+    input: api.RegisterSpecificationInput
+  ): Promise<api.RegisteredSpecificationFragment> {
     const res = await this.sdk.RegisterSpecification({input});
     return resultData(res).registerSpecification;
   }
 
   /** Updates a formulation's metadata. */
   async updateFormulation(
-    input: g.UpdateFormulationInput
-  ): Promise<g.UpdatedFormulationFragment> {
+    input: api.UpdateFormulationInput
+  ): Promise<api.UpdatedFormulationFragment> {
     const res = await this.sdk.UpdateFormulation({input});
     return resultData(res).updateFormulation;
   }
@@ -233,7 +233,7 @@ export class OpviousClient {
   async fetchOutline(
     formulationName: string,
     tagName?: string
-  ): Promise<MarkPresent<g.FetchedOutlineFormulationFragment, 'tag'>> {
+  ): Promise<MarkPresent<api.FetchedOutlineFormulationFragment, 'tag'>> {
     const res = await this.sdk.FetchOutline({
       formulationName,
       tagName,
@@ -247,8 +247,8 @@ export class OpviousClient {
 
   /** Paginates available formulations. */
   async paginateFormulations(
-    vars: g.PaginateFormulationsQueryVariables
-  ): Promise<Paginated<g.PaginatedFormulationFragment>> {
+    vars: api.PaginateFormulationsQueryVariables
+  ): Promise<Paginated<api.PaginatedFormulationFragment>> {
     const res = await this.sdk.PaginateFormulations(vars);
     const forms = resultData(res).formulations;
     return {
@@ -269,8 +269,8 @@ export class OpviousClient {
    * disabled via `unshareFormulation`.
    */
   async shareFormulation(
-    input: g.StartSharingFormulationInput
-  ): Promise<MarkPresent<g.SharedSpecificationTagFragment, 'sharedVia'>> {
+    input: api.StartSharingFormulationInput
+  ): Promise<MarkPresent<api.SharedSpecificationTagFragment, 'sharedVia'>> {
     const res = await this.sdk.StartSharingFormulation({input});
     const tag = resultData(res).startSharingFormulation;
     return {...tag, sharedVia: check.isPresent(tag.sharedVia)};
@@ -281,16 +281,16 @@ export class OpviousClient {
    * formulations tags will be set to private.
    */
   async unshareFormulation(
-    input: g.StopSharingFormulationInput
-  ): Promise<g.UnsharedFormulationFragment> {
+    input: api.StopSharingFormulationInput
+  ): Promise<api.UnsharedFormulationFragment> {
     const res = await this.sdk.StopSharingFormulation({input});
     return resultData(res).stopSharingFormulation;
   }
 
   /** Paginates available attempts. */
   async paginateAttempts(
-    vars: g.PaginateAttemptsQueryVariables
-  ): Promise<Paginated<g.PaginatedAttemptFragment>> {
+    vars: api.PaginateAttemptsQueryVariables
+  ): Promise<Paginated<api.PaginatedAttemptFragment>> {
     const res = await this.sdk.PaginateAttempts(vars);
     const forms = resultData(res).attempts;
     return {
@@ -305,7 +305,9 @@ export class OpviousClient {
    * UUID to wait for its outcome (via `waitForOutcome`), fetch its inputs and
    * outputs, etc.
    */
-  async startAttempt(input: g.AttemptInput): Promise<g.StartedAttemptFragment> {
+  async startAttempt(
+    input: api.AttemptInput
+  ): Promise<api.StartedAttemptFragment> {
     const res = await this.sdk.StartAttempt({input});
     return resultData(res).startAttempt;
   }
@@ -356,14 +358,14 @@ export class OpviousClient {
    * Convenience method which resolves when the attempt is solved. Consider
    * using `trackAttempt` to get access to progress notifications.
    */
-  async waitForOutcome(uuid: Uuid): Promise<g.PolledAttemptOutcomeFragment> {
+  async waitForOutcome(uuid: Uuid): Promise<api.PolledAttemptOutcomeFragment> {
     const ee = this.trackAttempt(uuid);
     const [outcome] = await events.once(ee, 'outcome');
     return outcome;
   }
 
   /** Cancels a pending attempt. */
-  async cancelAttempt(uuid: Uuid): Promise<g.CancelledAttemptFragment> {
+  async cancelAttempt(uuid: Uuid): Promise<api.CancelledAttemptFragment> {
     const res = await this.sdk.CancelAttempt({uuid});
     return resultData(res).cancelAttempt;
   }
@@ -371,15 +373,15 @@ export class OpviousClient {
   /** Fetches an attempt from its UUID. */
   async fetchAttempt(
     uuid: Uuid
-  ): Promise<g.FetchedAttemptFragment | undefined> {
+  ): Promise<api.FetchedAttemptFragment | undefined> {
     const res = await this.sdk.FetchAttempt({uuid});
     return resultData(res).attempt;
   }
 
   /** Paginates an attempt's notifications. */
   async paginateAttemptNotifications(
-    vars: g.PaginateAttemptNotificationsQueryVariables
-  ): Promise<Paginated<g.FullAttemptNotificationFragment>> {
+    vars: api.PaginateAttemptNotificationsQueryVariables
+  ): Promise<Paginated<api.FullAttemptNotificationFragment>> {
     const res = await this.sdk.PaginateAttemptNotifications(vars);
     const notifs = resultData(res).attempt?.notifications;
     if (!notifs) {
@@ -395,7 +397,7 @@ export class OpviousClient {
   /** Fetches an attempt's inputs from its UUID. */
   async fetchAttemptInputs(
     uuid: Uuid
-  ): Promise<g.FetchedAttemptInputsFragment | undefined> {
+  ): Promise<api.FetchedAttemptInputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptInputs({uuid});
     const {attempt} = resultData(res);
     if (!attempt) {
@@ -406,11 +408,11 @@ export class OpviousClient {
 
   /**
    * Fetches an attempt's outputs from its UUID. This method will returned
-   * `undefined` if the attempt is not feasible (e.g. still pending).
+   * `undefined` if the attempt is not feasible (e.api. still pending).
    * */
   async fetchAttemptOutputs(
     uuid: Uuid
-  ): Promise<g.FetchedAttemptOutputsFragment | undefined> {
+  ): Promise<api.FetchedAttemptOutputsFragment | undefined> {
     const res = await this.sdk.FetchAttemptOutputs({uuid});
     const {attempt} = resultData(res);
     if (!attempt) {

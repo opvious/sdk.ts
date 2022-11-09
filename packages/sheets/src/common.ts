@@ -15,12 +15,12 @@
  * the License.
  */
 
-import * as g from 'opvious-graph';
+import * as api from '@opvious/api-operations';
 
-export type KeyItem = g.Scalars['KeyItem'];
-export type Label = g.Scalars['Label'];
+export type KeyItem = api.Scalars['KeyItem'];
+export type Label = api.Scalars['Label'];
 
-export function isIndicator(sig: g.TensorOutline): boolean {
+export function isIndicator(sig: api.TensorOutline): boolean {
   return sig.isIntegral && sig.lowerBound === 0 && sig.upperBound === 1;
 }
 

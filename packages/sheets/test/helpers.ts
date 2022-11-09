@@ -1,4 +1,4 @@
-import * as g from 'opvious-graph';
+import * as api from '@opvious/api-operations';
 
 import {InMemorySpreadsheet} from '../src/spreadsheet';
 import {identifyTables, Table} from '../src/table';
@@ -11,9 +11,9 @@ export function extractTables(csv: string): ReadonlyArray<Table> {
 
 export function tensorOutline(
   label: string,
-  bindings: ReadonlyArray<g.SourceBinding>,
+  bindings: ReadonlyArray<api.SourceBinding>,
   indic?: boolean
-): g.TensorOutline {
+): api.TensorOutline {
   return {
     label,
     bindings,

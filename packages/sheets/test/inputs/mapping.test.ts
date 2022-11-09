@@ -1,10 +1,10 @@
-import * as g from 'opvious-graph';
+import * as api from '@opvious/api-operations';
 
 import * as sut from '../../src/inputs/mapping';
 import {extractTables, SHEET, tensorOutline} from '../helpers';
 
 describe('computes mapping', () => {
-  test.each<[string, string, g.Outline, sut.InputMapping]>([
+  test.each<[string, string, api.Outline, sut.InputMapping]>([
     [
       'slim parameters',
       `

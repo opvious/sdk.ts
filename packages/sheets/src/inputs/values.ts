@@ -15,8 +15,8 @@
  * the License.
  */
 
+import * as api from '@opvious/api-operations';
 import {assert} from '@opvious/stl-errors';
-import * as g from 'opvious-graph';
 
 import {isAlmost, KeyItem, Label} from '../common';
 import {Column, Columns, Range, Spreadsheet, Value} from '../spreadsheet';
@@ -24,7 +24,7 @@ import {commonHeight} from '../table';
 import {InputMapping, TensorMapping} from './mapping';
 
 export type InputValues = Pick<
-  g.AttemptInput,
+  api.AttemptInput,
   'dimensions' | 'parameters' | 'pinnedVariables'
 >;
 
@@ -32,7 +32,7 @@ export function extractInputValues(
   mapping: InputMapping,
   ss: Spreadsheet
 ): InputValues {
-  const dimInputs: g.DimensionInput[] = [];
+  const dimInputs: api.DimensionInput[] = [];
   for (const dim of mapping.dimensions) {
     const {isNumeric, label} = dim;
 
@@ -56,7 +56,7 @@ export function extractInputValues(
   const parameters = mapping.parameters.map((p) => pgt.gatherInput(p));
 
   const vgt = new TensorInputGatherer(ss, readVariable);
-  const pins: g.PinnedVariableInput[] = [];
+  const pins: api.PinnedVariableInput[] = [];
   for (const tensor of mapping.variables) {
     const input = vgt.gatherInput(tensor);
     if (input.entries.length) {
@@ -67,7 +67,7 @@ export function extractInputValues(
   return {dimensions: dimInputs, parameters, pinnedVariables: pins};
 }
 
-type TensorInput = g.PinnedVariableInput;
+type TensorInput = api.PinnedVariableInput;
 
 class TensorInputGatherer {
   constructor(
@@ -139,7 +139,7 @@ class TensorInputGatherer {
     }
 
     const height = commonHeight(keyCols);
-    const entries: g.EntryInput[] = [];
+    const entries: api.EntryInput[] = [];
     for (let i = 0; i < height; i++) {
       const value = valCol ? this.read(valCol[i]!) : 1;
       if (value != null) {
@@ -174,7 +174,7 @@ class TensorInputGatherer {
     }
 
     const keyWidth = keyRgs.length;
-    const entries: g.EntryInput[] = [];
+    const entries: api.EntryInput[] = [];
     if (keyCols.length) {
       const height = commonHeight(keyCols);
       keyCols.splice(pivotIx, 0, []);
@@ -232,7 +232,7 @@ class TensorInputGatherer {
     assert(valCols.length <= pivotRow.length, 'Missing value columns');
 
     const keyWidth = keyRgs.length;
-    const entries: g.EntryInput[] = [];
+    const entries: api.EntryInput[] = [];
     if (keyCols.length) {
       const height = commonHeight(keyCols);
       keyCols.splice(pivotIx, 0, []);

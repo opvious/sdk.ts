@@ -26,5 +26,5 @@ const attempt = await client.startAttempt({
 });
 ```
 
-As a convenience, this package also reexports `opvious-graph` as
-`opvious/graph`.
+As a convenience, this package also reexports `@opvious/api-operations` as
+`opvious/api`.

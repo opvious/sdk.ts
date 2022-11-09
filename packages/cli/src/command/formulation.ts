@@ -19,7 +19,7 @@ import {Command} from 'commander';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
 import {DateTime} from 'luxon';
-import * as g from 'opvious/graph';
+import * as api from 'opvious/api';
 import path from 'path';
 
 import {display} from '../io';
@@ -246,7 +246,7 @@ function validateSpecificationCommand(): Command {
     );
 }
 
-function formatBinding(b: g.SourceBinding): string {
+function formatBinding(b: api.SourceBinding): string {
   return (b.dimensionLabel ?? '-') + (b.qualifier ? ` (${b.qualifier})` : '');
 }
 
