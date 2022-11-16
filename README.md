@@ -1,4 +1,4 @@
-# Opvious TypeScript SDK
+# Opvious TypeScript SDK [![CI](https://github.com/opvious/sdk.ts/actions/workflows/ci.yml/badge.svg)](https://github.com/opvious/sdk.ts/actions/workflows/ci.yml) [![NPM version](https://img.shields.io/npm/v/opvious.svg)](https://www.npmjs.com/package/opvious)
 
 ## Artifacts
 

@@ -1,6 +1,6 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
@@ -38,5 +38,16 @@
       "eslint --fix"
     ]
   },
-  "prettier": "@opvious/prettier-typescript"
+  "prettier": "@opvious/prettier-typescript",
+  "pnpm": {
+    "overrides": {
+      "@opentelemetry/api": "~1.2.0"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@types/node",
+        "typescript"
+      ]
+    }
+  }
 }
