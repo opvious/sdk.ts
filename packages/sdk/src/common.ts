@@ -15,17 +15,8 @@
  * the License.
  */
 
-import {enclosingPackageInfo} from '@opvious/stl-telemetry';
-import * as gql from 'graphql';
 
-export const packageInfo = enclosingPackageInfo(__dirname);
-
-export function assertNoErrors<V>(res: gql.ExecutionResult<V, unknown>): void {
-  if (res.errors?.length) {
-    throw new Error('API call failed: ' + JSON.stringify(res.errors, null, 2));
-  }
-}
-
+/** Returns the input string with any trailing slashes removed. */
 export function strippingTrailingSlashes(arg: string): string {
   return arg.replace(/\/+$/, '');
 }
