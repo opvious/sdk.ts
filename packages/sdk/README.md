@@ -9,7 +9,7 @@ This package exposes a typesafe SDK for the Opvious API.
 ## Quickstart
 
 > You'll need an Opvious API access token to run client methods. You can
-> generate one at https://hub.opvious.io/authorizations.
+> generate one at https://hub.beta.opvious.io/authorizations.
 
 ```typescript
 import {OpviousClient} from 'opvious';
