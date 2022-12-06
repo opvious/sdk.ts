@@ -1,3 +1,4 @@
+import {RecordingTelemetry} from '@opvious/stl-telemetry';
 import {readFile} from 'fs/promises';
 import fetch from 'node-fetch';
 import path from 'path';
@@ -6,13 +7,15 @@ import * as sut from '../src';
 
 jest.setTimeout(30_000);
 
+const telemetry = RecordingTelemetry.forTesting();
+
 const TOKEN = process.env.OPVIOUS_TOKEN;
 
 (TOKEN ? describe : describe.skip)('client', () => {
   let client: sut.OpviousClient;
 
   beforeAll(() => {
-    client = sut.OpviousClient.create({authorization: TOKEN});
+    client = sut.OpviousClient.create({authorization: TOKEN, telemetry});
   });
 
   test('register and deletes specification', async () => {
