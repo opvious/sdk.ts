@@ -26,7 +26,7 @@ import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
 
-import {MarkPresent, packageInfo, strippingTrailingSlashes} from '../common';
+import {MarkPresent, strippingTrailingSlashes} from '../common';
 import {
   AttemptTracker,
   AttemptTrackerListeners,
@@ -60,7 +60,7 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
-    const tel = (opts?.telemetry ?? noopTelemetry()).via(packageInfo);
+    const tel = opts?.telemetry ?? noopTelemetry();
     const {logger} = tel;
 
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
@@ -78,7 +78,6 @@ export class OpviousClient {
       headers: {
         'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
         authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-        'opvious-sdk': 'TypeScript v' + packageInfo.version,
       },
       async fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
         const {body} = init;
