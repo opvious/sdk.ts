@@ -27,7 +27,7 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
     apiRequestFailed: (cause: ClientError) => ({
       message:
         'API request failed: ' +
-          cause.response.errors?.map(formatError).join(', ') ?? cause.message,
+        (cause.response.errors?.map(formatError).join(', ') ?? cause.message),
       cause,
       tags: {errors: cause.response.errors},
     }),

@@ -67,10 +67,11 @@ export class OpviousClient {
     if (!auth) {
       throw clientErrors.missingAuthorization();
     }
+    const domain = opts?.domain;
     const apiEndpoint = strippingTrailingSlashes(
       opts?.apiEndpoint
         ? '' + opts.apiEndpoint
-        : process.env.OPVIOUS_API_ENDPOINT ?? DefaultEndpoint.API
+        : process.env.OPVIOUS_API_ENDPOINT ?? defaultEndpoint('api', domain)
     );
     const client = new GraphQLClient(apiEndpoint + '/graphql', {
       errorPolicy: 'all',
@@ -146,7 +147,7 @@ export class OpviousClient {
     const hubEndpoint = strippingTrailingSlashes(
       opts?.hubEndpoint
         ? '' + opts.hubEndpoint
-        : process.env.OPVIOUS_HUB_ENDPOINT ?? DefaultEndpoint.HUB
+        : process.env.OPVIOUS_HUB_ENDPOINT ?? defaultEndpoint('hub', domain)
     );
 
     logger.debug('Created new client.');
@@ -454,22 +455,29 @@ export interface OpviousClientOptions {
   readonly telemetry?: Telemetry;
 
   /**
+   * API and hub parent domain. If unset, defaults to `beta.opvious.io`. See
+   * `apiEndpoint` and `hubEndpoint` for additional configuration granularity.
+   */
+  readonly domain?: string;
+
+  /**
    * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if
-   * set, and falls back to the default production endpoint otherwise.
+   * set, and falls back to the default domain's endpoint otherwise.
    */
   readonly apiEndpoint?: string | URL;
 
   /**
    * Base model hub endpoint URL. If unset, uses
    * `process.env.OPVIOUS_HUB_ENDPOINT` if set, and falls back to the default
-   * production endpoint otherwise.
+   * domain's endpoint otherwise.
    */
   readonly hubEndpoint?: string | URL;
 }
 
-enum DefaultEndpoint {
-  API = 'https://api.opvious.io',
-  HUB = 'https://hub.opvious.io',
+const DEFAULT_DOMAIN = 'beta.opvious.io';
+
+function defaultEndpoint(leaf: string, domain = DEFAULT_DOMAIN): string {
+  return `https://${leaf}.${domain}`;
 }
 
 const ENCODING_HEADER = 'content-encoding';

@@ -44,7 +44,11 @@ export async function loadConfig(args: {
   }
   return {
     profileName: profile?.name,
-    client: OpviousClient.create({authorization: auth, telemetry}),
+    client: OpviousClient.create({
+      authorization: auth,
+      domain: profile?.domain,
+      telemetry,
+    }),
   };
 }
 
@@ -56,6 +60,7 @@ const ajv = new Ajv();
 
 interface Profile {
   readonly name: string;
+  readonly domain?: string;
   readonly authorization: string;
 }
 
@@ -70,6 +75,7 @@ const validate = ajv.compile<DeepWritable<ConfigFile>>({
         required: ['name', 'authorization'],
         properties: {
           name: {type: 'string'},
+          domain: {type: 'string'},
           authorization: {type: 'string'},
         },
       },
