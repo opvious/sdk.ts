@@ -85,7 +85,7 @@ importers:
     specifiers:
       '@babel/code-frame': ^7.18.6
       '@opentelemetry/api': ^1.3.0
-      '@opvious/api-operations': ^0.10.2
+      '@opvious/api-operations': ^0.10.3
       '@opvious/stl-errors': ^0.14.9
       '@opvious/stl-telemetry': ^0.14.9
       '@types/babel__code-frame': ^7.0.3
@@ -99,7 +99,7 @@ importers:
     dependencies:
       '@babel/code-frame': 7.18.6
       '@opentelemetry/api': 1.3.0
-      '@opvious/api-operations': 0.10.2
+      '@opvious/api-operations': 0.10.3
       '@opvious/stl-errors': 0.14.9
       '@opvious/stl-telemetry': 0.14.9
       backoff: 2.5.0
@@ -114,14 +114,14 @@ importers:
 
   packages/sheets:
     specifiers:
-      '@opvious/api-operations': ^0.10.2
+      '@opvious/api-operations': ^0.10.3
       '@opvious/stl-errors': ^0.14.9
       '@opvious/stl-utils': ^0.14.9
       '@types/pluralize': ^0.0.29
       change-case: ^4.1.2
       pluralize: ^8.0.0
     dependencies:
-      '@opvious/api-operations': 0.10.2
+      '@opvious/api-operations': 0.10.3
       '@opvious/stl-errors': 0.14.9
       '@opvious/stl-utils': 0.14.9
       change-case: 4.1.2
@@ -941,8 +941,8 @@ packages:
     resolution: {integrity: sha512-TYh1MRcm4JnvpqtqOwT9WYaBYY4KERHdToxs/suDTLviGRsQkIjS5yYROTYTSJQUnYLOn/TuOh5GoMwfLSU+Ew==}
     engines: {node: '>=14'}
 
-  /@opvious/api-operations/0.10.2:
-    resolution: {integrity: sha512-ipMmvJbIry/tVkU50VmJ9XZT1jwFixxD/k6rpXPthl1iCXxMWUYp7/MWRUoJMYByN2ux88BoYVvY1tpAIX4nEA==, tarball: download/@opvious/api-operations/0.10.2/2ee8b71c712b184847efe011116aacde2c5c71db}
+  /@opvious/api-operations/0.10.3:
+    resolution: {integrity: sha512-ZlMLxaqYDI5wUMbXTuescnbtx/8o1lBOG/JYA9NrmVCgRP3AIAyI+/utI6RcO7bHXrH31Nz7A5vSNKgXJ7KQKg==, tarball: download/@opvious/api-operations/0.10.3/48769118d21f855321d708ef5e434cb38faa84bf}
     dependencies:
       graphql: 16.6.0
     dev: false

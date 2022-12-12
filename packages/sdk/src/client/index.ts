@@ -153,9 +153,9 @@ export class OpviousClient {
     return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk);
   }
 
-  /** Fetch currently active account information. */
-  async fetchMyAccount(): Promise<api.MyAccountFragment> {
-    const res = await this.sdk.FetchMyAccount();
+  /** Fetch currently active member. */
+  async fetchMember(): Promise<api.FetchedMemberFragment> {
+    const res = await this.sdk.FetchMember();
     return resultData(res).me;
   }
 
@@ -163,7 +163,7 @@ export class OpviousClient {
   async listAuthorizations(): Promise<
     ReadonlyArray<api.ListedAuthorizationFragment>
   > {
-    const res = await this.sdk.ListMyAuthorizations();
+    const res = await this.sdk.ListAuthorizations();
     return resultData(res).me.authorizations;
   }
 
