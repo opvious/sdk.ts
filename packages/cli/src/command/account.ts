@@ -34,15 +34,24 @@ export function accountCommand(): Command {
 
 function showCredentialsCommand(): Command {
   return newCommand()
-    .command('credentials')
+    .command('me')
     .description('display current credentials')
     .action(
       contextualAction(async function () {
         const {client, spinner} = this;
         spinner.start('Fetching credentials...');
-        const account = await client.fetchMyAccount();
+        const member = await client.fetchMember();
         spinner.succeed('Fetched credentials.\n');
-        display(account.holder.email);
+        const table = new Table();
+        table.cell('email', member.email);
+        table.cell(
+          'registered',
+          DateTime.fromISO(member.registeredAt).toRelative()
+        );
+        table.cell('tier', member.productTier);
+        table.cell('credits', member.creditBalance);
+        table.newRow();
+        display(table.printTransposed());
       })
     );
 }
