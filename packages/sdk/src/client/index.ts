@@ -164,7 +164,7 @@ export class OpviousClient {
     ReadonlyArray<api.ListedAuthorizationFragment>
   > {
     const res = await this.sdk.ListMyAuthorizations();
-    return resultData(res).me.holder.authorizations;
+    return resultData(res).me.authorizations;
   }
 
   /** Creates a new access token for an authorization with the given name. */

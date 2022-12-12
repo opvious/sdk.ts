@@ -6,7 +6,7 @@ importers:
     specifiers:
       '@opvious/eslint-plugin': ^0.1.20
       '@opvious/prettier-typescript': ^0.1.20
-      '@opvious/stl': ^0.14.6
+      '@opvious/stl': ^0.14.9
       '@opvious/tsconfig': ^0.1.20
       '@types/jest': ^29.2.2
       '@types/node': ^18.11.7
@@ -24,7 +24,7 @@ importers:
     devDependencies:
       '@opvious/eslint-plugin': 0.1.20_vhsckgnokn2tf7m5xkrurmvfv4
       '@opvious/prettier-typescript': 0.1.20
-      '@opvious/stl': 0.14.6
+      '@opvious/stl': 0.14.9
       '@opvious/tsconfig': 0.1.20
       '@types/jest': 29.2.2
       '@types/node': 18.11.9
@@ -42,10 +42,10 @@ importers:
 
   packages/cli:
     specifiers:
-      '@opvious/stl-bootstrap': ^0.14.6
-      '@opvious/stl-errors': ^0.14.6
-      '@opvious/stl-telemetry': ^0.14.6
-      '@opvious/stl-utils': ^0.14.6
+      '@opvious/stl-bootstrap': ^0.14.9
+      '@opvious/stl-errors': ^0.14.9
+      '@opvious/stl-telemetry': ^0.14.9
+      '@opvious/stl-utils': ^0.14.9
       '@types/fast-fifo': ^1.0.0
       '@types/humanize-duration': ^3.27.1
       '@types/js-yaml': ^4.0.5
@@ -61,10 +61,10 @@ importers:
       opvious-sheets: workspace:*
       ora: ^5.4.1
     dependencies:
-      '@opvious/stl-bootstrap': 0.14.6
-      '@opvious/stl-errors': 0.14.6
-      '@opvious/stl-telemetry': 0.14.6
-      '@opvious/stl-utils': 0.14.6
+      '@opvious/stl-bootstrap': 0.14.9
+      '@opvious/stl-errors': 0.14.9
+      '@opvious/stl-telemetry': 0.14.9
+      '@opvious/stl-utils': 0.14.9
       ajv: 8.11.0
       commander: 9.3.0
       easy-table: 1.2.0
@@ -85,9 +85,9 @@ importers:
     specifiers:
       '@babel/code-frame': ^7.18.6
       '@opentelemetry/api': ^1.3.0
-      '@opvious/api-operations': ^0.9.1
-      '@opvious/stl-errors': ^0.14.6
-      '@opvious/stl-telemetry': ^0.14.6
+      '@opvious/api-operations': ^0.10.2
+      '@opvious/stl-errors': ^0.14.9
+      '@opvious/stl-telemetry': ^0.14.9
       '@types/babel__code-frame': ^7.0.3
       '@types/backoff': ^2.5.2
       '@types/node-fetch': ^2.6.2
@@ -99,9 +99,9 @@ importers:
     dependencies:
       '@babel/code-frame': 7.18.6
       '@opentelemetry/api': 1.3.0
-      '@opvious/api-operations': 0.9.1
-      '@opvious/stl-errors': 0.14.6
-      '@opvious/stl-telemetry': 0.14.6
+      '@opvious/api-operations': 0.10.2
+      '@opvious/stl-errors': 0.14.9
+      '@opvious/stl-telemetry': 0.14.9
       backoff: 2.5.0
       graphql: 16.6.0
       graphql-request: 5.0.0_graphql@16.6.0
@@ -114,16 +114,16 @@ importers:
 
   packages/sheets:
     specifiers:
-      '@opvious/api-operations': ^0.9.1
-      '@opvious/stl-errors': ^0.14.6
-      '@opvious/stl-utils': ^0.14.6
+      '@opvious/api-operations': ^0.10.2
+      '@opvious/stl-errors': ^0.14.9
+      '@opvious/stl-utils': ^0.14.9
       '@types/pluralize': ^0.0.29
       change-case: ^4.1.2
       pluralize: ^8.0.0
     dependencies:
-      '@opvious/api-operations': 0.9.1
-      '@opvious/stl-errors': 0.14.6
-      '@opvious/stl-utils': 0.14.6
+      '@opvious/api-operations': 0.10.2
+      '@opvious/stl-errors': 0.14.9
+      '@opvious/stl-utils': 0.14.9
       change-case: 4.1.2
       pluralize: 8.0.0
     devDependencies:
@@ -941,8 +941,8 @@ packages:
     resolution: {integrity: sha512-TYh1MRcm4JnvpqtqOwT9WYaBYY4KERHdToxs/suDTLviGRsQkIjS5yYROTYTSJQUnYLOn/TuOh5GoMwfLSU+Ew==}
     engines: {node: '>=14'}
 
-  /@opvious/api-operations/0.9.1:
-    resolution: {integrity: sha512-5ufqGtHgxvnZ6IfX75ZK/2yd/iZFyLALIzV3q8Nbkogoz8XvlFk+ClSs645Wa6/H+ys/Y7RxLdLoKy14aeexWw==, tarball: download/@opvious/api-operations/0.9.1/cd63a80b9aa00c8c020efe46ea42079f4a2e880b}
+  /@opvious/api-operations/0.10.2:
+    resolution: {integrity: sha512-ipMmvJbIry/tVkU50VmJ9XZT1jwFixxD/k6rpXPthl1iCXxMWUYp7/MWRUoJMYByN2ux88BoYVvY1tpAIX4nEA==, tarball: download/@opvious/api-operations/0.10.2/2ee8b71c712b184847efe011116aacde2c5c71db}
     dependencies:
       graphql: 16.6.0
     dev: false
@@ -952,11 +952,11 @@ packages:
     peerDependencies:
       eslint: ^8.10.0
     dependencies:
-      '@typescript-eslint/eslint-plugin': 5.45.1_7eywteweuyh3enizv2urnw7wv4
-      '@typescript-eslint/parser': 5.45.1_vhsckgnokn2tf7m5xkrurmvfv4
+      '@typescript-eslint/eslint-plugin': 5.46.0_tadvahovag72wjno7lubefd44u
+      '@typescript-eslint/parser': 5.46.0_vhsckgnokn2tf7m5xkrurmvfv4
       eslint: 8.17.0
       eslint-plugin-simple-import-sort: 7.0.0_eslint@8.17.0
-      eslint-plugin-unused-imports: 2.0.0_sod4cndkcfnyrvhe7dvoejxbwu
+      eslint-plugin-unused-imports: 2.0.0_xfhjvhydey7htbmres4uki7yme
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -966,8 +966,8 @@ packages:
     resolution: {integrity: sha512-0CtA3InNQkFDffGM7vkl9pRMmerSZJJiPggYKgV9HCju2mqMrHo5rTpbMDgnWkTtwoe8IRmhxFuVkc4Vc1WVgQ==, tarball: download/@opvious/prettier-typescript/0.1.20/402f2395ba0484a6ba82938397d0344987de7e12}
     dev: true
 
-  /@opvious/stl-bootstrap/0.14.6:
-    resolution: {integrity: sha512-T/HyywzyiMGhPiWCUW79ZC7vmCeeY48woJ+boadooX4PcOAajGb3GN4/RHRSP7rMuAtiBp6iEi5Gc/ZddYLGhg==, tarball: download/@opvious/stl-bootstrap/0.14.6/ed6be50dc7a720bc03cca3c153cbc79e17deb5d5}
+  /@opvious/stl-bootstrap/0.14.9:
+    resolution: {integrity: sha512-Yeevy+83xdWMozdUKLJjQdvcJWKmqEQ5pJOnREDnmT/hzrj2WRbkvrFqCwEhxURGcfIVqa2qFsAPwy+8SEZ8oA==, tarball: download/@opvious/stl-bootstrap/0.14.9/94747bf9bd16f0ee02ce066b622391bf3d7d4bc2}
     dependencies:
       '@opentelemetry/api': 1.3.0
       '@opentelemetry/exporter-metrics-otlp-http': 0.34.0_@opentelemetry+api@1.3.0
@@ -976,50 +976,50 @@ packages:
       '@opentelemetry/sdk-metrics': 1.8.0_@opentelemetry+api@1.3.0
       '@opentelemetry/sdk-trace-base': 1.8.0_@opentelemetry+api@1.3.0
       '@opentelemetry/sdk-trace-node': 1.8.0_@opentelemetry+api@1.3.0
-      '@opvious/stl-errors': 0.14.6
-      '@opvious/stl-telemetry': 0.14.6
+      '@opvious/stl-errors': 0.14.9
+      '@opvious/stl-telemetry': 0.14.9
     dev: false
 
-  /@opvious/stl-errors/0.14.6:
-    resolution: {integrity: sha512-4Y4aW2zLPVig33hrGymS5MG6TFW+k4LenTbfP/JuFKwLSN+27TX5U2R0OE5KKJYHz/+OIIf+KtoMAS99em1zAw==, tarball: download/@opvious/stl-errors/0.14.6/53ffde517ae58e545dbf5b7acc5f90e63dd4311f}
+  /@opvious/stl-errors/0.14.9:
+    resolution: {integrity: sha512-l/ft+O37dl9PHg5Xya7C715d0I5CDg8szUESefphKK0AQlOY6/Cle3eOzffj935aV0WD3ksvUMTdpFNiPHNl+w==, tarball: download/@opvious/stl-errors/0.14.9/d4de983db95a0806720971b623380d74db847785}
     dependencies:
       '@opentelemetry/api': 1.3.0
       change-case: 4.1.2
       upper-case-first: 2.0.2
 
-  /@opvious/stl-settings/0.14.6:
-    resolution: {integrity: sha512-YZk4pHLfAyJ2PUc1JD9gvPGr4JzWRM/tyBk+TkGRwbQS0BTOg3EChuupDZ5PxyGnElKrM+DGXxU3wlOqQcRf/Q==, tarball: download/@opvious/stl-settings/0.14.6/0ab3855037583807daf0d94ef0802714fd217c1b}
+  /@opvious/stl-settings/0.14.9:
+    resolution: {integrity: sha512-MCNwU5xLYGMEI8gCycMZhs/6BiZIfYF3+V3sFaYWXZS4JAeypbUIiNmAQMLpq/R/Mkl6eJhUzqRiO6Cc6IRZhg==, tarball: download/@opvious/stl-settings/0.14.9/44969d1b41dd9f683f6e1defdf67025a0410fab7}
     dependencies:
-      '@opvious/stl-errors': 0.14.6
+      '@opvious/stl-errors': 0.14.9
     dev: true
 
-  /@opvious/stl-telemetry/0.14.6:
-    resolution: {integrity: sha512-WJcuVxersrg0ixOrVxhqTsgmF5nwbpfPSjkdVLeCVA81RCXxcAJQmcjqOrxxB82zfboVAC8hSF1KvbTZW78fmQ==, tarball: download/@opvious/stl-telemetry/0.14.6/b29cba3f39dc20e3e1bec4e47d98b0309bf21240}
+  /@opvious/stl-telemetry/0.14.9:
+    resolution: {integrity: sha512-g4SfSiWM8U8RUIsQTLY7+2i3BgzGXY0yx0x1WBGt3jgBu9kTRLeCr30EEZ4yWsaSgr1kS5el4o0oouWHzOv9nA==, tarball: download/@opvious/stl-telemetry/0.14.9/9a9f410c6bb6f8e2f1c2e0a9c28427516d310724}
     dependencies:
       '@opentelemetry/api': 1.3.0
-      '@opvious/stl-errors': 0.14.6
-      '@opvious/stl-utils': 0.14.6
+      '@opvious/stl-errors': 0.14.9
+      '@opvious/stl-utils': 0.14.9
       pino: 8.7.0
       pino-std-serializers: 6.0.0
 
-  /@opvious/stl-utils/0.14.6:
-    resolution: {integrity: sha512-a1XMP4RxL/vvYkfpiBu2XF0ulub+VTaBNAIlAPwr32wOeXqrxpTt0z9fX9Nk1IFriGjMrWREsar9eLRY2O+qeg==, tarball: download/@opvious/stl-utils/0.14.6/3d2e0faa64eddb7753230ca19e5b8bcc39620962}
+  /@opvious/stl-utils/0.14.9:
+    resolution: {integrity: sha512-R4fAftc4+0qcB9QS0+XJClJQ7COYlDt6AZEOuC+22FWeuK+50+4NuWXQzsg4C2NPijVWNjcxL76vTxGwzKbWrw==, tarball: download/@opvious/stl-utils/0.14.9/771f8d83bf62381d27b27679bdf6c597173a4657}
     dependencies:
-      '@opvious/stl-errors': 0.14.6
+      '@opvious/stl-errors': 0.14.9
       change-case: 4.1.2
       picomatch: 2.3.1
       untruncate-json: 0.0.1
 
-  /@opvious/stl/0.14.6:
-    resolution: {integrity: sha512-Cs0zi/oxIsfg39elmNENZKnKNZzolr8psUxz5XrNz3NhivZJPhtA6F1zT1Xqlri1s8G4Vjmmx49+ceR4kvIlQA==, tarball: download/@opvious/stl/0.14.6/39621f7930bf6e5a24c85fa200b59f11557807a4}
+  /@opvious/stl/0.14.9:
+    resolution: {integrity: sha512-z6qMFRAaJRmlRBO0X9LJa2qEoanGIPZYV1E2WV7vBe/pgeRrCTTyg09hGQFrSxapAkIBDS77fcSkJmRBi9/cKQ==, tarball: download/@opvious/stl/0.14.9/20413e5381389f9723fc45cc2bcf916ac9461764}
     hasBin: true
     dependencies:
       '@opentelemetry/api': 1.3.0
       '@opentelemetry/resources': 1.8.0_@opentelemetry+api@1.3.0
-      '@opvious/stl-errors': 0.14.6
-      '@opvious/stl-settings': 0.14.6
-      '@opvious/stl-telemetry': 0.14.6
-      '@opvious/stl-utils': 0.14.6
+      '@opvious/stl-errors': 0.14.9
+      '@opvious/stl-settings': 0.14.9
+      '@opvious/stl-telemetry': 0.14.9
+      '@opvious/stl-utils': 0.14.9
       bytes-iec: 3.1.1
       change-case: 4.1.2
       luxon: 2.5.0
@@ -1180,8 +1180,8 @@ packages:
       '@types/yargs-parser': 21.0.0
     dev: true
 
-  /@typescript-eslint/eslint-plugin/5.45.1_7eywteweuyh3enizv2urnw7wv4:
-    resolution: {integrity: sha512-cOizjPlKEh0bXdFrBLTrI/J6B/QMlhwE9auOov53tgB+qMukH6/h8YAK/qw+QJGct/PTbdh2lytGyipxCcEtAw==}
+  /@typescript-eslint/eslint-plugin/5.46.0_tadvahovag72wjno7lubefd44u:
+    resolution: {integrity: sha512-QrZqaIOzJAjv0sfjY4EjbXUi3ZOFpKfzntx22gPGr9pmFcTjcFw/1sS1LJhEubfAGwuLjNrPV0rH+D1/XZFy7Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       '@typescript-eslint/parser': ^5.0.0
@@ -1191,10 +1191,10 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 5.45.1_vhsckgnokn2tf7m5xkrurmvfv4
-      '@typescript-eslint/scope-manager': 5.45.1
-      '@typescript-eslint/type-utils': 5.45.1_vhsckgnokn2tf7m5xkrurmvfv4
-      '@typescript-eslint/utils': 5.45.1_vhsckgnokn2tf7m5xkrurmvfv4
+      '@typescript-eslint/parser': 5.46.0_vhsckgnokn2tf7m5xkrurmvfv4
+      '@typescript-eslint/scope-manager': 5.46.0
+      '@typescript-eslint/type-utils': 5.46.0_vhsckgnokn2tf7m5xkrurmvfv4
+      '@typescript-eslint/utils': 5.46.0_vhsckgnokn2tf7m5xkrurmvfv4
       debug: 4.3.4
       eslint: 8.17.0
       ignore: 5.2.1
@@ -1207,8 +1207,8 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser/5.45.1_vhsckgnokn2tf7m5xkrurmvfv4:
-    resolution: {integrity: sha512-JQ3Ep8bEOXu16q0ztsatp/iQfDCtvap7sp/DKo7DWltUquj5AfCOpX2zSzJ8YkAVnrQNqQ5R62PBz2UtrfmCkA==}
+  /@typescript-eslint/parser/5.46.0_vhsckgnokn2tf7m5xkrurmvfv4:
+    resolution: {integrity: sha512-joNO6zMGUZg+C73vwrKXCd8usnsmOYmgW/w5ZW0pG0RGvqeznjtGDk61EqqTpNrFLUYBW2RSBFrxdAZMqA4OZA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -1217,9 +1217,9 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/scope-manager': 5.45.1
-      '@typescript-eslint/types': 5.45.1
-      '@typescript-eslint/typescript-estree': 5.45.1_typescript@4.8.4
+      '@typescript-eslint/scope-manager': 5.46.0
+      '@typescript-eslint/types': 5.46.0
+      '@typescript-eslint/typescript-estree': 5.46.0_typescript@4.8.4
       debug: 4.3.4
       eslint: 8.17.0
       typescript: 4.8.4
@@ -1227,16 +1227,16 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/scope-manager/5.45.1:
-    resolution: {integrity: sha512-D6fCileR6Iai7E35Eb4Kp+k0iW7F1wxXYrOhX/3dywsOJpJAQ20Fwgcf+P/TDtvQ7zcsWsrJaglaQWDhOMsspQ==}
+  /@typescript-eslint/scope-manager/5.46.0:
+    resolution: {integrity: sha512-7wWBq9d/GbPiIM6SqPK9tfynNxVbfpihoY5cSFMer19OYUA3l4powA2uv0AV2eAZV6KoAh6lkzxv4PoxOLh1oA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      '@typescript-eslint/types': 5.45.1
-      '@typescript-eslint/visitor-keys': 5.45.1
+      '@typescript-eslint/types': 5.46.0
+      '@typescript-eslint/visitor-keys': 5.46.0
     dev: true
 
-  /@typescript-eslint/type-utils/5.45.1_vhsckgnokn2tf7m5xkrurmvfv4:
-    resolution: {integrity: sha512-aosxFa+0CoYgYEl3aptLe1svP910DJq68nwEJzyQcrtRhC4BN0tJAvZGAe+D0tzjJmFXe+h4leSsiZhwBa2vrA==}
+  /@typescript-eslint/type-utils/5.46.0_vhsckgnokn2tf7m5xkrurmvfv4:
+    resolution: {integrity: sha512-dwv4nimVIAsVS2dTA0MekkWaRnoYNXY26dKz8AN5W3cBFYwYGFQEqm/cG+TOoooKlncJS4RTbFKgcFY/pOiBCg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: '*'
@@ -1245,8 +1245,8 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 5.45.1_typescript@4.8.4
-      '@typescript-eslint/utils': 5.45.1_vhsckgnokn2tf7m5xkrurmvfv4
+      '@typescript-eslint/typescript-estree': 5.46.0_typescript@4.8.4
+      '@typescript-eslint/utils': 5.46.0_vhsckgnokn2tf7m5xkrurmvfv4
       debug: 4.3.4
       eslint: 8.17.0
       tsutils: 3.21.0_typescript@4.8.4
@@ -1255,13 +1255,13 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/types/5.45.1:
-    resolution: {integrity: sha512-HEW3U0E5dLjUT+nk7b4lLbOherS1U4ap+b9pfu2oGsW3oPu7genRaY9dDv3nMczC1rbnRY2W/D7SN05wYoGImg==}
+  /@typescript-eslint/types/5.46.0:
+    resolution: {integrity: sha512-wHWgQHFB+qh6bu0IAPAJCdeCdI0wwzZnnWThlmHNY01XJ9Z97oKqKOzWYpR2I83QmshhQJl6LDM9TqMiMwJBTw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@typescript-eslint/typescript-estree/5.45.1_typescript@4.8.4:
-    resolution: {integrity: sha512-76NZpmpCzWVrrb0XmYEpbwOz/FENBi+5W7ipVXAsG3OoFrQKJMiaqsBMbvGRyLtPotGqUfcY7Ur8j0dksDJDng==}
+  /@typescript-eslint/typescript-estree/5.46.0_typescript@4.8.4:
+    resolution: {integrity: sha512-kDLNn/tQP+Yp8Ro2dUpyyVV0Ksn2rmpPpB0/3MO874RNmXtypMwSeazjEN/Q6CTp8D7ExXAAekPEcCEB/vtJkw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       typescript: '*'
@@ -1269,8 +1269,8 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/types': 5.45.1
-      '@typescript-eslint/visitor-keys': 5.45.1
+      '@typescript-eslint/types': 5.46.0
+      '@typescript-eslint/visitor-keys': 5.46.0
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
@@ -1281,17 +1281,17 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils/5.45.1_vhsckgnokn2tf7m5xkrurmvfv4:
-    resolution: {integrity: sha512-rlbC5VZz68+yjAzQBc4I7KDYVzWG2X/OrqoZrMahYq3u8FFtmQYc+9rovo/7wlJH5kugJ+jQXV5pJMnofGmPRw==}
+  /@typescript-eslint/utils/5.46.0_vhsckgnokn2tf7m5xkrurmvfv4:
+    resolution: {integrity: sha512-4O+Ps1CRDw+D+R40JYh5GlKLQERXRKW5yIQoNDpmXPJ+C7kaPF9R7GWl+PxGgXjB3PQCqsaaZUpZ9dG4U6DO7g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@types/json-schema': 7.0.11
       '@types/semver': 7.3.13
-      '@typescript-eslint/scope-manager': 5.45.1
-      '@typescript-eslint/types': 5.45.1
-      '@typescript-eslint/typescript-estree': 5.45.1_typescript@4.8.4
+      '@typescript-eslint/scope-manager': 5.46.0
+      '@typescript-eslint/types': 5.46.0
+      '@typescript-eslint/typescript-estree': 5.46.0_typescript@4.8.4
       eslint: 8.17.0
       eslint-scope: 5.1.1
       eslint-utils: 3.0.0_eslint@8.17.0
@@ -1301,11 +1301,11 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/visitor-keys/5.45.1:
-    resolution: {integrity: sha512-cy9ln+6rmthYWjH9fmx+5FU/JDpjQb586++x2FZlveq7GdGuLLW9a2Jcst2TGekH82bXpfmRNSwP9tyEs6RjvQ==}
+  /@typescript-eslint/visitor-keys/5.46.0:
+    resolution: {integrity: sha512-E13gBoIXmaNhwjipuvQg1ByqSAu/GbEpP/qzFihugJ+MomtoJtFAJG/+2DRPByf57B863m0/q7Zt16V9ohhANw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      '@typescript-eslint/types': 5.45.1
+      '@typescript-eslint/types': 5.46.0
       eslint-visitor-keys: 3.3.0
     dev: true
 
@@ -1925,7 +1925,7 @@ packages:
       eslint: 8.17.0
     dev: true
 
-  /eslint-plugin-unused-imports/2.0.0_sod4cndkcfnyrvhe7dvoejxbwu:
+  /eslint-plugin-unused-imports/2.0.0_xfhjvhydey7htbmres4uki7yme:
     resolution: {integrity: sha512-3APeS/tQlTrFa167ThtP0Zm0vctjr4M44HMpeg1P4bK6wItarumq0Ma82xorMKdFsWpphQBlRPzw/pxiVELX1A==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
@@ -1935,7 +1935,7 @@ packages:
       '@typescript-eslint/eslint-plugin':
         optional: true
     dependencies:
-      '@typescript-eslint/eslint-plugin': 5.45.1_7eywteweuyh3enizv2urnw7wv4
+      '@typescript-eslint/eslint-plugin': 5.46.0_tadvahovag72wjno7lubefd44u
       eslint: 8.17.0
       eslint-rule-composer: 0.3.0
     dev: true
@@ -3399,7 +3399,7 @@ packages:
       quick-format-unescaped: 4.0.4
       real-require: 0.2.0
       safe-stable-stringify: 2.4.1
-      sonic-boom: 3.2.0
+      sonic-boom: 3.2.1
       thread-stream: 2.2.0
 
   /pirates/4.0.5:
@@ -3673,8 +3673,8 @@ packages:
       dot-case: 3.0.4
       tslib: 2.4.1
 
-  /sonic-boom/3.2.0:
-    resolution: {integrity: sha512-SbbZ+Kqj/XIunvIAgUZRlqd6CGQYq71tRRbXR92Za8J/R3Yh4Av+TWENiSiEgnlwckYLyP0YZQWVfyNC0dzLaA==}
+  /sonic-boom/3.2.1:
+    resolution: {integrity: sha512-iITeTHxy3B9FGu8aVdiDXUVAcHMF9Ss0cCsAOo2HfCrmVGT3/DT5oYaeu0M/YKZDlKTvChEyPq0zI9Hf33EX6A==}
     dependencies:
       atomic-sleep: 1.0.0
 
