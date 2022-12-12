@@ -42,7 +42,7 @@ function showCredentialsCommand(): Command {
         spinner.start('Fetching credentials...');
         const account = await client.fetchMyAccount();
         spinner.succeed('Fetched credentials.\n');
-        display(account.holder.email);
+        display(account.email);
       })
     );
 }
