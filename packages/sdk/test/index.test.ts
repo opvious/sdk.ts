@@ -82,7 +82,7 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
       parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
     });
 
-    const outcome = await client.waitForOutcome(uuid);
+    const outcome = await client.waitForFeasibleOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true});
 
     const fetched = await client.fetchAttempt(uuid);
@@ -126,7 +126,7 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
         },
       ],
     });
-    const outcome = await client.waitForOutcome(uuid);
+    const outcome = await client.waitForFeasibleOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
   });
 
@@ -152,7 +152,7 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
         constraints: [{label: 'matchHint', deficitBound: -1}],
       },
     });
-    const outcome = await client.waitForOutcome(uuid);
+    const outcome = await client.waitForFeasibleOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true});
     const outputs = await client.fetchAttemptOutputs(uuid);
     expect(outputs).toMatchObject({
