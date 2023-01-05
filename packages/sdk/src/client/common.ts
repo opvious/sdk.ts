@@ -17,10 +17,14 @@
 
 import {codeFrameColumns} from '@babel/code-frame';
 import * as api from '@opvious/api-operations';
-import {check, errorFactories} from '@opvious/stl-errors';
+import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
 import * as gql from 'graphql';
 import {ClientError} from 'graphql-request';
 import {TypedEmitter} from 'tiny-typed-emitter';
+
+export type Label = api.Scalars['Label'];
+
+export type Uuid = api.Scalars['Uuid'];
 
 export const [clientErrors, clientErrorCodes] = errorFactories({
   definitions: {
@@ -36,11 +40,13 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
         'API response included errors: ' + errs.map(formatError).join(', '),
       tags: {errors: errs},
     }),
-    unparseableSource: (snippets: ReadonlyArray<InvalidSourceSnippet>) => ({
-      message:
-        `Encountered ${snippets.length} error(s) while parsing source:\n\n` +
-        snippets.map((s) => s.preview).join('\n'),
-      tags: {snippets},
+    attemptCancelled: (uuid: Uuid) => ({
+      message: 'Attempt was cancelled',
+      tags: {uuid},
+    }),
+    attemptErrored: (uuid: Uuid, failure: unknown) => ({
+      message: `Attempt errored: ${errorMessage(failure)}`,
+      tags: {uuid, failure},
     }),
     missingAuthorization: 'No authorization found',
     unknownAttempt: (uuid: Uuid) => ({
@@ -52,6 +58,12 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
         `Formulation ${formulation} ${tag ? ` (${tag})` : ''}` +
         'was not found',
       tags: {formulation, tag},
+    }),
+    unparseableSource: (snippets: ReadonlyArray<InvalidSourceSnippet>) => ({
+      message:
+        `Encountered ${snippets.length} error(s) while parsing source:\n\n` +
+        snippets.map((s) => s.preview).join('\n'),
+      tags: {snippets},
     }),
   },
 });
@@ -99,8 +111,9 @@ export interface Paginated<V> {
   readonly nodes: ReadonlyArray<V>;
 }
 
-export type Label = api.Scalars['Label'];
-export type Uuid = api.Scalars['Uuid'];
+export type FeasibleOutcomeFragment = api.PolledAttemptOutcomeFragment & {
+  readonly __typename: 'FeasibleOutcome';
+};
 
 export interface AttemptTrackerListeners {
   /**
@@ -110,10 +123,23 @@ export interface AttemptTrackerListeners {
   notification(frag: api.FullAttemptNotificationFragment): void;
 
   /**
-   * The attempt completed with the given outcome. Once this event is emitted,
+   * The attempt completed with the given feasible (possibly optimal) outcome.
+   * Once this event is emitted, no more events will be emitted on this tracker
+   * instance.
+   */
+  feasible(frag: FeasibleOutcomeFragment): void;
+
+  /**
+   * The attempt completed with infeasible status. Once this event is emitted,
    * no more events will be emitted on this tracker instance.
    */
-  outcome(frag: api.PolledAttemptOutcomeFragment): void;
+  infeasible(): void;
+
+  /**
+   * The attempt completed with unbounded status. Once this event is emitted, no
+   * more events will be emitted on this tracker instance.
+   */
+  unbounded(): void;
 
   /** The attempt errored. */
   error(err: Error): void;

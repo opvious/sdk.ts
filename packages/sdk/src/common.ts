@@ -15,7 +15,6 @@
  * the License.
  */
 
-
 /** Returns the input string with any trailing slashes removed. */
 export function strippingTrailingSlashes(arg: string): string {
   return arg.replace(/\/+$/, '');

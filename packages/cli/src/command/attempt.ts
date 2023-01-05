@@ -17,7 +17,6 @@
 
 import {Command} from 'commander';
 import Table from 'easy-table';
-import events from 'events';
 import {readFile} from 'fs/promises';
 import {DateTime, Duration} from 'luxon';
 import {
@@ -72,7 +71,7 @@ function runAttemptCommand(): Command {
       []
     )
     .option('--detach', 'do not wait for the attempt to complete')
-    .option('--solve-timeout <iso>', 'solve timeout', 'PT2M')
+    .option('--solve-timeout <iso>', 'solve timeout', 'PT15S')
     .option('--absolute-gap <gap>', 'absolute gap threshold', parseFloat)
     .option(
       '--relaxation-penalty <penalty>',
@@ -131,21 +130,37 @@ function runAttemptCommand(): Command {
             : undefined,
         });
         spinner.succeed(`Started attempt. [uuid=${attempt.uuid}]`);
-        if (!opts.detach) {
-          spinner.start('Solving...');
-          const ee = client
+        if (opts.detach) {
+          display('' + client.attemptUrl(attempt.uuid));
+          return;
+        }
+        spinner.start('Solving...');
+        await new Promise<void>((ok, fail) => {
+          client
             .trackAttempt(attempt.uuid)
+            .on('error', fail)
             .on('notification', (notif) => {
               spinner.text =
                 `Solving... [gap=${percent(notif.relativeGap)}, ` +
                 `cuts=${notif.cutCount}, iters=${notif.lpIterationCount}]`;
+            })
+            .on('feasible', (outcome) => {
+              const details = [`optimal=${outcome.isOptimal}`];
+              if (outcome.objectiveValue != null) {
+                details.push(`objective=${outcome.objectiveValue}`);
+              }
+              spinner.succeed(`Attempt solved. [${details.join(', ')}]\n`);
+              ok();
+            })
+            .on('infeasible', () => {
+              spinner.warn('Attempt problem is infeasible.\n');
+              ok();
+            })
+            .on('unbounded', () => {
+              spinner.warn('Attempt problem is unbounded.\n');
+              ok();
             });
-          const [outcome] = await events.once(ee, 'outcome');
-          spinner.succeed(
-            `Attempt solved. [objective=${outcome.objectiveValue}]\n`
-          );
-        }
-        display('Attempt URL: ' + client.attemptUrl(attempt.uuid));
+        });
       })
     );
 }

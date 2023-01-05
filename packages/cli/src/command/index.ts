@@ -36,6 +36,7 @@ export function mainCommand(): Command {
     .name(COMMAND_NAME)
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
+    .option('-Q, --quiet', 'suppress spinner output')
     .addCommand(accountCommand())
     .addCommand(attemptCommand())
     .addCommand(formulationCommand())
