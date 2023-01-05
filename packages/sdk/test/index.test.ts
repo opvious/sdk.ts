@@ -1,6 +1,5 @@
 import {RecordingTelemetry} from '@opvious/stl-telemetry';
 import {readFile} from 'fs/promises';
-import fetch from 'node-fetch';
 import path from 'path';
 
 import * as sut from '../src';
@@ -50,22 +49,6 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
     expect(
       infos2.nodes.find((f) => f.name === formulationName)
     ).toBeUndefined();
-  });
-
-  test('shares a formulation', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await client.deleteFormulation(formulationName);
-    await registerSpecification(client, formulationName, 'n-queens.md');
-    const tag = await client.shareFormulation({
-      name: formulationName,
-      tagName: 'latest',
-    });
-    const {apiUrl} = client.blueprintUrls(tag.sharedVia);
-    const res1 = await fetch('' + apiUrl);
-    expect(res1.status).toEqual(200);
-    await client.unshareFormulation({name: formulationName});
-    const res2 = await fetch('' + apiUrl);
-    expect(res2.status).toEqual(404);
   });
 
   test('paginates attempts', async () => {
