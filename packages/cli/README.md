@@ -9,7 +9,7 @@ This package provides a command line interface to the Opvious API.
 ## Quickstart
 
 > You'll need an API access token to run commands. You can generate one at
-> https://hub.opvious.io/authorizations.
+> https://hub.beta.opvious.io/authorizations.
 
 To get started, create a configuration file with at least one profile (its
 location can be changed by setting the `OPVIOUS_CONFIG` environment variable):
