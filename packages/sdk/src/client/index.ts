@@ -17,10 +17,9 @@
 
 import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api-operations';
-import {assert, assertCause, check} from '@opvious/stl-errors';
+import {assert, assertCause, check, errors} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import backoff from 'backoff';
-import events from 'events';
 import {ClientError, GraphQLClient} from 'graphql-request';
 import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
 import {TypedEmitter} from 'tiny-typed-emitter';
@@ -32,6 +31,7 @@ import {
   AttemptTrackerListeners,
   BlueprintUrls,
   clientErrors,
+  FeasibleOutcomeFragment,
   InvalidSourceSnippet,
   invalidSourceSnippet,
   Paginated,
@@ -44,6 +44,7 @@ export {
   AttemptTrackerListeners,
   BlueprintUrls,
   clientErrorCodes,
+  FeasibleOutcomeFragment,
   Paginated,
 } from './common';
 
@@ -67,7 +68,7 @@ export class OpviousClient {
     if (!auth) {
       throw clientErrors.missingAuthorization();
     }
-    const domain = opts?.domain;
+    const domain = opts?.domain ?? process.env.OPVIOUS_DOMAIN;
     const apiEndpoint = strippingTrailingSlashes(
       opts?.apiEndpoint
         ? '' + opts.apiEndpoint
@@ -153,7 +154,7 @@ export class OpviousClient {
     return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk);
   }
 
-  /** Fetch currently active member. */
+  /** Fetches the currently active member. */
   async fetchMember(): Promise<api.FetchedMemberFragment> {
     const res = await this.sdk.FetchMember();
     return resultData(res).me;
@@ -336,16 +337,35 @@ export class OpviousClient {
               xb.backoff();
               return;
             }
+            case 'CANCELLED':
+              throw clientErrors.attemptCancelled(uuid);
+            case 'ERRORED': {
+              assert(
+                attempt.outcome?.__typename === 'FailedOutcome',
+                'Unexpected outcome %j',
+                attempt.outcome
+              );
+              throw clientErrors.attemptErrored(uuid, attempt.outcome.failure);
+            }
             case 'INFEASIBLE':
-              throw new Error('Infeasible attempt');
+              ee.emit('infeasible');
+              return;
             case 'UNBOUNDED':
-              throw new Error('Unbounded attempt');
+              ee.emit('unbounded');
+              return;
+            case 'FEASIBLE':
+            case 'OPTIMAL': {
+              assert(
+                attempt.outcome?.__typename === 'FeasibleOutcome',
+                'Unexpected outcome %j',
+                attempt.outcome
+              );
+              ee.emit('feasible', attempt.outcome);
+              return;
+            }
+            default:
+              errors.absurd(attempt.status);
           }
-          const outcome = check.isPresent(attempt.outcome);
-          if (outcome.__typename === 'FailedOutcome') {
-            throw new Error(outcome.failure.message);
-          }
-          ee.emit('outcome', outcome);
         })
         .catch((err) => {
           ee.emit('error', err);
@@ -356,12 +376,21 @@ export class OpviousClient {
 
   /**
    * Convenience method which resolves when the attempt is solved. Consider
-   * using `trackAttempt` to get access to progress notifications.
+   * using `trackAttempt` to get access to progress notifications and other
+   * statuses.
    */
-  async waitForOutcome(uuid: Uuid): Promise<api.PolledAttemptOutcomeFragment> {
-    const ee = this.trackAttempt(uuid);
-    const [outcome] = await events.once(ee, 'outcome');
-    return outcome;
+  async waitForFeasibleOutcome(uuid: Uuid): Promise<FeasibleOutcomeFragment> {
+    return new Promise((ok, fail) => {
+      this.trackAttempt(uuid)
+        .on('error', fail)
+        .on('feasible', ok)
+        .on('infeasible', () => {
+          fail(new Error('Infeasible problem'));
+        })
+        .on('unbounded', () => {
+          fail(new Error('Unbounded problem'));
+        });
+    });
   }
 
   /** Cancels a pending attempt. */
@@ -454,8 +483,9 @@ export interface OpviousClientOptions {
   readonly telemetry?: Telemetry;
 
   /**
-   * API and hub parent domain. If unset, defaults to `beta.opvious.io`. See
-   * `apiEndpoint` and `hubEndpoint` for additional configuration granularity.
+   * API and hub parent domain. If unset, uses `process.env.OPVIOUS_DOMAIN` if
+   * set. See `apiEndpoint` and `hubEndpoint` for additional configuration
+   * granularity.
    */
   readonly domain?: string;
 

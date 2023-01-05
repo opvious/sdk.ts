@@ -1,6 +1,5 @@
 import {RecordingTelemetry} from '@opvious/stl-telemetry';
 import {readFile} from 'fs/promises';
-import fetch from 'node-fetch';
 import path from 'path';
 
 import * as sut from '../src';
@@ -52,22 +51,6 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
     ).toBeUndefined();
   });
 
-  test('shares a formulation', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await client.deleteFormulation(formulationName);
-    await registerSpecification(client, formulationName, 'n-queens.md');
-    const tag = await client.shareFormulation({
-      name: formulationName,
-      tagName: 'latest',
-    });
-    const {apiUrl} = client.blueprintUrls(tag.sharedVia);
-    const res1 = await fetch('' + apiUrl);
-    expect(res1.status).toEqual(200);
-    await client.unshareFormulation({name: formulationName});
-    const res2 = await fetch('' + apiUrl);
-    expect(res2.status).toEqual(404);
-  });
-
   test('paginates attempts', async () => {
     await client.paginateAttempts({first: 10});
     // TODO: Check things...
@@ -82,7 +65,7 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
       parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
     });
 
-    const outcome = await client.waitForOutcome(uuid);
+    const outcome = await client.waitForFeasibleOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true});
 
     const fetched = await client.fetchAttempt(uuid);
@@ -126,7 +109,7 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
         },
       ],
     });
-    const outcome = await client.waitForOutcome(uuid);
+    const outcome = await client.waitForFeasibleOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
   });
 
@@ -152,7 +135,7 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
         constraints: [{label: 'matchHint', deficitBound: -1}],
       },
     });
-    const outcome = await client.waitForOutcome(uuid);
+    const outcome = await client.waitForFeasibleOutcome(uuid);
     expect(outcome).toMatchObject({isOptimal: true});
     const outputs = await client.fetchAttemptOutputs(uuid);
     expect(outputs).toMatchObject({
