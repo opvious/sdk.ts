@@ -50,8 +50,9 @@ set, and falls back to the default domain&#39;s endpoint otherwise.</p>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="domain" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>domain</span><a href="#domain" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">domain<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>API and hub parent domain. If unset, defaults to <code>beta.opvious.io</code>. See
-<code>apiEndpoint</code> and <code>hubEndpoint</code> for additional configuration granularity.</p>
+<div class="tsd-comment tsd-typography"><p>API and hub parent domain. If unset, uses <code>process.env.OPVIOUS_DOMAIN</code> if
+set. See <code>apiEndpoint</code> and <code>hubEndpoint</code> for additional configuration
+granularity.</p>
 </div></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="hubEndpoint" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>hub<wbr/>Endpoint</span><a href="#hubEndpoint" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
