@@ -247,7 +247,7 @@ function validateSpecificationCommand(): Command {
 }
 
 function formatBinding(b: api.SourceBinding): string {
-  return (b.dimensionLabel ?? '-') + (b.qualifier ? ` (${b.qualifier})` : '');
+  return (b.dimensionLabel ?? '#') + (b.qualifier ? ` (${b.qualifier})` : '');
 }
 
 function shareFormulationCommand(): Command {

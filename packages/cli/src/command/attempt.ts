@@ -37,7 +37,6 @@ export function attemptCommand(): Command {
     .description('attempt commands')
     .addCommand(runAttemptCommand())
     .addCommand(cancelAttemptCommand())
-    .addCommand(downloadAttemptCommand())
     .addCommand(listAttemptsCommand())
     .addCommand(listAttemptNotificationsCommand());
 }
@@ -167,24 +166,6 @@ function cancelAttemptCommand(): Command {
 
 const PAGE_LIMIT = 25;
 
-function downloadAttemptCommand(): Command {
-  return newCommand()
-    .command('download <uuid>')
-    .description('download attempt data')
-    .option('-i, --inputs', 'include inputs')
-    .action(
-      contextualAction(async function (uuid, opts) {
-        const {client, spinner} = this;
-        spinner.start('Downloading attempt...');
-        await client.fetchAttemptOutputs(uuid);
-        if (opts.inputs) {
-          await client.fetchAttemptInputs(uuid);
-        }
-        spinner.succeed('Downloaded attempt.');
-      })
-    );
-}
-
 function listAttemptsCommand(): Command {
   return newCommand()
     .command('list')
@@ -256,10 +237,7 @@ function listAttemptNotificationsCommand(): Command {
           for (const attempt of [...paginated.nodes].reverse()) {
             const effectiveAt = DateTime.fromISO(attempt.effectiveAt);
             table.cell('effective', effectiveAt.toRelative());
-            table.cell(
-              'relative_gap',
-              percent(attempt.relativeGap ?? Infinity)
-            );
+            table.cell('gap', percent(attempt.relativeGap ?? Infinity));
             table.cell('cuts', attempt.cutCount ?? '-');
             table.cell('lp_iterations', attempt.lpIterationCount ?? '-');
             table.newRow();
