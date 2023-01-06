@@ -19,6 +19,11 @@
 
 const {packageCodes, mainCommand, telemetry} = require('../lib');
 
+telemetry.logger.info(
+  {data: {cwd: process.cwd(), argv: process.argv, execArgv: process.execArgv}},
+  'Running command...',
+  process.argv.join(' ')
+);
 mainCommand().parseAsync(process.argv).catch((err) => {
   if (err.code === packageCodes.CommandAborted) {
     process.exitCode = err.tags?.exitCode ?? 0;
