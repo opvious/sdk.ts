@@ -61,7 +61,7 @@ function logCommand(): Command {
         return;
       }
       if (last === true) {
-        const lines = await lastCommandLines(fp);
+        const lines = await lastContextualCommandLines(fp);
         lines.forEach((l) => display(l));
         return;
       }
@@ -74,25 +74,40 @@ function logCommand(): Command {
     });
 }
 
-function lastCommandLines(fp: string): Promise<ReadonlyArray<string>> {
+function lastContextualCommandLines(
+  fp: string
+): Promise<ReadonlyArray<string>> {
   const [ret, cb] = resolvable<ReadonlyArray<string>>();
-  let lines: string[] = [];
-  let tid: any;
+  let last: string[] = [];
+  let temp: string[] = [];
+  let hasCtx = false;
+  let pid: any;
+
   readline
     .createInterface(fs.createReadStream(fp))
     .on('error', cb)
     .on('line', (line) => {
-      const {ctx} = JSON.parse(line);
-      if (!ctx || ctx.t === tid) {
-        lines.push(line);
-      } else {
-        lines = [line];
-        tid = ctx.t;
+      const {ctx, pid: lpid} = JSON.parse(line);
+      if (pid != null && lpid !== pid) {
+        flush();
       }
+      pid = lpid;
+      hasCtx = hasCtx || !!ctx;
+      temp.push(line);
     })
     .on('close', () => {
-      cb(null, lines);
+      flush();
+      cb(null, last);
     });
+
+  function flush(): void {
+    if (hasCtx) {
+      last = temp;
+    }
+    hasCtx = false;
+    temp = [];
+  }
+
   return ret;
 }
 

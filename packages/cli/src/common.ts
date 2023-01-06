@@ -53,5 +53,6 @@ export const telemetry = appTelemetry(packageInfo, {
   loggerOptions: {
     destination: logPath(),
     redact: ['data.req.headers.authorization'],
+    base: {pid: process.pid},
   },
 });
