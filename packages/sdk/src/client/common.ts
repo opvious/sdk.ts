@@ -15,7 +15,6 @@
  * the License.
  */
 
-import {codeFrameColumns} from '@babel/code-frame';
 import * as api from '@opvious/api-operations';
 import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
 import * as gql from 'graphql';
@@ -59,32 +58,8 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
         'was not found',
       tags: {formulation, tag},
     }),
-    unparseableSource: (snippets: ReadonlyArray<InvalidSourceSnippet>) => ({
-      message:
-        `Encountered ${snippets.length} error(s) while parsing source:\n\n` +
-        snippets.map((s) => s.preview).join('\n'),
-      tags: {snippets},
-    }),
   },
 });
-
-export interface InvalidSourceSnippet {
-  readonly slice: api.InvalidSourceSlice;
-  readonly preview: string;
-}
-
-export function invalidSourceSnippet(
-  slice: api.InvalidSourceSlice,
-  src: string
-): InvalidSourceSnippet {
-  const {start, end} = slice.range;
-  const preview = codeFrameColumns(
-    src,
-    {start, end: {line: end.line, column: end.column + 2}},
-    {linesAbove: 1, linesBelow: 1, message: slice.errorMessage}
-  );
-  return {slice, preview};
-}
 
 export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
   if (res.errors?.length) {
