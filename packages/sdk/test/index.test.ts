@@ -166,9 +166,5 @@ async function registerSpecification(
   path: string
 ): Promise<void> {
   const src = await readSource(path);
-  const defs = await client.extractDefinitions(src);
-  await client.registerSpecification({
-    formulationName: name,
-    definitions: defs,
-  });
+  await client.registerSpecification({formulationName: name, sources: [src]});
 }

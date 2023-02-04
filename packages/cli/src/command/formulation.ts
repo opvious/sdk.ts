@@ -15,10 +15,14 @@
  * the License.
  */
 
+import {check, errors} from '@opvious/stl-errors';
+import {watch} from 'chokidar';
 import {Command} from 'commander';
+import debounce from 'debounce';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
 import {DateTime} from 'luxon';
+import {sourceErrorPreview} from 'opvious';
 import * as api from 'opvious/api';
 import path from 'path';
 
@@ -30,7 +34,7 @@ export function formulationCommand(): Command {
     .command('formulation')
     .description('formulation commands')
     .addCommand(registerSpecificationCommand())
-    .addCommand(validateSpecificationCommand())
+    .addCommand(validateSpecification())
     .addCommand(listFormulationsCommand())
     .addCommand(fetchOutlineCommand())
     .addCommand(deleteFormulationCommand())
@@ -198,7 +202,7 @@ function deleteFormulationCommand(): Command {
 
 function registerSpecificationCommand(): Command {
   return newCommand()
-    .command('register <path>')
+    .command('register <path...>')
     .description('add a new specification')
     .option(
       '-f, --formulation <name>',
@@ -207,18 +211,19 @@ function registerSpecificationCommand(): Command {
     .option('-d, --description <text>', 'description text, defaults to source')
     .option('-t, --tags <names>', 'comma-separated tag names')
     .action(
-      contextualAction(async function (srcPath, opts) {
+      contextualAction(async function (srcPaths, opts) {
         const {client, spinner} = this;
-        spinner.start('Extracting definitions...');
-        const src = await readFile(srcPath, 'utf8');
-        const defs = await client.extractDefinitions(src);
+        spinner.start('Reading sources...');
+        const srcs = await Promise.all(
+          srcPaths.map((p: string) => readFile(p, 'utf8'))
+        );
         spinner
-          .succeed(`Extracted ${defs.length} definition(s).`)
+          .succeed(`Read ${srcs.length} sources.`)
           .start('Registering specification...');
         const spec = await client.registerSpecification({
-          formulationName: opts.formulation ?? path.parse(srcPath).name,
-          definitions: defs,
-          description: opts.description ?? src,
+          formulationName: opts.formulation ?? path.parse(srcPaths[0]).name,
+          sources: srcs,
+          description: opts.description ?? srcs.join('\n\n'),
           tagNames: opts.tags?.split(','),
         });
         const url = client.specificationUrl(spec.formulation.name, spec.revno);
@@ -227,23 +232,116 @@ function registerSpecificationCommand(): Command {
     );
 }
 
-function validateSpecificationCommand(): Command {
+const DEBOUNCE_MS = 250;
+
+enum ErrorFormat {
+  ESLINT = 'eslint',
+  JSON = 'json',
+  PRETTY = 'pretty',
+}
+
+function validateSpecification(): Command {
   return newCommand()
-    .command('validate <path>')
-    .description('validate a specification\'s source')
+    .command('validate <path...>')
+    .description('validate a specification\'s sources')
+    .option(
+      '-f, --format <format>',
+      'error output format (supported values: ' +
+        `${Object.values(ErrorFormat).join(', ')})`,
+      'pretty'
+    )
+    .option('-w, --watch', 'revalidate as sources change')
     .action(
-      contextualAction(async function (srcPath) {
+      contextualAction(async function (srcPaths, opts) {
         const {client, spinner} = this;
-        spinner.start('Extracting definitions...');
-        const src = await readFile(srcPath, 'utf8');
-        const defs = await client.extractDefinitions(src);
-        spinner
-          .succeed(`Extracted ${defs.length} definition(s).`)
-          .start('Validating definitions...');
-        await client.validateDefinitions(defs);
-        spinner.succeed('Validated definitions.');
+        const watching = !!opts.watch;
+        const format = errorFormatter(opts.format, srcPaths);
+        let seqno = 0;
+
+        if (!watching) {
+          const valid = await validate();
+          if (!valid) {
+            process.exitCode = 2;
+          }
+          return;
+        }
+        await validate();
+        const watcher = watch(srcPaths);
+        watcher.on('change', debounce(validate, DEBOUNCE_MS));
+
+        async function validate(): Promise<boolean> {
+          seqno++;
+          if (watching) {
+            console.clear();
+          }
+          spinner.start('Validating sources...');
+          const srcs = await Promise.all(
+            srcPaths.map((p: string) => readFile(p, 'utf8'))
+          );
+          const {slices, errors} = await client.parseSources(...srcs);
+          if (!errors.length) {
+            spinner.succeed(
+              `Specification is valid. [definitions=${slices.length}]`
+            );
+            return true;
+          }
+          spinner.warn(
+            `Specification is invalid. [definitions=${slices.length}, ` +
+              `errors=${errors.length}]`
+          );
+          for (const slice of errors) {
+            const {index} = slice;
+            const src = check.isPresent(srcs[index]);
+            display(format({seqno, slice, source: src}));
+          }
+          return false;
+        }
       })
     );
+}
+
+type ErrorFormatter = (args: {
+  readonly slice: api.ErrorSourceSlice;
+  readonly source: string;
+  readonly seqno: number;
+}) => string;
+
+function errorFormatter(
+  fmt: string,
+  fps: ReadonlyArray<string>
+): ErrorFormatter {
+  switch (fmt) {
+    case ErrorFormat.ESLINT:
+      return (args): string => {
+        const {code, index, message, range} = args.slice;
+        const fp = check.isPresent(fps[index]);
+        const {column: col, line} = range.start;
+        return `${fp}: line ${line}, col ${col}, Error - ${message} [${code}]`;
+      };
+    case ErrorFormat.JSON:
+      return (args): string => JSON.stringify(args.slice);
+    case ErrorFormat.PRETTY: {
+      let curSeqno = -1;
+      let curPath: string | undefined;
+      return (args): string => {
+        const {seqno, slice, source} = args;
+        if (seqno !== curSeqno) {
+          curSeqno = seqno;
+          curPath = undefined;
+        }
+        const fp = check.isPresent(fps[slice.index]);
+        let out = '';
+        if (fp !== curPath) {
+          out += `\n${fp}\n`;
+          curPath = fp;
+        }
+        out += `\n${sourceErrorPreview({slice, source})}`;
+        return out;
+      };
+    }
+    default:
+      throw errors.invalid({message: `Invalid format: ${fmt}`});
+  }
 }
 
 function formatBinding(b: api.SourceBinding): string {

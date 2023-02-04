@@ -32,8 +32,6 @@ import {
   BlueprintUrls,
   clientErrors,
   FeasibleOutcomeFragment,
-  InvalidSourceSnippet,
-  invalidSourceSnippet,
   Paginated,
   resultData,
   Uuid,
@@ -46,6 +44,7 @@ export {
   clientErrorCodes,
   FeasibleOutcomeFragment,
   Paginated,
+  sourceErrorPreview,
 } from './common';
 
 /** Opvious API client. */
@@ -182,36 +181,10 @@ export class OpviousClient {
     return resultData(res).revokeAuthorization;
   }
 
-  /**
-   * Extracts definitions from one or more sources. These definitions can then
-   * be used to register a specification.
-   */
-  async extractDefinitions(
-    ...sources: string[]
-  ): Promise<ReadonlyArray<api.Definition>> {
-    const res = await this.sdk.ExtractDefinitions({sources});
-    const defs: any[] = [];
-    const snips: InvalidSourceSnippet[] = [];
-    for (const slice of resultData(res).extractDefinitions.slices) {
-      if (slice.__typename === 'InvalidSourceSlice') {
-        const src = check.isPresent(sources[slice.index]);
-        snips.push(invalidSourceSnippet(slice, src));
-      } else {
-        defs.push(slice.definition);
-      }
-    }
-    if (snips.length) {
-      throw clientErrors.unparseableSource(snips);
-    }
-    return defs;
-  }
-
-  /** Validates that the definitions are valid for registration. */
-  async validateDefinitions(
-    defs: ReadonlyArray<api.Definition>
-  ): Promise<ReadonlyArray<string>> {
-    const res = await this.sdk.ValidateDefinitions({definitions: defs});
-    return resultData(res).validateDefinitions.warnings ?? [];
+  /** Parses and validates a specification's sources. */
+  async parseSources(...sources: string[]): Promise<api.ParseSourcesOutput> {
+    const res = await this.sdk.ParseSources({sources});
+    return resultData(res).parseSources;
   }
 
   /** Adds a new specification. */

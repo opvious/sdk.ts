@@ -16,7 +16,7 @@
  */
 
 import {errorFactories, errorMessage} from '@opvious/stl-errors';
-import {withActiveSpan, WithActiveSpanParams} from '@opvious/stl-telemetry';
+import {WithActiveSpanParams} from '@opvious/stl-telemetry';
 import {Command, CommanderError} from 'commander';
 import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
@@ -57,11 +57,8 @@ export function contextualAction(
     const opts = cmd.opts();
     const spinner = ora({isSilent: !!opts.quiet});
 
-    const spanParams: WithActiveSpanParams = {
-      name: COMMAND_NAME + ' command',
-      tracer: telemetry.tracer,
-    };
-    return withActiveSpan(spanParams, async (span) => {
+    const spanParams: WithActiveSpanParams = {name: COMMAND_NAME + ' command'};
+    return telemetry.withActiveSpan(spanParams, async (span) => {
       const sctx = span.spanContext();
       const {traceId} = sctx;
       spinner

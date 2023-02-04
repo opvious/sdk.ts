@@ -59,31 +59,25 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
         'was not found',
       tags: {formulation, tag},
     }),
-    unparseableSource: (snippets: ReadonlyArray<InvalidSourceSnippet>) => ({
-      message:
-        `Encountered ${snippets.length} error(s) while parsing source:\n\n` +
-        snippets.map((s) => s.preview).join('\n'),
-      tags: {snippets},
-    }),
   },
 });
 
-export interface InvalidSourceSnippet {
-  readonly slice: api.InvalidSourceSlice;
-  readonly preview: string;
-}
-
-export function invalidSourceSnippet(
-  slice: api.InvalidSourceSlice,
-  src: string
-): InvalidSourceSnippet {
-  const {start, end} = slice.range;
-  const preview = codeFrameColumns(
-    src,
-    {start, end: {line: end.line, column: end.column + 2}},
-    {linesAbove: 1, linesBelow: 1, message: slice.errorMessage}
+export function sourceErrorPreview(args: {
+  readonly slice: api.ErrorSourceSlice;
+  readonly source: string;
+  readonly forceColor?: boolean;
+}): string {
+  const {start, end} = args.slice.range;
+  return codeFrameColumns(
+    args.source,
+    {start, end: {line: end.line, column: end.column + 1}},
+    {
+      linesAbove: 1,
+      linesBelow: 1,
+      message: args.slice.message,
+      forceColor: args.forceColor,
+    }
   );
-  return {slice, preview};
 }
 
 export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {

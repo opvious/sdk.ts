@@ -12,7 +12,7 @@ Then there are four types of unicity constraints, all enforcing that there must 
 + $
 \S^c_{onePerCell} :
     \forall i, j \in P,
-      \sum_{v \in N} \alpha_{i,j,v} = 1
+      \sum_{v \in N} \alpha_{i,v} = 1
 $
 + $
 \S^c_{onePerRow} :
