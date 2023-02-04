@@ -15,7 +15,6 @@
  * the License.
  */
 
-import {codeFrameColumns} from '@babel/code-frame';
 import * as api from '@opvious/api-operations';
 import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
 import * as gql from 'graphql';
@@ -61,24 +60,6 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
     }),
   },
 });
-
-export function sourceErrorPreview(args: {
-  readonly slice: api.ErrorSourceSlice;
-  readonly source: string;
-  readonly forceColor?: boolean;
-}): string {
-  const {start, end} = args.slice.range;
-  return codeFrameColumns(
-    args.source,
-    {start, end: {line: end.line, column: end.column + 1}},
-    {
-      linesAbove: 1,
-      linesBelow: 1,
-      message: args.slice.message,
-      forceColor: args.forceColor,
-    }
-  );
-}
 
 export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
   if (res.errors?.length) {

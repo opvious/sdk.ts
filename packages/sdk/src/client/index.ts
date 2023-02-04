@@ -44,7 +44,6 @@ export {
   clientErrorCodes,
   FeasibleOutcomeFragment,
   Paginated,
-  sourceErrorPreview,
 } from './common';
 
 /** Opvious API client. */

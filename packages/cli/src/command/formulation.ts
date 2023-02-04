@@ -15,6 +15,7 @@
  * the License.
  */
 
+import {codeFrameColumns} from '@babel/code-frame';
 import {check, errors} from '@opvious/stl-errors';
 import {watch} from 'chokidar';
 import {Command} from 'commander';
@@ -22,7 +23,6 @@ import debounce from 'debounce';
 import Table from 'easy-table';
 import {readFile} from 'fs/promises';
 import {DateTime} from 'luxon';
-import {sourceErrorPreview} from 'opvious';
 import * as api from 'opvious/api';
 import path from 'path';
 
@@ -256,7 +256,6 @@ function validateSpecification(): Command {
         const {client, spinner} = this;
         const watching = !!opts.watch;
         const format = errorFormatter(opts.format, srcPaths);
-        let seqno = 0;
 
         if (!watching) {
           const valid = await validate();
@@ -270,7 +269,6 @@ function validateSpecification(): Command {
         watcher.on('change', debounce(validate, DEBOUNCE_MS));
 
         async function validate(): Promise<boolean> {
-          seqno++;
           if (watching) {
             console.clear();
           }
@@ -292,7 +290,7 @@ function validateSpecification(): Command {
           for (const slice of errors) {
             const {index} = slice;
             const src = check.isPresent(srcs[index]);
-            display(format({seqno, slice, source: src}));
+            display(format({slice, source: src}));
           }
           return false;
         }
@@ -303,7 +301,6 @@ function validateSpecification(): Command {
 type ErrorFormatter = (args: {
   readonly slice: api.ErrorSourceSlice;
   readonly source: string;
-  readonly seqno: number;
 }) => string;
 
 function errorFormatter(
@@ -321,27 +318,32 @@ function errorFormatter(
     case ErrorFormat.JSON:
       return (args): string => JSON.stringify(args.slice);
     case ErrorFormat.PRETTY: {
-      let curSeqno = -1;
-      let curPath: string | undefined;
       return (args): string => {
-        const {seqno, slice, source} = args;
-        if (seqno !== curSeqno) {
-          curSeqno = seqno;
-          curPath = undefined;
-        }
+        const {slice, source} = args;
         const fp = check.isPresent(fps[slice.index]);
-        let out = '';
-        if (fp !== curPath) {
-          out += `\n${fp}\n`;
-          curPath = fp;
-        }
-        out += `\n${sourceErrorPreview({slice, source})}`;
-        return out;
+        const preview = errorPreview({slice, source});
+        return `\n${fp}: ${slice.message}\n${preview}`;
       };
     }
     default:
       throw errors.invalid({message: `Invalid format: ${fmt}`});
   }
+}
+
+function errorPreview(args: {
+  readonly slice: api.ErrorSourceSlice;
+  readonly source: string;
+}): string {
+  const {start, end} = args.slice.range;
+  return codeFrameColumns(
+    args.source,
+    {start, end: {line: end.line, column: end.column + 1}},
+    {
+      linesAbove: 1,
+      linesBelow: 1,
+      message: args.slice.code,
+    }
+  );
 }
 
 function formatBinding(b: api.SourceBinding): string {
