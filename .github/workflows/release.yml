@@ -21,9 +21,12 @@ jobs:
           echo "PACKAGE_VERSION=${GITHUB_REF#refs/tags/v}" >>"$GITHUB_OUTPUT"
       - name: Tag packages
         run: |
-          npm dist-tag add opvious@$PACKAGE_VERSION beta
-          npm dist-tag add opvious-cli@$PACKAGE_VERSION beta
-          npm dist-tag add opvious-sheets@$PACKAGE_VERSION beta
+          for p in opvious{,-cli,-sheets}; do
+            for t in beta latest; do
+              npm dist-tag add "$p@$PACKAGE_VERSION" "$t"
+            done
+          done
+        shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PACKAGE_VERSION: ${{ steps.extract-version.outputs.PACKAGE_VERSION }}
