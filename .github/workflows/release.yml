@@ -1,0 +1,29 @@
+name: Release
+on:
+  release:
+    types:
+      - published
+jobs:
+  tag:
+    name: Tag NPM packages
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org
+      - name: Extract version
+        id: extract-version
+        run: |
+          echo "PACKAGE_VERSION=${GITHUB_REF#refs/tags/v}" >>"$GITHUB_OUTPUT"
+      - name: Tag packages
+        run: |
+          npm dist-tag add opvious@$PACKAGE_VERSION beta
+          npm dist-tag add opvious-cli@$PACKAGE_VERSION beta
+          npm dist-tag add opvious-sheets@$PACKAGE_VERSION beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PACKAGE_VERSION: ${{ steps.extract-version.outputs.PACKAGE_VERSION }}
