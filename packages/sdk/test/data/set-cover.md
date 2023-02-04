@@ -8,4 +8,4 @@
 Minimize sets used: $$\S^o_{setsUsed} : \min \sum_{s \in S} \alpha_s$$
 
 All vertices must be covered: $$\S^c_{allCovered} : \forall v \in V, \sum_{s
-\in S} \alpha_v c_{v, v} \geq 1$$
+\in S} \alpha_s c_{s, v} \geq 1$$
