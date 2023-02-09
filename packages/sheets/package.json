@@ -1,6 +1,6 @@
 {
   "name": "opvious-sheets",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious spreadsheet utilities",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_sheets.html",
@@ -21,9 +21,9 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "@opvious/api-operations": "^0.11.1",
-    "@opvious/stl-errors": "^0.14.40",
-    "@opvious/stl-utils": "^0.14.40",
+    "@opvious/api-operations": "^0.11.3",
+    "@opvious/stl-errors": "^0.14.49",
+    "@opvious/stl-utils": "^0.14.49",
     "change-case": "^4.1.2",
     "pluralize": "^8.0.0"
   },

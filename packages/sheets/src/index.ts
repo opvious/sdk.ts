@@ -16,5 +16,6 @@
  */
 
 export * from './inputs';
+export * from './results';
 export * from './spreadsheet';
 export * from './table';
