@@ -17,7 +17,7 @@
 
 import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api-operations';
-import {assert, assertCause, check, errors} from '@opvious/stl-errors';
+import {absurd,assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import backoff from 'backoff';
 import {ClientError, GraphQLClient} from 'graphql-request';
@@ -336,7 +336,7 @@ export class OpviousClient {
               return;
             }
             default:
-              errors.absurd(attempt.status);
+              absurd(attempt.status);
           }
         })
         .catch((err) => {
