@@ -22,16 +22,20 @@ import {isIndicator, Label} from '../common';
 import {A1, Range, rangeA1} from '../spreadsheet';
 import {Header, newHeader, Table} from '../table';
 
+/**
+ * Associates model data with table columns. The returned mapping may be partial
+ * (missing parameters and/or variables).
+ */
 export function computeInputMapping(
   tables: ReadonlyArray<Table>,
-  sig: api.Outline
+  out: api.Outline
 ): InputMapping {
-  validateNoHeaderCollisions(sig);
+  validateNoHeaderCollisions(out);
 
   const reg = new ItemRangeRegistry();
 
   const params: TensorMapping[] = [];
-  for (const tsr of sig.parameters) {
+  for (const tsr of out.parameters) {
     if (tsr.derivation != null) {
       // This is a derived parameter, already captured.
       continue;
@@ -44,14 +48,14 @@ export function computeInputMapping(
   }
 
   const variables: TensorMapping[] = [];
-  for (const tsr of sig.variables) {
+  for (const tsr of out.variables) {
     const mapping = tensorMapping(tables, tsr);
     if (mapping) {
       variables.push(mapping);
     }
   }
 
-  for (const dim of sig.dimensions) {
+  for (const dim of out.dimensions) {
     const {label} = dim;
     const header = newHeader(label);
     for (const t of tables) {
@@ -67,7 +71,7 @@ export function computeInputMapping(
   }
 
   const mapping = {
-    dimensions: sig.dimensions.map((d) => ({
+    dimensions: out.dimensions.map((d) => ({
       label: d.label,
       isNumeric: d.isNumeric,
       itemRanges: reg.ranges(d.label),
@@ -225,21 +229,21 @@ export interface KeyBox {
   readonly range: Range;
 }
 
-function validateNoHeaderCollisions(sig: api.Outline): void {
+function validateNoHeaderCollisions(out: api.Outline): void {
   const byHeader = new Map<Header, Label>();
-  for (const dim of sig.dimensions) {
+  for (const dim of out.dimensions) {
     addLabel(dim.label);
   }
-  for (const param of sig.parameters) {
+  for (const param of out.parameters) {
     addLabel(param.label);
   }
-  for (const variable of sig.variables) {
+  for (const variable of out.variables) {
     addLabel(variable.label);
   }
-  for (const param of sig.parameters) {
+  for (const param of out.parameters) {
     checkQualifiers(param);
   }
-  for (const variable of sig.variables) {
+  for (const variable of out.variables) {
     checkQualifiers(variable);
   }
 

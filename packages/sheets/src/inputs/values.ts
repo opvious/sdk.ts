@@ -28,6 +28,11 @@ export type InputValues = Pick<
   'dimensions' | 'parameters' | 'pinnedVariables'
 >;
 
+/**
+ * Extracts data from the tables into a format suitable for starting a solve.
+ * If the input mapping is missing any parameters, the returned output will also
+ * be missing them.
+ */
 export function extractInputValues(
   mapping: InputMapping,
   ss: Spreadsheet
