@@ -15,28 +15,34 @@
  * the License.
  */
 
-import * as api from '@opvious/api-operations';
+import * as api from '@opvious/api';
+import {types as graphqlTypes} from '@opvious/api/graphql';
 import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
+import {Logger} from '@opvious/stl-telemetry';
 import * as gql from 'graphql';
-import {ClientError} from 'graphql-request';
+import fetch, {FetchError, Response} from 'node-fetch';
 import {TypedEmitter} from 'tiny-typed-emitter';
+import zlib from 'zlib';
 
-export type Label = api.Scalars['Label'];
+export type Label = graphqlTypes.Scalars['Label'];
 
-export type Uuid = api.Scalars['Uuid'];
+export type Uuid = graphqlTypes.Scalars['Uuid'];
 
 export const [clientErrors, clientErrorCodes] = errorFactories({
   definitions: {
-    apiRequestFailed: (cause: ClientError) => ({
-      message:
-        'API request failed: ' +
-        (cause.response.errors?.map(formatError).join(', ') ?? cause.message),
+    fetchFailed: (cause: FetchError) => ({
+      message: 'API fetch failed: ' + cause.message,
       cause,
-      tags: {errors: cause.response.errors},
     }),
-    apiResponseErrored: (errs: ReadonlyArray<gql.GraphQLError>) => ({
+    unexpectedResponse: (res: Response, data: unknown) => ({
+      message: `Response had unexpected status ${res.status}: ${JSON.stringify(
+        data
+      )}`,
+      tags: {status: res.status, data},
+    }),
+    graphqlRequestErrored: (errs: ReadonlyArray<gql.GraphQLError>) => ({
       message:
-        'API response included errors: ' + errs.map(formatError).join(', '),
+        'GraphQL response included errors: ' + errs.map(formatError).join(', '),
       tags: {errors: errs},
     }),
     attemptCancelled: (uuid: Uuid) => ({
@@ -61,9 +67,40 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
   },
 });
 
+const ENCODING_HEADER = 'content-encoding';
+
+const BROTLI_QUALITY = 4;
+
+const COMPRESSION_THRESHOLD = 2 ** 16; // 64 kiB
+
+export function jsonBrotliEncoder(
+  log: Logger
+): api.Encoder<unknown, typeof fetch> {
+  return (body, ctx) => {
+    const str = JSON.stringify(body);
+    const len = str.length;
+    if (len <= COMPRESSION_THRESHOLD) {
+      log.debug({data: {len}}, 'Sending uncompressed body...');
+      return str;
+    }
+    ctx.headers[ENCODING_HEADER] = 'br';
+    const compressed = zlib.createBrotliCompress({
+      params: {
+        [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+        [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+      },
+    });
+    process.nextTick(() => {
+      compressed.end(str);
+    });
+    log.debug({data: {len}}, 'Sending compressed body...');
+    return compressed;
+  };
+}
+
 export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
   if (res.errors?.length) {
-    throw clientErrors.apiResponseErrored(res.errors);
+    throw clientErrors.graphqlRequestErrored(res.errors);
   }
   return check.isPresent(res.data);
 }
@@ -81,21 +118,22 @@ function formatError(err: gql.GraphQLError): string {
 }
 
 export interface Paginated<V> {
-  readonly info: api.PageInfo;
+  readonly info: graphqlTypes.PageInfo;
   readonly totalCount: number;
   readonly nodes: ReadonlyArray<V>;
 }
 
-export type FeasibleOutcomeFragment = api.PolledAttemptOutcomeFragment & {
-  readonly __typename: 'FeasibleOutcome';
-};
+export type FeasibleOutcomeFragment =
+  graphqlTypes.PolledAttemptOutcomeFragment & {
+    readonly __typename: 'FeasibleOutcome';
+  };
 
 export interface AttemptTrackerListeners {
   /**
    * The attempt is still being solved, with current status as reported in the
    * argument notification.
    */
-  notification(frag: api.FullAttemptNotificationFragment): void;
+  notification(frag: graphqlTypes.FullAttemptNotificationFragment): void;
 
   /**
    * The attempt completed with the given feasible (possibly optimal) outcome.
