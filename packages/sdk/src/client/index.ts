@@ -16,14 +16,13 @@
  */
 
 import * as otel from '@opentelemetry/api';
-import * as api from '@opvious/api-operations';
-import {absurd,assert, assertCause, check} from '@opvious/stl-errors';
+import * as api from '@opvious/api';
+import {types as graphqlTypes} from '@opvious/api/graphql';
+import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import backoff from 'backoff';
-import {ClientError, GraphQLClient} from 'graphql-request';
-import fetch, {Headers, RequestInfo, RequestInit, Response} from 'node-fetch';
+import fetch, {FetchError, Response} from 'node-fetch';
 import {TypedEmitter} from 'tiny-typed-emitter';
-import zlib from 'zlib';
 
 import {MarkPresent, strippingTrailingSlashes} from '../common';
 import {
@@ -32,6 +31,7 @@ import {
   BlueprintUrls,
   clientErrors,
   FeasibleOutcomeFragment,
+  jsonBrotliEncoder,
   Paginated,
   resultData,
   Uuid,
@@ -54,7 +54,8 @@ export class OpviousClient {
     readonly apiEndpoint: string,
     /** Base optimization hub endpoint. */
     readonly hubEndpoint: string,
-    private readonly sdk: api.Sdk
+    private readonly sdk: api.Sdk<typeof fetch>,
+    private readonly graphqlSdk: api.GraphqlSdk<typeof fetch>
   ) {}
 
   /** Creates a new client. */
@@ -66,139 +67,97 @@ export class OpviousClient {
     if (!auth) {
       throw clientErrors.missingAuthorization();
     }
+
     const domain = opts?.domain ?? process.env.OPVIOUS_DOMAIN;
     const apiEndpoint = strippingTrailingSlashes(
       opts?.apiEndpoint
         ? '' + opts.apiEndpoint
         : process.env.OPVIOUS_API_ENDPOINT ?? defaultEndpoint('api', domain)
     );
-    const client = new GraphQLClient(apiEndpoint + '/graphql', {
-      errorPolicy: 'all',
-      headers: {
-        'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
-        authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-      },
-      async fetch(info: RequestInfo, init: RequestInit): Promise<Response> {
-        const {body} = init;
-        const headers = new Headers(init.headers);
-        otel.propagation.inject(otel.context.active(), headers, {
-          set(carrier, key, value) {
-            carrier.set(key, value);
-          },
-        });
-        assert(typeof body == 'string', 'Non-string body');
-        let res;
-        if (body.length <= COMPRESSION_THRESHOLD) {
-          logger.debug(
-            {data: {req: {body, headers: Object.fromEntries(headers)}}},
-            'Sending uncompressed API request...'
-          );
-          res = await fetch(info, {...init, headers});
-        } else {
-          const headers = new Headers(init.headers);
-          headers.set(ENCODING_HEADER, 'br');
-          const compressed = zlib.createBrotliCompress({
-            params: {
-              [zlib.constants.BROTLI_PARAM_MODE]:
-                zlib.constants.BROTLI_MODE_TEXT,
-              [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
-            },
-          });
-          process.nextTick(() => {
-            compressed.end(body);
-          });
-          logger.debug(
-            {
-              data: {
-                req: {
-                  bodyLength: body.length,
-                  headers: Object.fromEntries(headers),
-                },
-              },
-            },
-            'Sending compressed API request...'
-          );
-          res = await fetch(info, {...init, headers, body: compressed});
-        }
-        logger.debug(
-          {
-            data: {
-              res: {
-                headers: Object.fromEntries(res.headers),
-                statusCode: res.status,
-              },
-            },
-          },
-          'Got API response.'
-        );
-        return res;
-      },
-    });
-    const sdk = api.getSdk(async <R, V>(query: string, vars: V) => {
-      try {
-        return await client.rawRequest<R, V>(query, vars);
-      } catch (err) {
-        assertCause(err instanceof ClientError, err);
-        throw clientErrors.apiRequestFailed(err);
-      }
-    });
     const hubEndpoint = strippingTrailingSlashes(
       opts?.hubEndpoint
         ? '' + opts.hubEndpoint
         : process.env.OPVIOUS_HUB_ENDPOINT ?? defaultEndpoint('hub', domain)
     );
 
+    const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
+      headers: {
+        'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
+        authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
+      },
+      encoders: {
+        'application/json': jsonBrotliEncoder(logger),
+      },
+      fetch: async (url, init): Promise<Response> => {
+        otel.propagation.inject(otel.context.active(), init.headers);
+        try {
+          return await fetch(url, init);
+        } catch (err) {
+          assertCause(err instanceof FetchError, err);
+          throw clientErrors.fetchFailed(err);
+        }
+      },
+    });
+    const graphqlSdk = api.createGraphqlSdk(sdk);
+
     logger.debug('Created new client.');
-    return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk);
+    return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk, graphqlSdk);
   }
 
   /** Fetches the currently active member. */
-  async fetchMember(): Promise<api.FetchedMemberFragment> {
-    const res = await this.sdk.FetchMember();
+  async fetchMember(): Promise<graphqlTypes.FetchedMemberFragment> {
+    const res = await this.graphqlSdk.FetchMember();
     return resultData(res).me;
   }
 
   /** Lists all available authorizations. */
   async listAuthorizations(): Promise<
-    ReadonlyArray<api.ListedAuthorizationFragment>
+    ReadonlyArray<graphqlTypes.ListedAuthorizationFragment>
   > {
-    const res = await this.sdk.ListAuthorizations();
+    const res = await this.graphqlSdk.ListAuthorizations();
     return resultData(res).me.authorizations;
   }
 
   /** Creates a new access token for an authorization with the given name. */
   async generateAccessToken(
-    input: api.GenerateAuthorizationInput
+    input: graphqlTypes.GenerateAuthorizationInput
   ): Promise<string> {
-    const res = await this.sdk.GenerateAuthorization({input});
+    const res = await this.graphqlSdk.GenerateAuthorization({input});
     return resultData(res).generateAuthorization.token;
   }
 
   /** Revokes an authorization from its name, returning true if one existed. */
   async revokeAuthorization(name: string): Promise<boolean> {
-    const res = await this.sdk.RevokeAuthorization({name});
+    const res = await this.graphqlSdk.RevokeAuthorization({name});
     return resultData(res).revokeAuthorization;
   }
 
   /** Parses and validates a specification's sources. */
-  async parseSources(...sources: string[]): Promise<api.ParseSourcesOutput> {
-    const res = await this.sdk.ParseSources({sources});
-    return resultData(res).parseSources;
+  async parseSources(
+    ...sources: string[]
+  ): Promise<api.ResponseData<'parseSources'>> {
+    const res = await this.sdk.parseSources({body: {sources}});
+    switch (res.code) {
+      case 200:
+        return res.data;
+      default:
+        throw clientErrors.unexpectedResponse(res.raw, res.data);
+    }
   }
 
   /** Adds a new specification. */
   async registerSpecification(
-    input: api.RegisterSpecificationInput
-  ): Promise<api.RegisteredSpecificationFragment> {
-    const res = await this.sdk.RegisterSpecification({input});
+    input: graphqlTypes.RegisterSpecificationInput
+  ): Promise<graphqlTypes.RegisteredSpecificationFragment> {
+    const res = await this.graphqlSdk.RegisterSpecification({input});
     return resultData(res).registerSpecification;
   }
 
   /** Updates a formulation's metadata. */
   async updateFormulation(
-    input: api.UpdateFormulationInput
-  ): Promise<api.UpdatedFormulationFragment> {
-    const res = await this.sdk.UpdateFormulation({input});
+    input: graphqlTypes.UpdateFormulationInput
+  ): Promise<graphqlTypes.UpdatedFormulationFragment> {
+    const res = await this.graphqlSdk.UpdateFormulation({input});
     return resultData(res).updateFormulation;
   }
 
@@ -206,8 +165,10 @@ export class OpviousClient {
   async fetchOutline(
     formulationName: string,
     tagName?: string
-  ): Promise<MarkPresent<api.FetchedOutlineFormulationFragment, 'tag'>> {
-    const res = await this.sdk.FetchOutline({
+  ): Promise<
+    MarkPresent<graphqlTypes.FetchedOutlineFormulationFragment, 'tag'>
+  > {
+    const res = await this.graphqlSdk.FetchOutline({
       formulationName,
       tagName,
     });
@@ -220,9 +181,9 @@ export class OpviousClient {
 
   /** Paginates available formulations. */
   async paginateFormulations(
-    vars: api.PaginateFormulationsQueryVariables
-  ): Promise<Paginated<api.PaginatedFormulationFragment>> {
-    const res = await this.sdk.PaginateFormulations(vars);
+    vars: graphqlTypes.PaginateFormulationsQueryVariables
+  ): Promise<Paginated<graphqlTypes.PaginatedFormulationFragment>> {
+    const res = await this.graphqlSdk.PaginateFormulations(vars);
     const forms = resultData(res).formulations;
     return {
       info: forms.pageInfo,
@@ -233,7 +194,7 @@ export class OpviousClient {
 
   /** Deletes a formulation, returning true if a formulation was deleted. */
   async deleteFormulation(name: string): Promise<boolean> {
-    const res = await this.sdk.DeleteFormulation({name});
+    const res = await this.graphqlSdk.DeleteFormulation({name});
     return resultData(res).deleteFormulation.specificationCount > 0;
   }
 
@@ -242,9 +203,11 @@ export class OpviousClient {
    * disabled via `unshareFormulation`.
    */
   async shareFormulation(
-    input: api.StartSharingFormulationInput
-  ): Promise<MarkPresent<api.SharedSpecificationTagFragment, 'sharedVia'>> {
-    const res = await this.sdk.StartSharingFormulation({input});
+    input: graphqlTypes.StartSharingFormulationInput
+  ): Promise<
+    MarkPresent<graphqlTypes.SharedSpecificationTagFragment, 'sharedVia'>
+  > {
+    const res = await this.graphqlSdk.StartSharingFormulation({input});
     const tag = resultData(res).startSharingFormulation;
     return {...tag, sharedVia: check.isPresent(tag.sharedVia)};
   }
@@ -254,17 +217,17 @@ export class OpviousClient {
    * formulations tags will be set to private.
    */
   async unshareFormulation(
-    input: api.StopSharingFormulationInput
-  ): Promise<api.UnsharedFormulationFragment> {
-    const res = await this.sdk.StopSharingFormulation({input});
+    input: graphqlTypes.StopSharingFormulationInput
+  ): Promise<graphqlTypes.UnsharedFormulationFragment> {
+    const res = await this.graphqlSdk.StopSharingFormulation({input});
     return resultData(res).stopSharingFormulation;
   }
 
   /** Paginates available attempts. */
   async paginateAttempts(
-    vars: api.PaginateAttemptsQueryVariables
-  ): Promise<Paginated<api.PaginatedAttemptFragment>> {
-    const res = await this.sdk.PaginateAttempts(vars);
+    vars: graphqlTypes.PaginateAttemptsQueryVariables
+  ): Promise<Paginated<graphqlTypes.PaginatedAttemptFragment>> {
+    const res = await this.graphqlSdk.PaginateAttempts(vars);
     const forms = resultData(res).attempts;
     return {
       info: forms.pageInfo,
@@ -279,9 +242,9 @@ export class OpviousClient {
    * outputs, etc.
    */
   async startAttempt(
-    input: api.AttemptInput
-  ): Promise<api.StartedAttemptFragment> {
-    const res = await this.sdk.StartAttempt({input});
+    input: graphqlTypes.AttemptInput
+  ): Promise<graphqlTypes.StartedAttemptFragment> {
+    const res = await this.graphqlSdk.StartAttempt({input});
     return resultData(res).startAttempt;
   }
 
@@ -295,7 +258,7 @@ export class OpviousClient {
     const ee = new TypedEmitter<AttemptTrackerListeners>();
     const xb = backoff.exponential();
     xb.on('ready', () => {
-      this.sdk
+      this.graphqlSdk
         .PollAttempt({uuid})
         .then((res) => {
           const {attempt} = resultData(res);
@@ -366,24 +329,26 @@ export class OpviousClient {
   }
 
   /** Cancels a pending attempt. */
-  async cancelAttempt(uuid: Uuid): Promise<api.CancelledAttemptFragment> {
-    const res = await this.sdk.CancelAttempt({uuid});
+  async cancelAttempt(
+    uuid: Uuid
+  ): Promise<graphqlTypes.CancelledAttemptFragment> {
+    const res = await this.graphqlSdk.CancelAttempt({uuid});
     return resultData(res).cancelAttempt;
   }
 
   /** Fetches an attempt from its UUID. */
   async fetchAttempt(
     uuid: Uuid
-  ): Promise<api.FetchedAttemptFragment | undefined> {
-    const res = await this.sdk.FetchAttempt({uuid});
+  ): Promise<graphqlTypes.FetchedAttemptFragment | undefined> {
+    const res = await this.graphqlSdk.FetchAttempt({uuid});
     return resultData(res).attempt;
   }
 
   /** Paginates an attempt's notifications. */
   async paginateAttemptNotifications(
-    vars: api.PaginateAttemptNotificationsQueryVariables
-  ): Promise<Paginated<api.FullAttemptNotificationFragment>> {
-    const res = await this.sdk.PaginateAttemptNotifications(vars);
+    vars: graphqlTypes.PaginateAttemptNotificationsQueryVariables
+  ): Promise<Paginated<graphqlTypes.FullAttemptNotificationFragment>> {
+    const res = await this.graphqlSdk.PaginateAttemptNotifications(vars);
     const notifs = resultData(res).attempt?.notifications;
     if (!notifs) {
       throw clientErrors.unknownAttempt(vars.uuid);
@@ -398,8 +363,8 @@ export class OpviousClient {
   /** Fetches an attempt's inputs from its UUID. */
   async fetchAttemptInputs(
     uuid: Uuid
-  ): Promise<api.FetchedAttemptInputsFragment | undefined> {
-    const res = await this.sdk.FetchAttemptInputs({uuid});
+  ): Promise<graphqlTypes.FetchedAttemptInputsFragment | undefined> {
+    const res = await this.graphqlSdk.FetchAttemptInputs({uuid});
     const {attempt} = resultData(res);
     if (!attempt) {
       throw clientErrors.unknownAttempt(uuid);
@@ -409,12 +374,12 @@ export class OpviousClient {
 
   /**
    * Fetches an attempt's outputs from its UUID. This method will returned
-   * `undefined` if the attempt is not feasible (e.api. still pending).
+   * `undefined` if the attempt is not feasible (e.graphqlTypes. still pending).
    * */
   async fetchAttemptOutputs(
     uuid: Uuid
-  ): Promise<api.FetchedAttemptOutputsFragment | undefined> {
-    const res = await this.sdk.FetchAttemptOutputs({uuid});
+  ): Promise<graphqlTypes.FetchedAttemptOutputsFragment | undefined> {
+    const res = await this.graphqlSdk.FetchAttemptOutputs({uuid});
     const {attempt} = resultData(res);
     if (!attempt) {
       throw clientErrors.unknownAttempt(uuid);
@@ -480,9 +445,3 @@ const DEFAULT_DOMAIN = 'beta.opvious.io';
 function defaultEndpoint(leaf: string, domain = DEFAULT_DOMAIN): string {
   return `https://${leaf}.${domain}`;
 }
-
-const ENCODING_HEADER = 'content-encoding';
-
-const BROTLI_QUALITY = 4;
-
-const COMPRESSION_THRESHOLD = 2 ** 16; // 64 kiB
