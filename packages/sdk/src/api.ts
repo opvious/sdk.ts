@@ -16,4 +16,3 @@
  */
 
 export * from '@opvious/api';
-export {types as graphqlTypes} from '@opvious/api/graphql';
