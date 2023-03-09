@@ -110,34 +110,38 @@ function runAttemptCommand(): Command {
         const inputs = extractInputValues(mapping, ss);
 
         spinner.succeed('Gathered inputs.').start('Starting attempt...');
-        const attempt = await client.startAttempt({
+        const {uuid} = await client.startAttempt({
           formulationName: opts.formulation,
           specificationTagName: opts.tag,
-          dimensions: inputs.dimensions,
-          parameters: inputs.parameters,
-          pinnedVariables: inputs.pinnedVariables,
-          relativeGapThreshold: opts.relativeGap,
-          absoluteGapThreshold: opts.absoluteGap,
-          solveTimeoutMillis: +Duration.fromISO(opts.solveTimeout),
-          relaxation: opts.relaxConstraint.length
-            ? {
-                penalty: opts.relaxationPenalty,
-                constraints: opts.relaxConstraint.map((l: string) => ({
-                  label: l,
-                })),
-                objectiveWeight: opts.relaxationObjectiveWeight,
-              }
-            : undefined,
+          inputs: {
+            parameters: inputs.parameters ?? [],
+            dimensions: inputs.dimensions,
+            pinnedVariables: inputs.pinnedVariables,
+          },
+          options: {
+            relativeGapThreshold: opts.relativeGap,
+            absoluteGapThreshold: opts.absoluteGap,
+            timeoutMillis: +Duration.fromISO(opts.solveTimeout),
+            relaxation: opts.relaxConstraint.length
+              ? {
+                  penalty: opts.relaxationPenalty,
+                  constraints: opts.relaxConstraint.map((l: string) => ({
+                    label: l,
+                  })),
+                  objectiveWeight: opts.relaxationObjectiveWeight,
+                }
+              : undefined,
+          },
         });
-        spinner.succeed(`Started attempt. [uuid=${attempt.uuid}]`);
+        spinner.succeed(`Started attempt. [uuid=${uuid}]`);
         if (opts.detach) {
-          display('' + client.attemptUrl(attempt.uuid));
+          display('' + client.attemptUrl(uuid));
           return;
         }
         spinner.start('Solving...');
         await new Promise<void>((ok, fail) => {
           client
-            .trackAttempt(attempt.uuid)
+            .trackAttempt(uuid)
             .on('error', fail)
             .on('notification', (notif) => {
               spinner.text =
