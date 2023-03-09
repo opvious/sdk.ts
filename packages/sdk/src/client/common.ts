@@ -98,7 +98,23 @@ export function jsonBrotliEncoder(
   };
 }
 
-export function resultData<V>(res: gql.ExecutionResult<V, unknown>): V {
+interface HasCode<C extends api.ResponseCode = api.ResponseCode> {
+  readonly code: C;
+  readonly data: unknown;
+  readonly raw: Response;
+}
+
+export function okData<O extends HasCode, C extends api.ResponseCode = 200>(
+  res: O,
+  code?: C
+): (O & HasCode<C>)['data'] {
+  if (res.code !== (code ?? 200)) {
+    throw clientErrors.unexpectedResponse(res.raw, res.data);
+  }
+  return (res as any).data;
+}
+
+export function okResultData<V>(res: gql.ExecutionResult<V, unknown>): V {
   if (res.errors?.length) {
     throw clientErrors.graphqlRequestErrored(res.errors);
   }

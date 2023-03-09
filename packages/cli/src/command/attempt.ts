@@ -88,7 +88,10 @@ function runAttemptCommand(): Command {
       contextualAction(async function (opts) {
         const {client, spinner} = this;
         spinner.start('Fetching outline...');
-        const form = await client.fetchOutline(opts.formulation, opts.tag);
+        const form = await client.fetchFormulationOutline(
+          opts.formulation,
+          opts.tag
+        );
         const spec = form.tag.specification;
 
         spinner

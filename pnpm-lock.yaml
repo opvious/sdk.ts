@@ -96,7 +96,7 @@ importers:
   packages/sdk:
     specifiers:
       '@opentelemetry/api': ~1.3.0
-      '@opvious/api': ^0.13.4
+      '@opvious/api': ^0.13.5
       '@opvious/stl-errors': ^0.15.15
       '@opvious/stl-telemetry': ^0.15.15
       '@types/backoff': ^2.5.2
@@ -108,7 +108,7 @@ importers:
       tiny-typed-emitter: ^2.1.0
     dependencies:
       '@opentelemetry/api': 1.3.0
-      '@opvious/api': 0.13.4
+      '@opvious/api': 0.13.5
       '@opvious/stl-errors': 0.15.15
       '@opvious/stl-telemetry': 0.15.15_@opentelemetry+api@1.3.0
       backoff: 2.5.0
@@ -1006,8 +1006,8 @@ packages:
       graphql: 16.6.0
     dev: false
 
-  /@opvious/api/0.13.4:
-    resolution: {integrity: sha512-3SHgtHpLUtnEKbS2kz5KH4DaxH1g69WlLTu2nAA8fJ38NGCbd4iKzSHzmynYcdGRLkxJMU94xOmB2p37Vpz0aw==, tarball: download/@opvious/api/0.13.4/017ed4e9fb08da74a004c3aa30d9de9bddf1430d}
+  /@opvious/api/0.13.5:
+    resolution: {integrity: sha512-E9IDYZb+v2+M545636we5/cZ0/5I75Vx8gu8InIbEu6+UE46FkzZhdZzG7h2s/ZAW53tzoihXO03U45KuLluVQ==, tarball: download/@opvious/api/0.13.5/1e7108afe9cdfb38502a23276a4f2f4f56d4f0fb}
     dependencies:
       graphql: 16.6.0
     dev: false

@@ -53,7 +53,7 @@ function fetchOutlineCommand(): Command {
       contextualAction(async function (name, opts) {
         const {client, spinner} = this;
         spinner.start('Fetching outline...');
-        const form = await client.fetchOutline(name, opts.tag);
+        const form = await client.fetchFormulationOutline(name, opts.tag);
         const {revno, outline} = form.tag.specification;
         spinner.succeed(`Fetched outline. [revno=${revno}]\n`);
 
@@ -276,7 +276,7 @@ function validateSpecification(): Command {
           const srcs = await Promise.all(
             srcPaths.map((p: string) => readFile(p, 'utf8'))
           );
-          const {slices, errors} = await client.parseSources(...srcs);
+          const {slices, errors} = await client.parseSources({sources: srcs});
           if (!errors.length) {
             spinner.succeed(
               `Specification is valid. [definitions=${slices.length}]`

@@ -31,8 +31,9 @@ import {
   clientErrors,
   FeasibleOutcomeFragment,
   jsonBrotliEncoder,
+  okData,
+  okResultData,
   Paginated,
-  resultData,
   Uuid,
 } from './common';
 
@@ -103,10 +104,31 @@ export class OpviousClient {
     return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk, graphqlSdk);
   }
 
+  /** Parses and validates a specification's sources. */
+  async parseSources(args: {
+    readonly sources: ReadonlyArray<string>;
+    readonly includeOutline?: boolean;
+  }): Promise<api.ResponseData<'parseSources', 200>> {
+    const res = await this.sdk.parseSources({
+      body: {sources: args.sources, outline: args.includeOutline},
+    });
+    return okData(res);
+  }
+
+  /** Solves an optimization model. */
+  async runSolve(args: {
+    readonly sources: ReadonlyArray<string>;
+    readonly inputs: api.types['SolveInputs'];
+    readonly options?: api.types['SolveOptions'];
+  }): Promise<api.ResponseData<'runSolve', 200>> {
+    const res = await this.sdk.runSolve({body: args});
+    return okData(res);
+  }
+
   /** Fetches the currently active member. */
   async fetchMember(): Promise<api.graphqlTypes.FetchedMemberFragment> {
     const res = await this.graphqlSdk.FetchMember();
-    return resultData(res).me;
+    return okResultData(res).me;
   }
 
   /** Lists all available authorizations. */
@@ -114,7 +136,7 @@ export class OpviousClient {
     ReadonlyArray<api.graphqlTypes.ListedAuthorizationFragment>
   > {
     const res = await this.graphqlSdk.ListAuthorizations();
-    return resultData(res).me.authorizations;
+    return okResultData(res).me.authorizations;
   }
 
   /** Creates a new access token for an authorization with the given name. */
@@ -122,26 +144,13 @@ export class OpviousClient {
     input: api.graphqlTypes.GenerateAuthorizationInput
   ): Promise<string> {
     const res = await this.graphqlSdk.GenerateAuthorization({input});
-    return resultData(res).generateAuthorization.token;
+    return okResultData(res).generateAuthorization.token;
   }
 
   /** Revokes an authorization from its name, returning true if one existed. */
   async revokeAuthorization(name: string): Promise<boolean> {
     const res = await this.graphqlSdk.RevokeAuthorization({name});
-    return resultData(res).revokeAuthorization;
-  }
-
-  /** Parses and validates a specification's sources. */
-  async parseSources(
-    ...sources: string[]
-  ): Promise<api.ResponseData<'parseSources', 200>> {
-    const res = await this.sdk.parseSources({body: {sources}});
-    switch (res.code) {
-      case 200:
-        return res.data;
-      default:
-        throw clientErrors.unexpectedResponse(res.raw, res.data);
-    }
+    return okResultData(res).revokeAuthorization;
   }
 
   /** Adds a new specification. */
@@ -149,7 +158,7 @@ export class OpviousClient {
     input: api.graphqlTypes.RegisterSpecificationInput
   ): Promise<api.graphqlTypes.RegisteredSpecificationFragment> {
     const res = await this.graphqlSdk.RegisterSpecification({input});
-    return resultData(res).registerSpecification;
+    return okResultData(res).registerSpecification;
   }
 
   /** Updates a formulation's metadata. */
@@ -157,11 +166,11 @@ export class OpviousClient {
     input: api.graphqlTypes.UpdateFormulationInput
   ): Promise<api.graphqlTypes.UpdatedFormulationFragment> {
     const res = await this.graphqlSdk.UpdateFormulation({input});
-    return resultData(res).updateFormulation;
+    return okResultData(res).updateFormulation;
   }
 
   /** Fetches a formulation's outline. */
-  async fetchOutline(
+  async fetchFormulationOutline(
     formulationName: string,
     tagName?: string
   ): Promise<
@@ -171,7 +180,7 @@ export class OpviousClient {
       formulationName,
       tagName,
     });
-    const form = resultData(res).formulation;
+    const form = okResultData(res).formulation;
     if (!form?.tag) {
       throw clientErrors.unknownFormulation(formulationName, tagName);
     }
@@ -183,7 +192,7 @@ export class OpviousClient {
     vars: api.graphqlTypes.PaginateFormulationsQueryVariables
   ): Promise<Paginated<api.graphqlTypes.PaginatedFormulationFragment>> {
     const res = await this.graphqlSdk.PaginateFormulations(vars);
-    const forms = resultData(res).formulations;
+    const forms = okResultData(res).formulations;
     return {
       info: forms.pageInfo,
       totalCount: forms.totalCount,
@@ -194,7 +203,7 @@ export class OpviousClient {
   /** Deletes a formulation, returning true if a formulation was deleted. */
   async deleteFormulation(name: string): Promise<boolean> {
     const res = await this.graphqlSdk.DeleteFormulation({name});
-    return resultData(res).deleteFormulation.specificationCount > 0;
+    return okResultData(res).deleteFormulation.specificationCount > 0;
   }
 
   /**
@@ -207,7 +216,7 @@ export class OpviousClient {
     MarkPresent<api.graphqlTypes.SharedSpecificationTagFragment, 'sharedVia'>
   > {
     const res = await this.graphqlSdk.StartSharingFormulation({input});
-    const tag = resultData(res).startSharingFormulation;
+    const tag = okResultData(res).startSharingFormulation;
     return {...tag, sharedVia: check.isPresent(tag.sharedVia)};
   }
 
@@ -219,7 +228,7 @@ export class OpviousClient {
     input: api.graphqlTypes.StopSharingFormulationInput
   ): Promise<api.graphqlTypes.UnsharedFormulationFragment> {
     const res = await this.graphqlSdk.StopSharingFormulation({input});
-    return resultData(res).stopSharingFormulation;
+    return okResultData(res).stopSharingFormulation;
   }
 
   /** Paginates available attempts. */
@@ -227,7 +236,7 @@ export class OpviousClient {
     vars: api.graphqlTypes.PaginateAttemptsQueryVariables
   ): Promise<Paginated<api.graphqlTypes.PaginatedAttemptFragment>> {
     const res = await this.graphqlSdk.PaginateAttempts(vars);
-    const forms = resultData(res).attempts;
+    const forms = okResultData(res).attempts;
     return {
       info: forms.pageInfo,
       totalCount: forms.totalCount,
@@ -247,12 +256,7 @@ export class OpviousClient {
     readonly options?: api.types['SolveOptions'];
   }): Promise<api.ResponseData<'startAttempt', 200>> {
     const res = await this.sdk.startAttempt({body: args});
-    switch (res.code) {
-      case 200:
-        return res.data;
-      default:
-        throw clientErrors.unexpectedResponse(res.raw, res.data);
-    }
+    return okData(res);
   }
 
   /**
@@ -268,7 +272,7 @@ export class OpviousClient {
       this.graphqlSdk
         .PollAttempt({uuid})
         .then((res) => {
-          const {attempt} = resultData(res);
+          const {attempt} = okResultData(res);
           assert(attempt, 'Unknown attempt');
           switch (attempt.status) {
             case 'PENDING': {
@@ -340,7 +344,7 @@ export class OpviousClient {
     uuid: Uuid
   ): Promise<api.graphqlTypes.CancelledAttemptFragment> {
     const res = await this.graphqlSdk.CancelAttempt({uuid});
-    return resultData(res).cancelAttempt;
+    return okResultData(res).cancelAttempt;
   }
 
   /** Fetches an attempt from its UUID. */
@@ -348,7 +352,7 @@ export class OpviousClient {
     uuid: Uuid
   ): Promise<api.graphqlTypes.FetchedAttemptFragment | undefined> {
     const res = await this.graphqlSdk.FetchAttempt({uuid});
-    return resultData(res).attempt;
+    return okResultData(res).attempt;
   }
 
   /** Paginates an attempt's notifications. */
@@ -356,7 +360,7 @@ export class OpviousClient {
     vars: api.graphqlTypes.PaginateAttemptNotificationsQueryVariables
   ): Promise<Paginated<api.graphqlTypes.FullAttemptNotificationFragment>> {
     const res = await this.graphqlSdk.PaginateAttemptNotifications(vars);
-    const notifs = resultData(res).attempt?.notifications;
+    const notifs = okResultData(res).attempt?.notifications;
     if (!notifs) {
       throw clientErrors.unknownAttempt(vars.uuid);
     }
