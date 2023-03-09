@@ -1,12 +1,12 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
   "license": "Apache-2.0",
   "scripts": {
-    "bump": "pnpm exec opvious-manage-versions update -b ${BUMP:-patch}",
+    "bump": "pnpm -r --include-workspace-root exec npm version ${BUMP:-patch}",
     "clean": "pnpm -r -F !. run clean && rm -rf docs node_modules out",
     "docs": "pnpm exec typedoc",
     "fix": "prettier --write 'packages/*/{src,test}/**/*.{ts,tsx}' && pnpm run lint --fix",
@@ -17,7 +17,6 @@
     "@opentelemetry/api": "~1.3.0",
     "@opvious/eslint-plugin": "^0.1.20",
     "@opvious/prettier-typescript": "^0.1.20",
-    "@opvious/stl": "^0.15.8",
     "@opvious/tsconfig": "^0.1.20",
     "@types/jest": "^29.2.2",
     "@types/node": "^18.11.7",
