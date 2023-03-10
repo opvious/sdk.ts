@@ -1,4 +1,4 @@
-import * as api from '@opvious/api-operations/sdk';
+import {types} from '@opvious/api/sdk';
 
 import {computeInputMapping} from '../src/inputs';
 import * as sut from '../src/results';
@@ -7,7 +7,15 @@ import {identifyTables} from '../src/table';
 import {SHEET, tensorOutline} from './helpers';
 
 describe('populates results', () => {
-  test.each<[string, string, api.Outline, ReadonlyArray<api.Result>, string]>([
+  test.each<
+    [
+      string,
+      string,
+      types['Outline'],
+      ReadonlyArray<types['TensorResult']>,
+      string
+    ]
+  >([
     [
       'slim results',
       `

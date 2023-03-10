@@ -19,12 +19,9 @@ import {OpviousClient} from 'opvious';
 // one explicitly via the `authorization` option.
 const client = OpviousClient.create();
 
-// Starts an optimization.
+// Solves an optimization model asynchronously.
 const attempt = await client.startAttempt({
   formulationName: 'my-formulation',
   // ...
 });
 ```
-
-As a convenience, this package also reexports `@opvious/api-operations` as
-`opvious/api`.

@@ -15,10 +15,10 @@
  * the License.
  */
 
-import * as api from '@opvious/api-operations';
+import {types} from '@opvious/api/sdk';
 import {assert} from '@opvious/stl-errors';
 
-import {isIndicator, Label} from '../common';
+import {isIndicator, Label, TensorOutline} from '../common';
 import {A1, Range, rangeA1} from '../spreadsheet';
 import {Header, newHeader, Table} from '../table';
 
@@ -28,7 +28,7 @@ import {Header, newHeader, Table} from '../table';
  */
 export function computeInputMapping(
   tables: ReadonlyArray<Table>,
-  out: api.Outline
+  out: types['Outline']
 ): InputMapping {
   validateNoHeaderCollisions(out);
 
@@ -84,7 +84,7 @@ export function computeInputMapping(
 
 function tensorMapping(
   tables: ReadonlyArray<Table>,
-  tsr: api.TensorOutline,
+  tsr: TensorOutline,
   reg?: ItemRangeRegistry
 ): TensorMapping | undefined {
   const {label} = tsr;
@@ -106,7 +106,7 @@ class TensorMappingBuilder {
   private isProjected = false;
   private readonly usedBlocks = new Set<Header>();
   private constructor(
-    private readonly tensor: api.TensorOutline,
+    private readonly tensor: TensorOutline,
     private valueRange: Range,
     private keyBoxes: ReadonlyMap<Header, KeyBox>,
     private readonly itemRangeRegistry?: ItemRangeRegistry
@@ -114,7 +114,7 @@ class TensorMappingBuilder {
 
   static ifCompatible(
     table: Table,
-    tsr: api.TensorOutline,
+    tsr: TensorOutline,
     reg?: ItemRangeRegistry
   ): TensorMappingBuilder | undefined {
     const block = table.blocks.get(newHeader(tsr.label));
@@ -148,7 +148,7 @@ class TensorMappingBuilder {
     };
   }
 
-  private bindingKeyBox(binding: api.SourceBinding): KeyBox {
+  private bindingKeyBox(binding: types['SourceBinding']): KeyBox {
     const {keyBoxes, tensor, usedBlocks} = this;
     const {dimensionLabel: dim, qualifier: qual} = binding;
     if (dim == null && qual == null) {
@@ -229,7 +229,7 @@ export interface KeyBox {
   readonly range: Range;
 }
 
-function validateNoHeaderCollisions(out: api.Outline): void {
+function validateNoHeaderCollisions(out: types['Outline']): void {
   const byHeader = new Map<Header, Label>();
   for (const dim of out.dimensions) {
     addLabel(dim.label);
@@ -256,7 +256,7 @@ function validateNoHeaderCollisions(out: api.Outline): void {
     byHeader.set(h, next);
   }
 
-  function checkQualifiers(tsr: api.TensorOutline): void {
+  function checkQualifiers(tsr: TensorOutline): void {
     const quals = new Set<Header>();
     for (const {qualifier: qual} of tsr.bindings) {
       if (!qual) {
