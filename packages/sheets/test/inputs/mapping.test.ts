@@ -1,10 +1,10 @@
-import * as api from '@opvious/api-operations';
+import {types} from '@opvious/api/sdk';
 
 import * as sut from '../../src/inputs/mapping';
 import {extractTables, SHEET, tensorOutline} from '../helpers';
 
 describe('computes mapping', () => {
-  test.each<[string, string, api.Outline, sut.InputMapping]>([
+  test.each<[string, string, types['Outline'], sut.InputMapping]>([
     [
       'slim parameters',
       `

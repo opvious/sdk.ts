@@ -15,18 +15,13 @@
  * the License.
  */
 
-import * as api from '@opvious/api-operations';
+import {types} from '@opvious/api/sdk';
 import {assert} from '@opvious/stl-errors';
 
 import {isAlmost, KeyItem, Label} from '../common';
 import {Column, Columns, Range, Spreadsheet, Value} from '../spreadsheet';
 import {commonHeight} from '../table';
 import {InputMapping, TensorMapping} from './mapping';
-
-export type InputValues = Pick<
-  api.AttemptInput,
-  'dimensions' | 'parameters' | 'pinnedVariables'
->;
 
 /**
  * Extracts data from the tables into a format suitable for starting a solve.
@@ -36,8 +31,8 @@ export type InputValues = Pick<
 export function extractInputValues(
   mapping: InputMapping,
   ss: Spreadsheet
-): InputValues {
-  const dimInputs: api.DimensionInput[] = [];
+): types['SolveInputs'] {
+  const dimInputs: types['KeyItemSet'][] = [];
   for (const dim of mapping.dimensions) {
     const {isNumeric, label} = dim;
 
@@ -61,7 +56,7 @@ export function extractInputValues(
   const parameters = mapping.parameters.map((p) => pgt.gatherInput(p));
 
   const vgt = new TensorInputGatherer(ss, readVariable);
-  const pins: api.PinnedVariableInput[] = [];
+  const pins: types['Tensor'][] = [];
   for (const tensor of mapping.variables) {
     const input = vgt.gatherInput(tensor);
     if (input.entries.length) {
@@ -72,15 +67,13 @@ export function extractInputValues(
   return {dimensions: dimInputs, parameters, pinnedVariables: pins};
 }
 
-type TensorInput = api.PinnedVariableInput;
-
 class TensorInputGatherer {
   constructor(
     private readonly spreadsheet: Spreadsheet,
     private readonly read: (val: Value | undefined) => number | undefined
   ) {}
 
-  gatherInput(mapping: TensorMapping): TensorInput {
+  gatherInput(mapping: TensorMapping): types['Tensor'] {
     const {keyBoxes, label, valueRange: valueRg} = mapping;
 
     let pivotIx: number | undefined;
@@ -114,7 +107,7 @@ class TensorInputGatherer {
     label: Label,
     keyRgs: ReadonlyArray<Range>,
     valueRg?: Range
-  ): TensorInput {
+  ): types['Tensor'] {
     if (!keyRgs.length) {
       if (!valueRg) {
         throw new Error('Empty parameter');
@@ -144,7 +137,7 @@ class TensorInputGatherer {
     }
 
     const height = commonHeight(keyCols);
-    const entries: api.EntryInput[] = [];
+    const entries: types['TensorEntry'][] = [];
     for (let i = 0; i < height; i++) {
       const value = valCol ? this.read(valCol[i]!) : 1;
       if (value != null) {
@@ -160,7 +153,7 @@ class TensorInputGatherer {
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueRg: Range
-  ): TensorInput {
+  ): types['Tensor'] {
     const groups = this.spreadsheet.readColumns([valueRg, ...keyRgs]);
 
     const valCols = groups[0]!;
@@ -179,7 +172,7 @@ class TensorInputGatherer {
     }
 
     const keyWidth = keyRgs.length;
-    const entries: api.EntryInput[] = [];
+    const entries: types['TensorEntry'][] = [];
     if (keyCols.length) {
       const height = commonHeight(keyCols);
       keyCols.splice(pivotIx, 0, []);
@@ -213,7 +206,7 @@ class TensorInputGatherer {
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueIx: number
-  ): TensorInput {
+  ): types['Tensor'] {
     assert(pivotIx !== valueIx, 'Conflicting pivot and value indices');
     const groups = this.spreadsheet.readColumns(keyRgs);
 
@@ -237,7 +230,7 @@ class TensorInputGatherer {
     assert(valCols.length <= pivotRow.length, 'Missing value columns');
 
     const keyWidth = keyRgs.length;
-    const entries: api.EntryInput[] = [];
+    const entries: types['TensorEntry'][] = [];
     if (keyCols.length) {
       const height = commonHeight(keyCols);
       keyCols.splice(pivotIx, 0, []);

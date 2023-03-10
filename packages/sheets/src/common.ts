@@ -15,12 +15,13 @@
  * the License.
  */
 
-import * as api from '@opvious/api-operations';
+import {types} from '@opvious/api/sdk';
 
-export type KeyItem = api.Scalars['KeyItem'];
-export type Label = api.Scalars['Label'];
+export type KeyItem = types['KeyItem'];
+export type Label = string;
+export type TensorOutline = Omit<types['ParameterOutline'], 'derivation'>;
 
-export function isIndicator(sig: api.TensorOutline): boolean {
+export function isIndicator(sig: TensorOutline): boolean {
   return sig.isIntegral && sig.lowerBound === 0 && sig.upperBound === 1;
 }
 

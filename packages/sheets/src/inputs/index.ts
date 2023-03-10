@@ -23,4 +23,4 @@ export {
   KeyBoxKind,
   TensorMapping,
 } from './mapping';
-export {extractInputValues, InputValues} from './values';
+export {extractInputValues} from './values';

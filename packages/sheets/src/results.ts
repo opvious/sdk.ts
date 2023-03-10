@@ -15,7 +15,7 @@
  * the License.
  */
 
-import * as api from '@opvious/api-operations/sdk';
+import {types} from '@opvious/api/sdk';
 import {assert, check} from '@opvious/stl-errors';
 
 import {isAlmost, KeyItem} from './common';
@@ -73,7 +73,7 @@ function constantColumns(rg: Range, val: Value): Value[][] {
 }
 
 export function populateResults(
-  results: ReadonlyArray<api.Result>,
+  results: ReadonlyArray<types['TensorResult']>,
   mapping: InputMapping,
   ss: Spreadsheet
 ): void {
@@ -124,7 +124,7 @@ class ResultInjector {
   constructor(private readonly spreadsheet: Spreadsheet) {}
 
   injectSlimUnprojectedResult(
-    result: api.Result,
+    result: types['TensorResult'],
     keyRgs: ReadonlyArray<Range>,
     valueRg: Range
   ): void {
@@ -188,7 +188,7 @@ class ResultInjector {
   }
 
   injectSlimProjectedResult(
-    result: api.Result,
+    result: types['TensorResult'],
     keyRgs: ReadonlyArray<Range>,
     valueIx: number
   ): void {
@@ -272,7 +272,7 @@ class ResultInjector {
   }
 
   injectWideUnprojectedResult(
-    result: api.Result,
+    result: types['TensorResult'],
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueRg: Range
@@ -357,7 +357,7 @@ class ResultInjector {
   }
 
   injectWideProjectedResult(
-    result: api.Result,
+    result: types['TensorResult'],
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueIx: number
