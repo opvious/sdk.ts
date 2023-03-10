@@ -96,7 +96,7 @@ importers:
   packages/sdk:
     specifiers:
       '@opentelemetry/api': ~1.3.0
-      '@opvious/api': ^0.13.8
+      '@opvious/api': ^0.13.9
       '@opvious/stl-errors': ^0.15.15
       '@opvious/stl-telemetry': ^0.15.15
       '@types/backoff': ^2.5.2
@@ -108,7 +108,7 @@ importers:
       tiny-typed-emitter: ^2.1.0
     dependencies:
       '@opentelemetry/api': 1.3.0
-      '@opvious/api': 0.13.8
+      '@opvious/api': 0.13.9
       '@opvious/stl-errors': 0.15.15
       '@opvious/stl-telemetry': 0.15.15_@opentelemetry+api@1.3.0
       backoff: 2.5.0
@@ -122,14 +122,14 @@ importers:
 
   packages/sheets:
     specifiers:
-      '@opvious/api': ^0.13.8
+      '@opvious/api': ^0.13.9
       '@opvious/stl-errors': ^0.15.15
       '@opvious/stl-utils': ^0.15.15
       '@types/pluralize': ^0.0.29
       change-case: ^4.1.2
       pluralize: ^8.0.0
     dependencies:
-      '@opvious/api': 0.13.8
+      '@opvious/api': 0.13.9
       '@opvious/stl-errors': 0.15.15
       '@opvious/stl-utils': 0.15.15
       change-case: 4.1.2
@@ -1000,8 +1000,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@opvious/api/0.13.8:
-    resolution: {integrity: sha512-1GdktlC2i65M0gaMiJ+ADYYDRq6mnNvJjMMhb4as2fg2guBsmU14q61QA+ro7fzFecIHT3v8dBeNxx3vPKrLPQ==, tarball: download/@opvious/api/0.13.8/3d990f6d0c90c88650db15a78d2fd31fc40459bd}
+  /@opvious/api/0.13.9:
+    resolution: {integrity: sha512-tEZLo0PNPhjqsWFxOPG2bcySSgGM8BNaF2HPg3tXIzwDdJ5l+Svo1MoN2ne+ghLWBzHKrHN7/97PG4trJoemzA==, tarball: download/@opvious/api/0.13.9/8a658a8eca7155be4b1171ba400e02d4ad1a1b36}
     dependencies:
       graphql: 16.6.0
     dev: false
