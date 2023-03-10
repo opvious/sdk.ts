@@ -116,11 +116,9 @@ export class OpviousClient {
   }
 
   /** Solves an optimization model. */
-  async runSolve(args: {
-    readonly sources: ReadonlyArray<string>;
-    readonly inputs: api.types['SolveInputs'];
-    readonly options?: api.types['SolveOptions'];
-  }): Promise<api.ResponseData<'runSolve', 200>> {
+  async runSolve(
+    args: api.RequestBody<'runSolve'>
+  ): Promise<api.ResponseData<'runSolve', 200>> {
     const res = await this.sdk.runSolve({body: args});
     return okData(res);
   }
