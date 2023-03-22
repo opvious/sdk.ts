@@ -245,6 +245,11 @@ function validateSpecification(): Command {
     .command('validate <path...>')
     .description('validate a specification\'s sources')
     .option(
+      '-a, --show-all',
+      'always show all errors. by default non-fatal errors are hidden when ' +
+        'at least one fatal error is present'
+    )
+    .option(
       '-f, --format <format>',
       'error output format (supported values: ' +
         `${Object.values(ErrorFormat).join(', ')})`,
@@ -255,6 +260,7 @@ function validateSpecification(): Command {
       contextualAction(async function (srcPaths, opts) {
         const {client, spinner} = this;
         const watching = !!opts.watch;
+        const showAll = !!opts.showAll;
         const format = errorFormatter(opts.format, srcPaths);
 
         if (!watching) {
@@ -283,14 +289,22 @@ function validateSpecification(): Command {
             );
             return true;
           }
+          let fatalCount = 0;
+          for (const slice of errors) {
+            if (slice.isFatal) {
+              fatalCount++;
+            }
+          }
           spinner.warn(
             `Specification is invalid. [definitions=${slices.length}, ` +
-              `errors=${errors.length}]`
+              `errors=${errors.length} (${fatalCount} fatal)]`
           );
           for (const slice of errors) {
-            const {index} = slice;
-            const src = check.isPresent(srcs[index]);
-            display(format({slice, source: src}));
+            const {index, isFatal} = slice;
+            if (!fatalCount || isFatal || showAll) {
+              const src = check.isPresent(srcs[index]);
+              display(format({slice, source: src}));
+            }
           }
           return false;
         }
