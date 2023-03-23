@@ -17,6 +17,7 @@
 
 import {codeFrameColumns} from '@babel/code-frame';
 import {check, errors} from '@opvious/stl-errors';
+import {ifPresent} from '@opvious/stl-utils/functions';
 import {watch} from 'chokidar';
 import {Command} from 'commander';
 import debounce from 'debounce';
@@ -206,10 +207,17 @@ function registerSpecificationCommand(): Command {
     .description('add a new specification')
     .option(
       '-f, --formulation <name>',
-      'formulation name, defaults to the trimmed source\'s file name'
+      'formulation name, defaults to the trimmed name of the first source file'
     )
-    .option('-d, --description <text>', 'description text, defaults to source')
-    .option('-t, --tags <names>', 'comma-separated tag names')
+    .option(
+      '-d, --description <path>',
+      'path to description file, defaults to the concatenated content of ' +
+        'the source files if empty'
+    )
+    .option(
+      '-t, --tags <names>',
+      'comma-separated list of tag names to apply to the specification'
+    )
     .action(
       contextualAction(async function (srcPaths, opts) {
         const {client, spinner} = this;
@@ -217,13 +225,16 @@ function registerSpecificationCommand(): Command {
         const srcs = await Promise.all(
           srcPaths.map((p: string) => readFile(p, 'utf8'))
         );
+        const desc = await ifPresent(opts.description, (p) =>
+          readFile(p, 'utf8')
+        );
         spinner
           .succeed(`Read ${srcs.length} sources.`)
           .start('Registering specification...');
         const spec = await client.registerSpecification({
           formulationName: opts.formulation ?? path.parse(srcPaths[0]).name,
           sources: srcs,
-          description: opts.description ?? srcs.join('\n\n'),
+          description: desc ?? srcs.join('\n\n'),
           tagNames: opts.tags?.split(','),
         });
         const url = client.specificationUrl(spec.formulation.name, spec.revno);
