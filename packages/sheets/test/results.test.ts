@@ -1,4 +1,4 @@
-import {types} from '@opvious/api/sdk';
+import {Schema} from '@opvious/api/sdk';
 
 import {computeInputMapping} from '../src/inputs';
 import * as sut from '../src/results';
@@ -11,8 +11,8 @@ describe('populates results', () => {
     [
       string,
       string,
-      types['Outline'],
-      ReadonlyArray<types['TensorResult']>,
+      Schema<'Outline'>,
+      ReadonlyArray<Schema<'TensorResult'>>,
       string
     ]
   >([

@@ -250,8 +250,8 @@ export class OpviousClient {
   async startAttempt(args: {
     readonly formulationName: string;
     readonly specificationTagName?: string;
-    readonly inputs: api.types['SolveInputs'];
-    readonly options?: api.types['SolveOptions'];
+    readonly inputs: api.Schema<'SolveInputs'>;
+    readonly options?: api.Schema<'SolveOptions'>;
   }): Promise<api.ResponseData<'startAttempt', 200>> {
     const res = await this.sdk.startAttempt({body: args});
     return okData(res);
@@ -370,7 +370,7 @@ export class OpviousClient {
   }
 
   /** Fetches an attempt's inputs from its UUID. */
-  async fetchAttemptInputs(uuid: Uuid): Promise<api.types['SolveInputs']> {
+  async fetchAttemptInputs(uuid: Uuid): Promise<api.Schema<'SolveInputs'>> {
     const res = await this.sdk.getAttemptInputs({
       parameters: {attemptUuid: uuid},
     });
@@ -390,7 +390,7 @@ export class OpviousClient {
    * */
   async fetchAttemptOutputs(
     uuid: Uuid
-  ): Promise<api.types['SolveOutputs'] | undefined> {
+  ): Promise<api.Schema<'SolveOutputs'> | undefined> {
     const res = await this.sdk.getAttemptOutputs({
       parameters: {attemptUuid: uuid},
     });
