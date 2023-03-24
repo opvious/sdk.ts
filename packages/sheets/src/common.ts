@@ -15,11 +15,11 @@
  * the License.
  */
 
-import {types} from '@opvious/api/sdk';
+import {Schema} from '@opvious/api/sdk';
 
-export type KeyItem = types['KeyItem'];
+export type KeyItem = Schema<'KeyItem'>;
 export type Label = string;
-export type TensorOutline = Omit<types['ParameterOutline'], 'derivation'>;
+export type TensorOutline = Omit<Schema<'ParameterOutline'>, 'derivation'>;
 
 export function isIndicator(sig: TensorOutline): boolean {
   return sig.isIntegral && sig.lowerBound === 0 && sig.upperBound === 1;

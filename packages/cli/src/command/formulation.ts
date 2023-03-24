@@ -324,7 +324,7 @@ function validateSpecification(): Command {
 }
 
 type ErrorFormatter = (args: {
-  readonly slice: api.types['ErrorSourceSlice'];
+  readonly slice: api.Schema<'ErrorSourceSlice'>;
   readonly source: string;
 }) => string;
 
@@ -356,7 +356,7 @@ function errorFormatter(
 }
 
 function errorPreview(args: {
-  readonly slice: api.types['ErrorSourceSlice'];
+  readonly slice: api.Schema<'ErrorSourceSlice'>;
   readonly source: string;
 }): string {
   const {start, end} = args.slice.range;
@@ -371,7 +371,7 @@ function errorPreview(args: {
   );
 }
 
-function formatBinding(b: api.types['SourceBinding']): string {
+function formatBinding(b: api.Schema<'SourceBinding'>): string {
   return (b.dimensionLabel ?? '#') + (b.qualifier ? ` (${b.qualifier})` : '');
 }
 

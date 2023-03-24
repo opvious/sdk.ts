@@ -15,7 +15,7 @@
  * the License.
  */
 
-import {types} from '@opvious/api/sdk';
+import {Schema} from '@opvious/api/sdk';
 import {assert} from '@opvious/stl-errors';
 
 import {isIndicator, Label, TensorOutline} from '../common';
@@ -28,7 +28,7 @@ import {Header, newHeader, Table} from '../table';
  */
 export function computeInputMapping(
   tables: ReadonlyArray<Table>,
-  out: types['Outline']
+  out: Schema<'Outline'>
 ): InputMapping {
   validateNoHeaderCollisions(out);
 
@@ -148,7 +148,7 @@ class TensorMappingBuilder {
     };
   }
 
-  private bindingKeyBox(binding: types['SourceBinding']): KeyBox {
+  private bindingKeyBox(binding: Schema<'SourceBinding'>): KeyBox {
     const {keyBoxes, tensor, usedBlocks} = this;
     const {dimensionLabel: dim, qualifier: qual} = binding;
     if (dim == null && qual == null) {
@@ -229,7 +229,7 @@ export interface KeyBox {
   readonly range: Range;
 }
 
-function validateNoHeaderCollisions(out: types['Outline']): void {
+function validateNoHeaderCollisions(out: Schema<'Outline'>): void {
   const byHeader = new Map<Header, Label>();
   for (const dim of out.dimensions) {
     addLabel(dim.label);

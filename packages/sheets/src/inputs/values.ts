@@ -15,7 +15,7 @@
  * the License.
  */
 
-import {types} from '@opvious/api/sdk';
+import {Schema} from '@opvious/api/sdk';
 import {assert} from '@opvious/stl-errors';
 
 import {isAlmost, KeyItem, Label} from '../common';
@@ -31,8 +31,8 @@ import {InputMapping, TensorMapping} from './mapping';
 export function extractInputValues(
   mapping: InputMapping,
   ss: Spreadsheet
-): types['SolveInputs'] {
-  const dimInputs: types['KeyItemSet'][] = [];
+): Schema<'SolveInputs'> {
+  const dimInputs: Schema<'KeyItemSet'>[] = [];
   for (const dim of mapping.dimensions) {
     const {isNumeric, label} = dim;
 
@@ -56,7 +56,7 @@ export function extractInputValues(
   const parameters = mapping.parameters.map((p) => pgt.gatherInput(p));
 
   const vgt = new TensorInputGatherer(ss, readVariable);
-  const pins: types['Tensor'][] = [];
+  const pins: Schema<'Tensor'>[] = [];
   for (const tensor of mapping.variables) {
     const input = vgt.gatherInput(tensor);
     if (input.entries.length) {
@@ -73,7 +73,7 @@ class TensorInputGatherer {
     private readonly read: (val: Value | undefined) => number | undefined
   ) {}
 
-  gatherInput(mapping: TensorMapping): types['Tensor'] {
+  gatherInput(mapping: TensorMapping): Schema<'Tensor'> {
     const {keyBoxes, label, valueRange: valueRg} = mapping;
 
     let pivotIx: number | undefined;
@@ -107,7 +107,7 @@ class TensorInputGatherer {
     label: Label,
     keyRgs: ReadonlyArray<Range>,
     valueRg?: Range
-  ): types['Tensor'] {
+  ): Schema<'Tensor'> {
     if (!keyRgs.length) {
       if (!valueRg) {
         throw new Error('Empty parameter');
@@ -137,7 +137,7 @@ class TensorInputGatherer {
     }
 
     const height = commonHeight(keyCols);
-    const entries: types['TensorEntry'][] = [];
+    const entries: Schema<'TensorEntry'>[] = [];
     for (let i = 0; i < height; i++) {
       const value = valCol ? this.read(valCol[i]!) : 1;
       if (value != null) {
@@ -153,7 +153,7 @@ class TensorInputGatherer {
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueRg: Range
-  ): types['Tensor'] {
+  ): Schema<'Tensor'> {
     const groups = this.spreadsheet.readColumns([valueRg, ...keyRgs]);
 
     const valCols = groups[0]!;
@@ -172,7 +172,7 @@ class TensorInputGatherer {
     }
 
     const keyWidth = keyRgs.length;
-    const entries: types['TensorEntry'][] = [];
+    const entries: Schema<'TensorEntry'>[] = [];
     if (keyCols.length) {
       const height = commonHeight(keyCols);
       keyCols.splice(pivotIx, 0, []);
@@ -206,7 +206,7 @@ class TensorInputGatherer {
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueIx: number
-  ): types['Tensor'] {
+  ): Schema<'Tensor'> {
     assert(pivotIx !== valueIx, 'Conflicting pivot and value indices');
     const groups = this.spreadsheet.readColumns(keyRgs);
 
@@ -230,7 +230,7 @@ class TensorInputGatherer {
     assert(valCols.length <= pivotRow.length, 'Missing value columns');
 
     const keyWidth = keyRgs.length;
-    const entries: types['TensorEntry'][] = [];
+    const entries: Schema<'TensorEntry'>[] = [];
     if (keyCols.length) {
       const height = commonHeight(keyCols);
       keyCols.splice(pivotIx, 0, []);

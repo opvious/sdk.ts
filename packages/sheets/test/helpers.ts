@@ -1,4 +1,4 @@
-import {types} from '@opvious/api/sdk';
+import {Schema} from '@opvious/api/sdk';
 
 import {TensorOutline} from '../src/common';
 import {InMemorySpreadsheet} from '../src/spreadsheet';
@@ -12,7 +12,7 @@ export function extractTables(csv: string): ReadonlyArray<Table> {
 
 export function tensorOutline(
   label: string,
-  bindings: ReadonlyArray<types['SourceBinding']>,
+  bindings: ReadonlyArray<Schema<'SourceBinding'>>,
   indic?: boolean
 ): TensorOutline {
   return {

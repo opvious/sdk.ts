@@ -15,7 +15,7 @@
  * the License.
  */
 
-import {types} from '@opvious/api/sdk';
+import {Schema} from '@opvious/api/sdk';
 import {assert, check} from '@opvious/stl-errors';
 
 import {isAlmost, KeyItem} from './common';
@@ -73,7 +73,7 @@ function constantColumns(rg: Range, val: Value): Value[][] {
 }
 
 export function populateResults(
-  results: ReadonlyArray<types['TensorResult']>,
+  results: ReadonlyArray<Schema<'TensorResult'>>,
   mapping: InputMapping,
   ss: Spreadsheet
 ): void {
@@ -124,7 +124,7 @@ class ResultInjector {
   constructor(private readonly spreadsheet: Spreadsheet) {}
 
   injectSlimUnprojectedResult(
-    result: types['TensorResult'],
+    result: Schema<'TensorResult'>,
     keyRgs: ReadonlyArray<Range>,
     valueRg: Range
   ): void {
@@ -188,7 +188,7 @@ class ResultInjector {
   }
 
   injectSlimProjectedResult(
-    result: types['TensorResult'],
+    result: Schema<'TensorResult'>,
     keyRgs: ReadonlyArray<Range>,
     valueIx: number
   ): void {
@@ -272,7 +272,7 @@ class ResultInjector {
   }
 
   injectWideUnprojectedResult(
-    result: types['TensorResult'],
+    result: Schema<'TensorResult'>,
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueRg: Range
@@ -357,7 +357,7 @@ class ResultInjector {
   }
 
   injectWideProjectedResult(
-    result: types['TensorResult'],
+    result: Schema<'TensorResult'>,
     keyRgs: ReadonlyArray<Range>,
     pivotIx: number,
     valueIx: number
