@@ -19,12 +19,16 @@ import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api';
 import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
+import {withEmitter} from '@opvious/stl-utils';
 import backoff from 'backoff';
 import fetch, {FetchError, Response} from 'node-fetch';
+import stream from 'stream';
+import {pipeline as streamPipeline} from 'stream/promises';
 import {TypedEmitter} from 'tiny-typed-emitter';
 
 import {MarkPresent, strippingTrailingSlashes} from '../common';
 import {
+  assertHasCode,
   AttemptTracker,
   AttemptTrackerListeners,
   BlueprintUrls,
@@ -104,6 +108,16 @@ export class OpviousClient {
     return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk, graphqlSdk);
   }
 
+  // Solving
+
+  /** Solves an optimization model. */
+  async runSolve(
+    args: api.RequestBody<'runSolve'>
+  ): Promise<api.ResponseData<'runSolve', 200>> {
+    const res = await this.sdk.runSolve({body: args});
+    return okData(res);
+  }
+
   /** Parses and validates a specification's sources. */
   async parseSources(args: {
     readonly sources: ReadonlyArray<string>;
@@ -115,13 +129,25 @@ export class OpviousClient {
     return okData(res);
   }
 
-  /** Solves an optimization model. */
-  async runSolve(
-    args: api.RequestBody<'runSolve'>
-  ): Promise<api.ResponseData<'runSolve', 200>> {
-    const res = await this.sdk.runSolve({body: args});
-    return okData(res);
+  /** Returns an optimization model's underlying instructions. */
+  inspectSolveInstructions(args: api.RequestBody<'runSolve'>): stream.Readable {
+    return withEmitter(new stream.PassThrough(), async (pt) => {
+      const res = await this.sdk.inspectSolveInstructions({
+        body: {runRequest: args},
+        headers: {accept: 'text/plain'},
+        decoder: (res) => {
+          if (res.status !== 200) {
+            return res.text();
+          }
+          return ''; // Do not consume the body.
+        },
+      });
+      assertHasCode(res, 200);
+      await streamPipeline(res.raw.body, pt);
+    });
   }
+
+  // Account management
 
   /** Fetches the currently active member. */
   async fetchMember(): Promise<api.graphqlTypes.FetchedMemberFragment> {
@@ -150,6 +176,8 @@ export class OpviousClient {
     const res = await this.graphqlSdk.RevokeAuthorization({name});
     return okResultData(res).revokeAuthorization;
   }
+
+  // Formulations
 
   /** Adds a new specification. */
   async registerSpecification(
@@ -204,6 +232,8 @@ export class OpviousClient {
     return okResultData(res).deleteFormulation.specificationCount > 0;
   }
 
+  // Formulation sharing
+
   /**
    * Makes a formulation's tag publicly accessible via a unique URL. This can be
    * disabled via `unshareFormulation`.
@@ -228,6 +258,8 @@ export class OpviousClient {
     const res = await this.graphqlSdk.StopSharingFormulation({input});
     return okResultData(res).stopSharingFormulation;
   }
+
+  // Attempts
 
   /** Paginates available attempts. */
   async paginateAttempts(
@@ -382,6 +414,27 @@ export class OpviousClient {
       default:
         throw clientErrors.unexpectedResponse(res.raw, res.data);
     }
+  }
+
+  /** Fetches an attempt's instructions from its UUID. */
+  fetchAttemptInstructions(uuid: Uuid): stream.Readable {
+    return withEmitter(new stream.PassThrough(), async (pt) => {
+      const res = await this.sdk.getAttemptInstructions({
+        parameters: {attemptUuid: uuid},
+        headers: {accept: 'text/plain'},
+        decoder: (res) => {
+          if (res.status !== 200) {
+            return res.text();
+          }
+          return ''; // Do not consume the body.
+        },
+      });
+      if (res.code === 404) {
+        throw clientErrors.unknownAttempt(uuid);
+      }
+      assertHasCode(res, 200);
+      await streamPipeline(res.raw.body, pt);
+    });
   }
 
   /**

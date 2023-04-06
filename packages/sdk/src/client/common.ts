@@ -104,13 +104,20 @@ interface HasCode<C extends api.ResponseCode = api.ResponseCode> {
   readonly raw: Response;
 }
 
+export function assertHasCode<
+  O extends HasCode,
+  C extends api.ResponseCode = 200
+>(res: O, code: C): void {
+  if (res.code !== code) {
+    throw clientErrors.unexpectedResponse(res.raw, res.data);
+  }
+}
+
 export function okData<O extends HasCode, C extends api.ResponseCode = 200>(
   res: O,
   code?: C
 ): (O & HasCode<C>)['data'] {
-  if (res.code !== (code ?? 200)) {
-    throw clientErrors.unexpectedResponse(res.raw, res.data);
-  }
+  assertHasCode(res, code ?? 200);
   return (res as any).data;
 }
 
