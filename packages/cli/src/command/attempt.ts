@@ -17,6 +17,7 @@
 
 import {Command} from 'commander';
 import Table from 'easy-table';
+import {createWriteStream} from 'fs';
 import {readFile} from 'fs/promises';
 import {DateTime, Duration} from 'luxon';
 import {
@@ -25,6 +26,7 @@ import {
   identifyTables,
   InMemorySpreadsheet,
 } from 'opvious-sheets';
+import {pipeline as streamPipeline} from 'stream/promises';
 
 import {humanizeMillis} from '../common';
 import {display} from '../io';
@@ -36,6 +38,7 @@ export function attemptCommand(): Command {
     .description('attempt commands')
     .addCommand(runAttemptCommand())
     .addCommand(cancelAttemptCommand())
+    .addCommand(fetchAttemptInstructions())
     .addCommand(listAttemptsCommand())
     .addCommand(listAttemptNotificationsCommand());
 }
@@ -182,6 +185,25 @@ function cancelAttemptCommand(): Command {
         spinner.start('Cancelling attempt...');
         await client.cancelAttempt(uuid);
         spinner.succeed('Cancelled attempt.');
+      })
+    );
+}
+
+function fetchAttemptInstructions(): Command {
+  return newCommand()
+    .command('instructions <uuid>')
+    .description('print the attempt\'s underlying instructions')
+    .option('-o, --output <path>', 'output path, defaults to stdout')
+    .action(
+      contextualAction(async function (uuid, opts) {
+        const {client, spinner} = this;
+        const out = opts.output
+          ? createWriteStream(opts.output)
+          : process.stdout;
+        spinner.start('Downloading instructions...');
+        const readable = client.fetchAttemptInstructions(uuid);
+        await streamPipeline(readable, out);
+        spinner.succeed('Downloaded instructions.');
       })
     );
 }
