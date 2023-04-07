@@ -44,10 +44,10 @@ importers:
     specifiers:
       '@babel/code-frame': ^7.18.6
       '@opentelemetry/api': ~1.3.0
-      '@opvious/stl-bootstrap': ^0.16.4
-      '@opvious/stl-errors': ^0.16.4
-      '@opvious/stl-telemetry': ^0.16.4
-      '@opvious/stl-utils': ^0.16.4
+      '@opvious/stl-bootstrap': ^0.16.9
+      '@opvious/stl-errors': ^0.16.9
+      '@opvious/stl-telemetry': ^0.16.9
+      '@opvious/stl-utils': ^0.16.9
       '@types/babel__code-frame': ^7.0.3
       '@types/debounce': ^1.2.1
       '@types/fast-fifo': ^1.0.0
@@ -69,10 +69,10 @@ importers:
     dependencies:
       '@babel/code-frame': 7.18.6
       '@opentelemetry/api': 1.3.0
-      '@opvious/stl-bootstrap': 0.16.4_@opentelemetry+api@1.3.0
-      '@opvious/stl-errors': 0.16.4
-      '@opvious/stl-telemetry': 0.16.4_@opentelemetry+api@1.3.0
-      '@opvious/stl-utils': 0.16.4
+      '@opvious/stl-bootstrap': 0.16.9_@opentelemetry+api@1.3.0
+      '@opvious/stl-errors': 0.16.9
+      '@opvious/stl-telemetry': 0.16.9_@opentelemetry+api@1.3.0
+      '@opvious/stl-utils': 0.16.9
       ajv: 8.11.0
       chokidar: 3.5.3
       commander: 9.3.0
@@ -96,27 +96,23 @@ importers:
   packages/sdk:
     specifiers:
       '@opentelemetry/api': ~1.3.0
-      '@opvious/api': ^0.14.1
-      '@opvious/stl-errors': ^0.16.4
-      '@opvious/stl-telemetry': ^0.16.4
-      '@opvious/stl-utils': ^0.16.4
+      '@opvious/api': ^0.14.2
+      '@opvious/stl-errors': ^0.16.9
+      '@opvious/stl-telemetry': ^0.16.9
+      '@opvious/stl-utils': ^0.16.9
       '@types/backoff': ^2.5.2
       '@types/node-fetch': ^2.6.2
       backoff: ^2.5.0
       graphql: ^16.6.0
-      graphql-request: ^5.0.0
       node-fetch: ^2.6.7
-      tiny-typed-emitter: ^2.1.0
     dependencies:
       '@opentelemetry/api': 1.3.0
-      '@opvious/api': 0.14.1
-      '@opvious/stl-errors': 0.16.4
-      '@opvious/stl-telemetry': 0.16.4_@opentelemetry+api@1.3.0
-      '@opvious/stl-utils': 0.16.4
+      '@opvious/api': 0.14.2
+      '@opvious/stl-errors': 0.16.9
+      '@opvious/stl-telemetry': 0.16.9_@opentelemetry+api@1.3.0
+      '@opvious/stl-utils': 0.16.9
       backoff: 2.5.0
       graphql: 16.6.0
-      graphql-request: 5.0.0_graphql@16.6.0
-      tiny-typed-emitter: 2.1.0
     devDependencies:
       '@types/backoff': 2.5.2
       '@types/node-fetch': 2.6.2
@@ -124,16 +120,16 @@ importers:
 
   packages/sheets:
     specifiers:
-      '@opvious/api': ^0.14.1
-      '@opvious/stl-errors': ^0.16.4
-      '@opvious/stl-utils': ^0.16.4
+      '@opvious/api': ^0.14.2
+      '@opvious/stl-errors': ^0.16.9
+      '@opvious/stl-utils': ^0.16.9
       '@types/pluralize': ^0.0.29
       change-case: ^4.1.2
       pluralize: ^8.0.0
     dependencies:
-      '@opvious/api': 0.14.1
-      '@opvious/stl-errors': 0.16.4
-      '@opvious/stl-utils': 0.16.4
+      '@opvious/api': 0.14.2
+      '@opvious/stl-errors': 0.16.9
+      '@opvious/stl-utils': 0.16.9
       change-case: 4.1.2
       pluralize: 8.0.0
     devDependencies:
@@ -508,14 +504,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /@graphql-typed-document-node/core/3.1.1_graphql@16.6.0:
-    resolution: {integrity: sha512-NQ17ii0rK1b34VZonlmT2QMJFI70m0TRwbknO/ihlbatXyaktDhN/98vBiUU6kNBPljqGqyIrl2T4nY2RpFANg==}
-    peerDependencies:
-      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-    dependencies:
-      graphql: 16.6.0
-    dev: false
 
   /@humanwhocodes/config-array/0.9.5:
     resolution: {integrity: sha512-ObyMyWxZiCu/yTisA7uzx81s40xR2fD5Cg/2Kq7G02ajkNubJf6BopgDTmDyc3U7sXpNKM8cYOw7s7Tyr+DnCw==}
@@ -1017,8 +1005,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@opvious/api/0.14.1:
-    resolution: {integrity: sha512-PTKIUk2odjOB2RODD1f45qo/1CsrYUyFiujjBNuJPdrxXVqMaJ/OnO4t/gaxV2eRNQifev8NiN9rQymIbUfa7A==, tarball: download/@opvious/api/0.14.1/8d1fa4e249e1f24c76d789f70d354dd5e5d64190}
+  /@opvious/api/0.14.2:
+    resolution: {integrity: sha512-pxJpRTY1SqDhucP8vlk7gfSATXS7uO3PJWu/caXo0WeZlrMhRw3gI6uutK6dtBqn5qPolw0jyKHloY12dHDE3Q==, tarball: download/@opvious/api/0.14.2/12f4106ba455efda62ecc7a0842c658ab19021a4}
     dependencies:
       graphql: 16.6.0
     dev: false
@@ -1042,8 +1030,8 @@ packages:
     resolution: {integrity: sha512-hT5NyFIJ2v3rlxJaPsMymdCWoT6G6bNndbCYyOLWAaxxdyn8OiLDTBQJ8PhS+DQoiFr7mJC9LV4fKf/A6x7srQ==, tarball: download/@opvious/prettier-typescript/0.1.22/c95e09f9ada17b738ffe77e3038d2e92d4efb659}
     dev: true
 
-  /@opvious/stl-bootstrap/0.16.4_@opentelemetry+api@1.3.0:
-    resolution: {integrity: sha512-TkhXsr1iNakOgPKJ29f5/Qw9mm0UwmZ1svIRMGWdSwos7jww4nSKxHI0fNPVJQdzMr+xBa4pJiCfZH10TFMNVQ==, tarball: download/@opvious/stl-bootstrap/0.16.4/f9f3492e119b8016b2714777c31d815fcb969deb}
+  /@opvious/stl-bootstrap/0.16.9_@opentelemetry+api@1.3.0:
+    resolution: {integrity: sha512-cqbC8L0cfsm+XuhjfmwPhT/K5/gO0tA5n27CIuqF02Ac8lpAkaUotH/ogHXqOrkgK+ygYGkgdQUrQaV89UDpHw==, tarball: download/@opvious/stl-bootstrap/0.16.9/61dec2bacce6fedf0eda450f84f4b0aaef040638}
     peerDependencies:
       '@opentelemetry/api': ~1.3.0
     dependencies:
@@ -1054,34 +1042,34 @@ packages:
       '@opentelemetry/sdk-metrics': 1.11.0_@opentelemetry+api@1.3.0
       '@opentelemetry/sdk-trace-base': 1.11.0_@opentelemetry+api@1.3.0
       '@opentelemetry/sdk-trace-node': 1.11.0_@opentelemetry+api@1.3.0
-      '@opvious/stl-errors': 0.16.4
-      '@opvious/stl-telemetry': 0.16.4_@opentelemetry+api@1.3.0
-      '@opvious/stl-utils': 0.16.4
+      '@opvious/stl-errors': 0.16.9
+      '@opvious/stl-telemetry': 0.16.9_@opentelemetry+api@1.3.0
+      '@opvious/stl-utils': 0.16.9
     dev: false
 
-  /@opvious/stl-errors/0.16.4:
-    resolution: {integrity: sha512-qZYipw/VVvJzg4wjXCgVnVMICrvIKZ5h+MDX38IdygoJwcxxAnbDjLsZ51+z8XQZeixx+rFfEK0UCIKXzuOpCA==, tarball: download/@opvious/stl-errors/0.16.4/f2c57571496c3abf994acf491811ed099ab4d996}
+  /@opvious/stl-errors/0.16.9:
+    resolution: {integrity: sha512-vRA7dLyHI3OQzGpja7Ojp/g15EfxTRw8XYxwfALp5DNfXFEPWyBX/w/SzECnipH6iUx7Txm/h64jleghUvgjbQ==, tarball: download/@opvious/stl-errors/0.16.9/c2448002c07b5f7e320715fe42aeec4bcff2bfcb}
     dependencies:
       change-case: 4.1.2
       upper-case-first: 2.0.2
     dev: false
 
-  /@opvious/stl-telemetry/0.16.4_@opentelemetry+api@1.3.0:
-    resolution: {integrity: sha512-skfTPF5G5vXTXLURhxuZc9tk3GGdjmuHV3/CpbQPyH+7Iz4jsKEvEDdrm7nQRdQckXJ/S3NM/a9q2yh1OQ5JOw==, tarball: download/@opvious/stl-telemetry/0.16.4/9ac0739f4a82743202bf6345f886caa511a7d081}
+  /@opvious/stl-telemetry/0.16.9_@opentelemetry+api@1.3.0:
+    resolution: {integrity: sha512-99EANflbGqhGQ2pSQ9ZdyDDmEn0VGQn5saRv9x7pmjkEQQpHoMup5Az9lhw+5AqlMlAkGX+8EsnvStAB/s06JA==, tarball: download/@opvious/stl-telemetry/0.16.9/aaf445cf2856ee0daea3a3e22d5ef4f544683734}
     peerDependencies:
       '@opentelemetry/api': ~1.3.0
     dependencies:
       '@opentelemetry/api': 1.3.0
-      '@opvious/stl-errors': 0.16.4
-      '@opvious/stl-utils': 0.16.4
+      '@opvious/stl-errors': 0.16.9
+      '@opvious/stl-utils': 0.16.9
       pino: 8.11.0
       pino-std-serializers: 6.1.0
     dev: false
 
-  /@opvious/stl-utils/0.16.4:
-    resolution: {integrity: sha512-azEzTAF1jd8mieuI0FGcdi0dxA031PLZ5ck6FapHTcj/j45EqC3dkHRWZStN66nOVLjXwuSPtMXcwUdSf5k5TA==, tarball: download/@opvious/stl-utils/0.16.4/0b6be851d063682a206c9af17da9128cc06272e6}
+  /@opvious/stl-utils/0.16.9:
+    resolution: {integrity: sha512-BxFD9AcUiyMQxNqzkUpvN0VTBu9x1LexuzW3AZSH3nsS9OLnvEm/0ABgQeZPtTpu3S8guib+UJQ/KrfWfYLvAQ==, tarball: download/@opvious/stl-utils/0.16.9/114e482269b16b5df81f738439fb7180fca282c2}
     dependencies:
-      '@opvious/stl-errors': 0.16.4
+      '@opvious/stl-errors': 0.16.9
       change-case: 4.1.2
       fast-deep-equal: 3.1.3
       picomatch: 2.3.1
@@ -1485,6 +1473,7 @@ packages:
 
   /asynckit/0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
+    dev: true
 
   /atomic-sleep/1.0.0:
     resolution: {integrity: sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==}
@@ -1827,6 +1816,7 @@ packages:
     engines: {node: '>= 0.8'}
     dependencies:
       delayed-stream: 1.0.0
+    dev: true
 
   /commander/9.3.0:
     resolution: {integrity: sha512-hv95iU5uXPbK83mjrJKuZyFM/LBAoCV/XhVGkS5Je6tl7sxr6A0ITMw5WoRV46/UaJ46Nllm3Xt7IaJhXTIkzw==}
@@ -1851,14 +1841,6 @@ packages:
   /convert-source-map/2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
     dev: true
-
-  /cross-fetch/3.1.5:
-    resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
-    dependencies:
-      node-fetch: 2.6.7
-    transitivePeerDependencies:
-      - encoding
-    dev: false
 
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
@@ -1920,6 +1902,7 @@ packages:
   /delayed-stream/1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
+    dev: true
 
   /detect-newline/3.1.0:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
@@ -2204,11 +2187,6 @@ packages:
       jest-util: 29.3.1
     dev: true
 
-  /extract-files/9.0.0:
-    resolution: {integrity: sha512-CvdFfHkC95B4bBBk36hcEmvdR2awOdhhVUYH6S/zrVj3477zven/fJMYg7121h4T1xHZC+tetUpubpAhxwI7hQ==}
-    engines: {node: ^10.17.0 || ^12.0.0 || >= 13.7.0}
-    dev: false
-
   /fast-deep-equal/3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -2292,6 +2270,7 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
+    dev: true
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
@@ -2387,20 +2366,6 @@ packages:
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
     dev: true
-
-  /graphql-request/5.0.0_graphql@16.6.0:
-    resolution: {integrity: sha512-SpVEnIo2J5k2+Zf76cUkdvIRaq5FMZvGQYnA4lUWYbc99m+fHh4CZYRRO/Ff4tCLQ613fzCm3SiDT64ubW5Gyw==}
-    peerDependencies:
-      graphql: 14 - 16
-    dependencies:
-      '@graphql-typed-document-node/core': 3.1.1_graphql@16.6.0
-      cross-fetch: 3.1.5
-      extract-files: 9.0.0
-      form-data: 3.0.1
-      graphql: 16.6.0
-    transitivePeerDependencies:
-      - encoding
-    dev: false
 
   /graphql/16.6.0:
     resolution: {integrity: sha512-KPIBPDlW7NxrbT/eh4qPXz5FiFdL5UbaA0XUNz2Rp3Z3hqBSkbj0GVjwFDztsWVauZUWsbKHgMg++sk8UX0bkw==}
@@ -3244,12 +3209,14 @@ packages:
   /mime-db/1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
+    dev: true
 
   /mime-types/2.1.35:
     resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.52.0
+    dev: true
 
   /mimic-fn/2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
@@ -3297,6 +3264,7 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
+    dev: true
 
   /node-int64/0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
@@ -3933,10 +3901,6 @@ packages:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
     dev: true
 
-  /tiny-typed-emitter/2.1.0:
-    resolution: {integrity: sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==}
-    dev: false
-
   /tmpl/1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
     dev: true
@@ -3954,6 +3918,7 @@ packages:
 
   /tr46/0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+    dev: true
 
   /ts-essentials/9.3.0_typescript@4.8.4:
     resolution: {integrity: sha512-XeiCboEyBG8UqXZtXl59bWEi4ZgOqRsogFDI6WDGIF1LmzbYiAkIwjkXN6zZWWl4re/lsOqMlYfe8KA0XiiEPw==}
@@ -4150,12 +4115,14 @@ packages:
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+    dev: true
 
   /whatwg-url/5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
+    dev: true
 
   /which/2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
