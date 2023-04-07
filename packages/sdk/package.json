@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious.html",
@@ -39,12 +39,12 @@
     "@opvious/stl-telemetry": "^0.16.9",
     "@opvious/stl-utils": "^0.16.9",
     "backoff": "^2.5.0",
-    "graphql": "^16.6.0"
+    "graphql": "^16.6.0",
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "@types/backoff": "^2.5.2",
-    "@types/node-fetch": "^2.6.2",
-    "node-fetch": "^2.6.7"
+    "@types/node-fetch": "^2.6.2"
   },
   "jest": {
     "coverageDirectory": "../../out/coverage/sdk",
