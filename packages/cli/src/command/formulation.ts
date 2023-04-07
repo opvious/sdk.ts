@@ -37,6 +37,7 @@ export function formulationCommand(): Command {
     .addCommand(registerSpecificationCommand())
     .addCommand(validateSpecification())
     .addCommand(listFormulationsCommand())
+    .addCommand(listFormulationTagsCommand())
     .addCommand(fetchOutlineCommand())
     .addCommand(deleteFormulationCommand())
     .addCommand(shareFormulationCommand())
@@ -178,6 +179,50 @@ function listFormulationsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} formulation(s).\n`);
+        display('' + table);
+      })
+    );
+}
+
+function listFormulationTagsCommand(): Command {
+  return newCommand()
+    .command('list-tags <name>')
+    .description('list formulation tags')
+    .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
+    .action(
+      contextualAction(async function (name, opts) {
+        const {client, spinner} = this;
+        spinner.start('Fetching formulation tags...');
+        const table = new Table();
+        const limit = +opts.limit;
+        let count = 0;
+        let cursor: string | undefined;
+        do {
+          const paginated = await client.paginateFormulationTags({
+            formulationName: name,
+            first: Math.min(PAGE_LIMIT, limit - count),
+            after: cursor,
+          });
+          for (const node of paginated.nodes) {
+            table.cell('name', node.name);
+            table.cell(
+              'created',
+              DateTime.fromISO(node.createdAt).toRelative()
+            );
+            table.cell(
+              'updated',
+              DateTime.fromISO(node.lastUpdatedAt).toRelative()
+            );
+            table.cell('revno', node.specification.revno);
+            table.newRow();
+          }
+          const {hasNextPage, endCursor} = paginated.info;
+          cursor = hasNextPage ? endCursor : undefined;
+          count += paginated.nodes.length;
+          spinner.text =
+            `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
+        } while (cursor && count < limit);
+        spinner.succeed(`Fetched ${count} tag(s).\n`);
         display('' + table);
       })
     );

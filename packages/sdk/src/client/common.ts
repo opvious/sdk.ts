@@ -19,9 +19,9 @@ import * as api from '@opvious/api';
 import {types as graphqlTypes} from '@opvious/api/graphql';
 import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
 import {Logger} from '@opvious/stl-telemetry';
+import {EventConsumer} from '@opvious/stl-utils';
 import * as gql from 'graphql';
 import fetch, {FetchError, Response} from 'node-fetch';
-import {TypedEmitter} from 'tiny-typed-emitter';
 import zlib from 'zlib';
 
 export type Label = graphqlTypes.Scalars['Label'];
@@ -185,7 +185,7 @@ export interface AttemptTrackerListeners {
  * Type-safe event-emitter used for tracking attempt progress. See the
  * associated listeners for more information.
  */
-export type AttemptTracker = TypedEmitter<AttemptTrackerListeners>;
+export type AttemptTracker = EventConsumer<AttemptTrackerListeners>;
 
 export interface BlueprintUrls {
   readonly apiUrl: URL;

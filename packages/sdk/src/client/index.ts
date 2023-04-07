@@ -19,12 +19,11 @@ import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api';
 import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
-import {withEmitter} from '@opvious/stl-utils';
+import {withEmitter, withTypedEmitter} from '@opvious/stl-utils';
 import backoff from 'backoff';
 import fetch, {FetchError, Response} from 'node-fetch';
 import stream from 'stream';
 import {pipeline as streamPipeline} from 'stream/promises';
-import {TypedEmitter} from 'tiny-typed-emitter';
 
 import {MarkPresent, strippingTrailingSlashes} from '../common';
 import {
@@ -226,6 +225,22 @@ export class OpviousClient {
     };
   }
 
+  /** Paginates available specification tags for a formulation. */
+  async paginateFormulationTags(
+    vars: api.graphqlTypes.PaginateFormulationTagsQueryVariables
+  ): Promise<Paginated<api.graphqlTypes.PaginatedFormulationTagFragment>> {
+    const res = await this.graphqlSdk.PaginateFormulationTags(vars);
+    const tags = okResultData(res).formulation?.tags;
+    if (!tags) {
+      throw clientErrors.unknownFormulation(vars.formulationName);
+    }
+    return {
+      info: tags.pageInfo,
+      totalCount: tags.totalCount,
+      nodes: tags.edges.map((e) => e.node),
+    };
+  }
+
   /** Deletes a formulation, returning true if a formulation was deleted. */
   async deleteFormulation(name: string): Promise<boolean> {
     const res = await this.graphqlSdk.DeleteFormulation({name});
@@ -296,58 +311,61 @@ export class OpviousClient {
    * unbounded), the event emitter will emit an error.
    */
   trackAttempt(uuid: Uuid): AttemptTracker {
-    const ee = new TypedEmitter<AttemptTrackerListeners>();
-    const xb = backoff.exponential();
-    xb.on('ready', () => {
-      this.graphqlSdk
-        .PollAttempt({uuid})
-        .then((res) => {
-          const {attempt} = okResultData(res);
-          assert(attempt, 'Unknown attempt');
-          switch (attempt.status) {
-            case 'PENDING': {
-              const notif = attempt.notifications.edges[0]?.node;
-              if (notif) {
-                ee.emit('notification', notif);
+    return withTypedEmitter<AttemptTrackerListeners>((ee) => {
+      const xb = backoff.exponential();
+      xb.on('ready', () => {
+        this.graphqlSdk
+          .PollAttempt({uuid})
+          .then((res) => {
+            const {attempt} = okResultData(res);
+            assert(attempt, 'Unknown attempt');
+            switch (attempt.status) {
+              case 'PENDING': {
+                const notif = attempt.notifications.edges[0]?.node;
+                if (notif) {
+                  ee.emit('notification', notif);
+                }
+                xb.backoff();
+                return;
               }
-              xb.backoff();
-              return;
+              case 'CANCELLED':
+                throw clientErrors.attemptCancelled(uuid);
+              case 'ERRORED': {
+                assert(
+                  attempt.outcome?.__typename === 'FailedOutcome',
+                  'Unexpected outcome %j',
+                  attempt.outcome
+                );
+                throw clientErrors.attemptErrored(
+                  uuid,
+                  attempt.outcome.failure
+                );
+              }
+              case 'INFEASIBLE':
+                ee.emit('infeasible');
+                return;
+              case 'UNBOUNDED':
+                ee.emit('unbounded');
+                return;
+              case 'FEASIBLE':
+              case 'OPTIMAL': {
+                assert(
+                  attempt.outcome?.__typename === 'FeasibleOutcome',
+                  'Unexpected outcome %j',
+                  attempt.outcome
+                );
+                ee.emit('feasible', attempt.outcome);
+                return;
+              }
+              default:
+                absurd(attempt.status);
             }
-            case 'CANCELLED':
-              throw clientErrors.attemptCancelled(uuid);
-            case 'ERRORED': {
-              assert(
-                attempt.outcome?.__typename === 'FailedOutcome',
-                'Unexpected outcome %j',
-                attempt.outcome
-              );
-              throw clientErrors.attemptErrored(uuid, attempt.outcome.failure);
-            }
-            case 'INFEASIBLE':
-              ee.emit('infeasible');
-              return;
-            case 'UNBOUNDED':
-              ee.emit('unbounded');
-              return;
-            case 'FEASIBLE':
-            case 'OPTIMAL': {
-              assert(
-                attempt.outcome?.__typename === 'FeasibleOutcome',
-                'Unexpected outcome %j',
-                attempt.outcome
-              );
-              ee.emit('feasible', attempt.outcome);
-              return;
-            }
-            default:
-              absurd(attempt.status);
-          }
-        })
-        .catch((err) => {
-          ee.emit('error', err);
-        });
-    }).backoff();
-    return ee;
+          })
+          .catch((err) => {
+            ee.emit('error', err);
+          });
+      }).backoff();
+    });
   }
 
   /**
