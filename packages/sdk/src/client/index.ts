@@ -53,6 +53,8 @@ export {
 export class OpviousClient {
   private constructor(
     private readonly telemetry: Telemetry,
+    /** Whether the client was created with an API token. */
+    readonly authenticated: boolean,
     /** Base endpoint to the GraphQL API. */
     readonly apiEndpoint: string,
     /** Base optimization hub endpoint. */
@@ -66,9 +68,12 @@ export class OpviousClient {
     const tel = opts?.telemetry?.via(packageInfo) ?? noopTelemetry();
     const {logger} = tel;
 
+    const headers: Record<string, string> = {
+      'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
+    };
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
-    if (!auth) {
-      throw clientErrors.missingAuthorization();
+    if (auth) {
+      headers.authorization = auth.includes(' ') ? auth : 'Bearer ' + auth;
     }
 
     const domain = opts?.domain ?? process.env.OPVIOUS_DOMAIN;
@@ -84,10 +89,7 @@ export class OpviousClient {
     );
 
     const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
-      headers: {
-        'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
-        authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-      },
+      headers,
       encoders: {
         'application/json': jsonBrotliEncoder(logger),
       },
@@ -104,7 +106,14 @@ export class OpviousClient {
     const graphqlSdk = api.createGraphqlSdk(sdk);
 
     logger.debug('Created new client.');
-    return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk, graphqlSdk);
+    return new OpviousClient(
+      tel,
+      !!auth,
+      apiEndpoint,
+      hubEndpoint,
+      sdk,
+      graphqlSdk
+    );
   }
 
   // Solving

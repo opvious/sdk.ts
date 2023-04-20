@@ -4,19 +4,13 @@ import path from 'path';
 
 import * as sut from '../src';
 
-jest.setTimeout(30_000);
-
 const telemetry = RecordingTelemetry.forTesting();
 
-const TOKEN = process.env.OPVIOUS_TOKEN;
+const client = sut.OpviousClient.create({telemetry});
 
-(TOKEN ? describe : describe.skip)('client', () => {
-  let client: sut.OpviousClient;
+const ATTEMPT_TIMEOUT = 20_000;
 
-  beforeAll(() => {
-    client = sut.OpviousClient.create({authorization: TOKEN, telemetry});
-  });
-
+(client.authenticated ? describe : describe.skip)('client', () => {
   test('register and deletes specification', async () => {
     const formulationName = 'n-queens' + SUFFIX;
     await registerSpecification(client, formulationName, 'n-queens.md');
@@ -56,107 +50,119 @@ const TOKEN = process.env.OPVIOUS_TOKEN;
     // TODO: Check things...
   });
 
-  test('runs n-queens', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await registerSpecification(client, formulationName, 'n-queens.md');
+  test(
+    'runs n-queens attempt',
+    async () => {
+      const formulationName = 'n-queens' + SUFFIX;
+      await registerSpecification(client, formulationName, 'n-queens.md');
 
-    const {uuid} = await client.startAttempt({
-      formulationName,
-      inputs: {parameters: [{label: 'size', entries: [{key: [], value: 5}]}]},
-    });
+      const {uuid} = await client.startAttempt({
+        formulationName,
+        inputs: {parameters: [{label: 'size', entries: [{key: [], value: 5}]}]},
+      });
 
-    const outcome = await client.waitForFeasibleOutcome(uuid);
-    expect(outcome).toMatchObject({isOptimal: true});
+      const outcome = await client.waitForFeasibleOutcome(uuid);
+      expect(outcome).toMatchObject({isOptimal: true});
 
-    const fetched = await client.fetchAttempt(uuid);
-    expect(fetched).toMatchObject({
-      outline: {
-        parameters: [{label: 'size', isIntegral: true}],
-      },
-    });
-
-    const inputs = await client.fetchAttemptInputs(uuid);
-    expect(inputs).toEqual({
-      dimensions: [],
-      parameters: [
-        {
-          label: 'size',
-          defaultValue: 0,
-          entries: [{key: [], value: 5}],
+      const fetched = await client.fetchAttempt(uuid);
+      expect(fetched).toMatchObject({
+        outline: {
+          parameters: [{label: 'size', isIntegral: true}],
         },
-      ],
-      pinnedVariables: [],
-    });
-  });
+      });
 
-  test('runs set-cover', async () => {
-    const formulationName = 'set-cover' + SUFFIX;
-    await registerSpecification(client, formulationName, 'set-cover.md');
-    const {uuid} = await client.startAttempt({
-      formulationName,
-      inputs: {
-        dimensions: [
-          {label: 'sets', items: ['s1', 's2']},
-          {label: 'vertices', items: ['v1', 'v2', 'v3']},
-        ],
+      const inputs = await client.fetchAttemptInputs(uuid);
+      expect(inputs).toEqual({
+        dimensions: [],
         parameters: [
           {
-            label: 'coverage',
-            entries: [
-              {key: ['s1', 'v1']},
-              {key: ['s1', 'v2']},
-              {key: ['s2', 'v2']},
-              {key: ['s2', 'v3']},
-            ],
+            label: 'size',
+            defaultValue: 0,
+            entries: [{key: [], value: 5}],
           },
         ],
-      },
-    });
-    const outcome = await client.waitForFeasibleOutcome(uuid);
-    expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
-  });
+        pinnedVariables: [],
+      });
+    },
+    ATTEMPT_TIMEOUT
+  );
 
-  test('runs relaxed sudoku', async () => {
-    const formulationName = 'sudoku' + SUFFIX;
-    await registerSpecification(client, formulationName, 'sudoku.md');
-    const {uuid} = await client.startAttempt({
-      formulationName,
-      inputs: {
-        parameters: [
-          {
-            label: 'hints',
-            entries: [
-              {key: [0, 0, 1]},
-              {key: [0, 1, 2]},
-              {key: [0, 2, 3]},
-              {key: [1, 0, 3]}, // Conflicting hint.
-              {key: [1, 3, 3]},
-            ],
-          },
-        ],
-      },
-      options: {
-        relaxation: {
-          penalty: 'DEVIATION_CARDINALITY',
-          constraints: [{label: 'matchHint', deficitBound: -1}],
-        },
-      },
-    });
-    const outcome = await client.waitForFeasibleOutcome(uuid);
-    expect(outcome).toMatchObject({isOptimal: true});
-    const outputs = await client.fetchAttemptOutputs(uuid);
-    expect(outputs).toMatchObject({
-      variables: [
-        {
-          label: 'matchHint_deficit',
-          entries: [
-            {key: [1, 0, 3], value: -1}, // Same key as above.
+  test(
+    'runs set-cover attempt',
+    async () => {
+      const formulationName = 'set-cover' + SUFFIX;
+      await registerSpecification(client, formulationName, 'set-cover.md');
+      const {uuid} = await client.startAttempt({
+        formulationName,
+        inputs: {
+          dimensions: [
+            {label: 'sets', items: ['s1', 's2']},
+            {label: 'vertices', items: ['v1', 'v2', 'v3']},
+          ],
+          parameters: [
+            {
+              label: 'coverage',
+              entries: [
+                {key: ['s1', 'v1']},
+                {key: ['s1', 'v2']},
+                {key: ['s2', 'v2']},
+                {key: ['s2', 'v3']},
+              ],
+            },
           ],
         },
-        {label: 'positions'},
-      ],
-    });
-  });
+      });
+      const outcome = await client.waitForFeasibleOutcome(uuid);
+      expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
+    },
+    ATTEMPT_TIMEOUT
+  );
+
+  test(
+    'runs relaxed sudoku attempt',
+    async () => {
+      const formulationName = 'sudoku' + SUFFIX;
+      await registerSpecification(client, formulationName, 'sudoku.md');
+      const {uuid} = await client.startAttempt({
+        formulationName,
+        inputs: {
+          parameters: [
+            {
+              label: 'hints',
+              entries: [
+                {key: [0, 0, 1]},
+                {key: [0, 1, 2]},
+                {key: [0, 2, 3]},
+                {key: [1, 0, 3]}, // Conflicting hint.
+                {key: [1, 3, 3]},
+              ],
+            },
+          ],
+        },
+        options: {
+          relaxation: {
+            penalty: 'DEVIATION_CARDINALITY',
+            constraints: [{label: 'matchHint', deficitBound: -1}],
+          },
+        },
+      });
+      const outcome = await client.waitForFeasibleOutcome(uuid);
+      expect(outcome).toMatchObject({isOptimal: true});
+      const outputs = await client.fetchAttemptOutputs(uuid);
+      expect(outputs).toMatchObject({
+        variables: [
+          {
+            label: 'matchHint_deficit',
+            entries: [
+              {key: [1, 0, 3], value: -1}, // Same key as above.
+            ],
+          },
+          {label: 'positions'},
+        ],
+      });
+    },
+    ATTEMPT_TIMEOUT
+  );
 });
 
 const SUFFIX = '-ts-sdk-test';
