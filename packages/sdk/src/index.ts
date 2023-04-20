@@ -15,4 +15,4 @@
  * the License.
  */
 
-export * from './client';
+export * from './client/index.js';

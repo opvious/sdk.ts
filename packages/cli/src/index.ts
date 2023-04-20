@@ -15,9 +15,5 @@
  * the License.
  */
 
-import {commandCodes} from './command';
-
-export {mainCommand} from './command';
-export {telemetry} from './common';
-
-export const packageCodes = commandCodes;
+export {mainCommand} from './command/index.js';
+export {telemetry} from './common.js';

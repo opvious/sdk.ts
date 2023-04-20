@@ -19,8 +19,8 @@ import {Command} from 'commander';
 import Table from 'easy-table';
 import {DateTime} from 'luxon';
 
-import {display} from '../io';
-import {contextualAction, newCommand} from './common';
+import {display} from '../io.js';
+import {contextualAction, newCommand} from './common.js';
 
 export function accountCommand(): Command {
   return newCommand()

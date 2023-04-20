@@ -27,8 +27,8 @@ import {DateTime} from 'luxon';
 import * as api from 'opvious/api';
 import path from 'path';
 
-import {display} from '../io';
-import {contextualAction, newCommand} from './common';
+import {display} from '../io.js';
+import {contextualAction, newCommand} from './common.js';
 
 export function formulationCommand(): Command {
   return newCommand()

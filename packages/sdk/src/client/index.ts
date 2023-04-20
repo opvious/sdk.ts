@@ -19,13 +19,14 @@ import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api';
 import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
-import {withEmitter, withTypedEmitter} from '@opvious/stl-utils';
+import {withEmitter, withTypedEmitter} from '@opvious/stl-utils/events';
+import {MarkPresent} from '@opvious/stl-utils/objects';
 import backoff from 'backoff';
 import fetch, {FetchError, Response} from 'node-fetch';
 import stream from 'stream';
 import {pipeline as streamPipeline} from 'stream/promises';
 
-import {MarkPresent, strippingTrailingSlashes} from '../common';
+import {packageInfo, strippingTrailingSlashes} from '../common.js';
 import {
   assertHasCode,
   AttemptTracker,
@@ -38,16 +39,15 @@ import {
   okResultData,
   Paginated,
   Uuid,
-} from './common';
+} from './common.js';
 
 export {
   AttemptTracker,
   AttemptTrackerListeners,
   BlueprintUrls,
-  clientErrorCodes,
   FeasibleOutcomeFragment,
   Paginated,
-} from './common';
+} from './common.js';
 
 /** Opvious API client. */
 export class OpviousClient {
@@ -63,7 +63,7 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
-    const tel = opts?.telemetry ?? noopTelemetry();
+    const tel = opts?.telemetry?.via(packageInfo) ?? noopTelemetry();
     const {logger} = tel;
 
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
@@ -142,6 +142,7 @@ export class OpviousClient {
         },
       });
       assertHasCode(res, 200);
+      assert(res.raw.body, 'Missing body');
       await streamPipeline(res.raw.body, pt);
     });
   }
@@ -451,6 +452,7 @@ export class OpviousClient {
         throw clientErrors.unknownAttempt(uuid);
       }
       assertHasCode(res, 200);
+      assert(res.raw.body, 'Missing body');
       await streamPipeline(res.raw.body, pt);
     });
   }

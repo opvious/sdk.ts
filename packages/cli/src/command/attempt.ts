@@ -28,9 +28,9 @@ import {
 } from 'opvious-sheets';
 import {pipeline as streamPipeline} from 'stream/promises';
 
-import {humanizeMillis} from '../common';
-import {display} from '../io';
-import {contextualAction, newCommand} from './common';
+import {humanizeMillis} from '../common.js';
+import {display} from '../io.js';
+import {contextualAction, newCommand} from './common.js';
 
 export function attemptCommand(): Command {
   return newCommand()

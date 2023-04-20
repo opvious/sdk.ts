@@ -17,21 +17,23 @@
  * the License.
  */
 
-const {packageCodes, mainCommand, telemetry} = require('../lib');
+import {mainCommand, telemetry} from '../lib/index.js';
+import codes from '../lib/index.errors.js';
 
 telemetry.logger.info(
   {data: {cwd: process.cwd(), argv: process.argv, execArgv: process.execArgv}},
   'Running command...',
   process.argv.join(' ')
 );
+
 mainCommand().parseAsync(process.argv).catch((err) => {
-  if (err.code === packageCodes.CommandAborted) {
+  if (err.code === codes.CommandAborted) {
     process.exitCode = err.tags?.exitCode ?? 0;
     return;
   }
   process.exitCode = 1;
   telemetry.logger.fatal({err}, 'Command failed.');
-  if (!packageCodes.has(err.code)) {
+  if (!codes.has(err.code)) {
     console.error(err);
   }
 });

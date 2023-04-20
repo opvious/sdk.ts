@@ -1,6 +1,6 @@
 {
   "name": "opvious-sheets",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious spreadsheet utilities",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_sheets.html",
@@ -9,52 +9,27 @@
   ],
   "author": "Opvious Engineering <oss@opvious.io>",
   "license": "Apache-2.0",
-  "main": "./lib",
+  "type": "module",
   "files": [
     "lib/"
   ],
+  "exports": "./lib/index.js",
   "scripts": {
     "build": "tsc -p src",
     "clean": "rm -rf lib node_modules out",
     "prepare": "pnpm run build",
-    "test": "jest",
+    "test": "vitest",
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "@opvious/api": "^0.14.2",
-    "@opvious/stl-errors": "^0.16.9",
-    "@opvious/stl-utils": "^0.16.9",
+    "@opvious/api": "^0.14.3",
+    "@opvious/stl-errors": "^0.17.12",
+    "@opvious/stl-utils": "^0.17.12",
     "change-case": "^4.1.2",
     "pluralize": "^8.0.0"
   },
   "devDependencies": {
     "@types/pluralize": "^0.0.29"
-  },
-  "jest": {
-    "coverageDirectory": "../../out/coverage/sheets",
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/test/"
-    ],
-    "setupFilesAfterEnv": [
-      "jest-extended/all"
-    ],
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      ".d.ts",
-      ".js"
-    ],
-    "transform": {
-      "^.+\\.ts$": [
-        "ts-jest",
-        {
-          "babelConfig": {
-            "compact": false
-          },
-          "tsconfig": "test/tsconfig.json"
-        }
-      ]
-    }
   },
   "typedoc": {
     "entryPoint": "src/index.ts"

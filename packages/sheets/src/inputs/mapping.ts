@@ -18,9 +18,9 @@
 import {Schema} from '@opvious/api/sdk';
 import {assert} from '@opvious/stl-errors';
 
-import {isIndicator, Label, TensorOutline} from '../common';
-import {A1, Range, rangeA1} from '../spreadsheet';
-import {Header, newHeader, Table} from '../table';
+import {isIndicator, Label, TensorOutline} from '../common.js';
+import {A1, Range, rangeA1} from '../spreadsheet/index.js';
+import {Header, newHeader, Table} from '../table.js';
 
 /**
  * Associates model data with table columns. The returned mapping may be partial
