@@ -18,15 +18,17 @@
 import {assert, check} from '@opvious/stl-errors';
 import {resolvable} from '@opvious/stl-utils/functions';
 import {Command} from 'commander';
+import Table from 'easy-table';
 import Fifo from 'fast-fifo';
 import fs from 'fs';
+import {DateTime} from 'luxon';
 import readline from 'readline';
 
 import {COMMAND_NAME, logPath, packageInfo} from '../common.js';
 import {display} from '../io.js';
 import {accountCommand} from './account.js';
 import {attemptCommand} from './attempt.js';
-import {newCommand} from './common.js';
+import {contextualAction, newCommand} from './common.js';
 import {formulationCommand} from './formulation.js';
 
 export function mainCommand(): Command {
@@ -38,11 +40,35 @@ export function mainCommand(): Command {
     .addCommand(accountCommand())
     .addCommand(attemptCommand())
     .addCommand(formulationCommand())
-    .addCommand(logCommand())
-    .addCommand(versionCommand());
+    .addCommand(showCredentialsCommand())
+    .addCommand(showLogPathCommand())
+    .addCommand(showVersionCommand());
 }
 
-function logCommand(): Command {
+function showCredentialsCommand(): Command {
+  return newCommand()
+    .command('me')
+    .description('display current credentials')
+    .action(
+      contextualAction(async function () {
+        const {client, spinner} = this;
+        spinner.start('Fetching credentials...');
+        const member = await client.fetchMember();
+        spinner.succeed('Fetched credentials.\n');
+        const table = new Table();
+        table.cell('email', member.email);
+        table.cell(
+          'registered',
+          DateTime.fromISO(member.registeredAt).toRelative()
+        );
+        table.cell('tier', member.productTier);
+        table.newRow();
+        display(table.printTransposed());
+      })
+    );
+}
+
+function showLogPathCommand(): Command {
   return newCommand()
     .command('log')
     .description('display log path')
@@ -127,7 +153,7 @@ function lastLines(fp: string, count: number): Promise<Fifo<string>> {
   return ret;
 }
 
-function versionCommand(): Command {
+function showVersionCommand(): Command {
   return newCommand()
     .command('version')
     .description('display version')

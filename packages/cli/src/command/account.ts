@@ -26,34 +26,9 @@ export function accountCommand(): Command {
   return newCommand()
     .command('account')
     .description('account commands')
-    .addCommand(showCredentialsCommand())
     .addCommand(listAuthorizationsCommand())
     .addCommand(generateAuthorizationCommand())
     .addCommand(revokeAuthorizationCommand());
-}
-
-function showCredentialsCommand(): Command {
-  return newCommand()
-    .command('me')
-    .description('display current credentials')
-    .action(
-      contextualAction(async function () {
-        const {client, spinner} = this;
-        spinner.start('Fetching credentials...');
-        const member = await client.fetchMember();
-        spinner.succeed('Fetched credentials.\n');
-        const table = new Table();
-        table.cell('email', member.email);
-        table.cell(
-          'registered',
-          DateTime.fromISO(member.registeredAt).toRelative()
-        );
-        table.cell('tier', member.productTier);
-        table.cell('credits', member.creditBalance);
-        table.newRow();
-        display(table.printTransposed());
-      })
-    );
 }
 
 function listAuthorizationsCommand(): Command {
