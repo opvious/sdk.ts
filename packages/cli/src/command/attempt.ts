@@ -254,7 +254,9 @@ function listAttemptsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'attempts...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} attempt(s).\n`);
-        display('' + table);
+        if (count) {
+          display('' + table);
+        }
       })
     );
 }
@@ -293,7 +295,9 @@ function listAttemptNotificationsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'notifications...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} notification(s).\n`);
-        display('' + table);
+        if (count) {
+          display('' + table);
+        }
       })
     );
 }

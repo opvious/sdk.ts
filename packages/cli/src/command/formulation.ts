@@ -179,7 +179,9 @@ function listFormulationsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} formulation(s).\n`);
-        display('' + table);
+        if (count) {
+          display('' + table);
+        }
       })
     );
 }
@@ -223,7 +225,9 @@ function listFormulationTagsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'formulations...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} tag(s).\n`);
-        display('' + table);
+        if (count) {
+          display('' + table);
+        }
       })
     );
 }
