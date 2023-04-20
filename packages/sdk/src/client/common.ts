@@ -15,18 +15,20 @@
  * the License.
  */
 
-import * as api from '@opvious/api';
 import {types as graphqlTypes} from '@opvious/api/graphql';
 import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
 import {Logger} from '@opvious/stl-telemetry';
 import {EventConsumer} from '@opvious/stl-utils/events';
 import * as gql from 'graphql';
 import fetch, {FetchError, Response} from 'node-fetch';
+import type {Encoder, ResponseCode} from 'yasdk-runtime';
 import zlib from 'zlib';
 
 export type Label = graphqlTypes.Scalars['Label'];
 
 export type Uuid = graphqlTypes.Scalars['Uuid'];
+
+const TRACE_HEADER = 'opvious-trace';
 
 export const [clientErrors, clientErrorCodes] = errorFactories({
   definitions: {
@@ -34,15 +36,19 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
       message: 'API fetch failed: ' + cause.message,
       cause,
     }),
-    unexpectedResponse: (res: Response, data: unknown) => ({
-      message: `Response had unexpected status ${res.status}: ${JSON.stringify(
-        data
-      )}`,
+    unexpectedResponseStatus: (res: Response, data: unknown) => ({
+      message:
+        `Response${traceDetails(res.headers.get(TRACE_HEADER))} had ` +
+        `unexpected status ${res.status}: ${JSON.stringify(data)}`,
       tags: {status: res.status, data},
     }),
-    graphqlRequestErrored: (errs: ReadonlyArray<gql.GraphQLError>) => ({
+    graphqlRequestErrored: (
+      errs: ReadonlyArray<gql.GraphQLError>,
+      trace: string | undefined
+    ) => ({
       message:
-        'GraphQL response included errors: ' + errs.map(formatError).join(', '),
+        `GraphQL response${traceDetails(trace)} included errors: ` +
+        errs.map(formatError).join(', '),
       tags: {errors: errs},
     }),
     attemptCancelled: (uuid: Uuid) => ({
@@ -53,7 +59,6 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
       message: `Attempt errored: ${errorMessage(failure)}`,
       tags: {uuid, failure},
     }),
-    missingAuthorization: 'No authorization found',
     unknownAttempt: (uuid: Uuid) => ({
       message: `Attempt ${uuid} was not found`,
       tags: {uuid},
@@ -67,15 +72,17 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
   },
 });
 
+function traceDetails(trace?: string | null): string {
+  return trace ? ` (trace '${trace}')` : '';
+}
+
 const ENCODING_HEADER = 'content-encoding';
 
 const BROTLI_QUALITY = 4;
 
 const COMPRESSION_THRESHOLD = 2 ** 16; // 64 kiB
 
-export function jsonBrotliEncoder(
-  log: Logger
-): api.Encoder<unknown, typeof fetch> {
+export function jsonBrotliEncoder(log: Logger): Encoder<unknown, typeof fetch> {
   return (body, ctx) => {
     const str = JSON.stringify(body);
     const len = str.length;
@@ -98,22 +105,22 @@ export function jsonBrotliEncoder(
   };
 }
 
-interface HasCode<C extends api.ResponseCode = api.ResponseCode> {
+interface HasCode<C extends ResponseCode = ResponseCode> {
   readonly code: C;
   readonly data: unknown;
   readonly raw: Response;
 }
 
-export function assertHasCode<
-  O extends HasCode,
-  C extends api.ResponseCode = 200
->(res: O, code: C): void {
+export function assertHasCode<O extends HasCode, C extends ResponseCode = 200>(
+  res: O,
+  code: C
+): void {
   if (res.code !== code) {
-    throw clientErrors.unexpectedResponse(res.raw, res.data);
+    throw clientErrors.unexpectedResponseStatus(res.raw, res.data);
   }
 }
 
-export function okData<O extends HasCode, C extends api.ResponseCode = 200>(
+export function okData<O extends HasCode, C extends ResponseCode = 200>(
   res: O,
   code?: C
 ): (O & HasCode<C>)['data'] {
@@ -121,9 +128,11 @@ export function okData<O extends HasCode, C extends api.ResponseCode = 200>(
   return (res as any).data;
 }
 
-export function okResultData<V>(res: gql.ExecutionResult<V, unknown>): V {
+export function okResultData<V>(
+  res: gql.ExecutionResult<V, {readonly trace?: string}>
+): V {
   if (res.errors?.length) {
-    throw clientErrors.graphqlRequestErrored(res.errors);
+    throw clientErrors.graphqlRequestErrored(res.errors, res.extensions?.trace);
   }
   return check.isPresent(res.data);
 }

@@ -440,7 +440,7 @@ export class OpviousClient {
       case 404:
         throw clientErrors.unknownAttempt(uuid);
       default:
-        throw clientErrors.unexpectedResponse(res.raw, res.data);
+        throw clientErrors.unexpectedResponseStatus(res.raw, res.data);
     }
   }
 
@@ -484,7 +484,7 @@ export class OpviousClient {
       case 409:
         return undefined;
       default:
-        throw clientErrors.unexpectedResponse(res.raw, res.data);
+        throw clientErrors.unexpectedResponseStatus(res.raw, res.data);
     }
   }
 
