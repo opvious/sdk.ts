@@ -18,10 +18,16 @@
 import {Schema} from '@opvious/api/sdk';
 import {assert} from '@opvious/stl-errors';
 
-import {isAlmost, KeyItem, Label} from '../common';
-import {Column, Columns, Range, Spreadsheet, Value} from '../spreadsheet';
-import {commonHeight} from '../table';
-import {InputMapping, TensorMapping} from './mapping';
+import {isAlmost, KeyItem, Label} from '../common.js';
+import {
+  Column,
+  Columns,
+  Range,
+  Spreadsheet,
+  Value,
+} from '../spreadsheet/index.js';
+import {commonHeight} from '../table.js';
+import {InputMapping, TensorMapping} from './mapping.js';
 
 /**
  * Extracts data from the tables into a format suitable for starting a solve.

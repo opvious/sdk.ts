@@ -28,9 +28,9 @@ import {
 } from 'opvious-sheets';
 import {pipeline as streamPipeline} from 'stream/promises';
 
-import {humanizeMillis} from '../common';
-import {display} from '../io';
-import {contextualAction, newCommand} from './common';
+import {humanizeMillis} from '../common.js';
+import {display} from '../io.js';
+import {contextualAction, newCommand} from './common.js';
 
 export function attemptCommand(): Command {
   return newCommand()
@@ -254,7 +254,9 @@ function listAttemptsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'attempts...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} attempt(s).\n`);
-        display('' + table);
+        if (count) {
+          display('' + table);
+        }
       })
     );
 }
@@ -293,7 +295,9 @@ function listAttemptNotificationsCommand(): Command {
             `Fetched ${count} of ${paginated.totalCount} ` + 'notifications...';
         } while (cursor && count < limit);
         spinner.succeed(`Fetched ${count} notification(s).\n`);
-        display('' + table);
+        if (count) {
+          display('' + table);
+        }
       })
     );
 }

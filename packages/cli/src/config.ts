@@ -1,4 +1,4 @@
-import Ajv from 'ajv';
+import {default as Ajv_} from 'ajv';
 import {readFile} from 'fs/promises';
 import yaml from 'js-yaml';
 import {OpviousClient} from 'opvious';
@@ -6,9 +6,11 @@ import os from 'os';
 import path from 'path';
 import {DeepWritable} from 'ts-essentials';
 
-import {telemetry} from './common';
+import {telemetry} from './common.js';
 
 const {logger} = telemetry;
+
+const Ajv = Ajv_.default ?? Ajv_;
 
 export interface Config {
   readonly profileName?: string;

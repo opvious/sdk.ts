@@ -17,7 +17,7 @@
 
 import {ifPresent} from '@opvious/stl-utils/functions';
 import {noCase} from 'change-case';
-import {singular} from 'pluralize';
+import pluralize from 'pluralize';
 import {Opaque} from 'ts-essentials';
 
 import {
@@ -27,7 +27,7 @@ import {
   SheetName,
   Spreadsheet,
   Value,
-} from './spreadsheet';
+} from './spreadsheet/index.js';
 
 export function identifyTables(ss: Spreadsheet): ReadonlyArray<Table> {
   const tables: Table[] = [];
@@ -161,7 +161,7 @@ export function newHeader(arg: string): Header {
       suffixes = [];
     }
   }
-  let ret = words(arg).map(singular).join(' ');
+  let ret = words(arg).map(pluralize.singular).join(' ');
   if (suffixes.length) {
     ret += ` (${suffixes.join(' ')})`;
   }

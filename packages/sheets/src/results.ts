@@ -18,8 +18,8 @@
 import {Schema} from '@opvious/api/sdk';
 import {assert, check} from '@opvious/stl-errors';
 
-import {isAlmost, KeyItem} from './common';
-import {InputMapping} from './inputs';
+import {isAlmost, KeyItem} from './common.js';
+import {InputMapping} from './inputs/index.js';
 import {
   Column,
   Columns,
@@ -28,8 +28,8 @@ import {
   Spreadsheet,
   toValue,
   Value,
-} from './spreadsheet';
-import {commonHeight} from './table';
+} from './spreadsheet/index.js';
+import {commonHeight} from './table.js';
 
 export function resetResults(mapping: InputMapping, ss: Spreadsheet): void {
   const resets: Range[] = [];

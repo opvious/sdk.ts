@@ -16,23 +16,16 @@
  */
 
 import {appTelemetry} from '@opvious/stl-bootstrap';
-import {errorFactories} from '@opvious/stl-errors';
-import {enclosingPackageInfo} from '@opvious/stl-telemetry';
 import humanizeDuration from 'humanize-duration';
+import __inlinable from 'inlinable';
 import os from 'os';
 import path from 'path';
 
-export const [errors, codes] = errorFactories({
-  definitions: {
-    setupFailed: {},
-    actionFailed: {},
-    commandAborted: {},
-  },
-});
-
 export const COMMAND_NAME = 'opvious';
 
-export const packageInfo = enclosingPackageInfo(__dirname);
+export const packageInfo = __inlinable((ctx) =>
+  ctx.enclosing(import.meta.url).metadata()
+);
 
 export function isCommanderError(err: unknown): boolean {
   const code = (err as any)?.code;

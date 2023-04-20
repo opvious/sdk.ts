@@ -19,13 +19,14 @@ import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api';
 import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
-import {withEmitter, withTypedEmitter} from '@opvious/stl-utils';
+import {withEmitter, withTypedEmitter} from '@opvious/stl-utils/events';
+import {MarkPresent} from '@opvious/stl-utils/objects';
 import backoff from 'backoff';
 import fetch, {FetchError, Response} from 'node-fetch';
 import stream from 'stream';
 import {pipeline as streamPipeline} from 'stream/promises';
 
-import {MarkPresent, strippingTrailingSlashes} from '../common';
+import {packageInfo, strippingTrailingSlashes} from '../common.js';
 import {
   assertHasCode,
   AttemptTracker,
@@ -38,21 +39,22 @@ import {
   okResultData,
   Paginated,
   Uuid,
-} from './common';
+} from './common.js';
 
 export {
   AttemptTracker,
   AttemptTrackerListeners,
   BlueprintUrls,
-  clientErrorCodes,
   FeasibleOutcomeFragment,
   Paginated,
-} from './common';
+} from './common.js';
 
 /** Opvious API client. */
 export class OpviousClient {
   private constructor(
     private readonly telemetry: Telemetry,
+    /** Whether the client was created with an API token. */
+    readonly authenticated: boolean,
     /** Base endpoint to the GraphQL API. */
     readonly apiEndpoint: string,
     /** Base optimization hub endpoint. */
@@ -63,12 +65,15 @@ export class OpviousClient {
 
   /** Creates a new client. */
   static create(opts?: OpviousClientOptions): OpviousClient {
-    const tel = opts?.telemetry ?? noopTelemetry();
+    const tel = opts?.telemetry?.via(packageInfo) ?? noopTelemetry();
     const {logger} = tel;
 
+    const headers: Record<string, string> = {
+      'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
+    };
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
-    if (!auth) {
-      throw clientErrors.missingAuthorization();
+    if (auth) {
+      headers.authorization = auth.includes(' ') ? auth : 'Bearer ' + auth;
     }
 
     const domain = opts?.domain ?? process.env.OPVIOUS_DOMAIN;
@@ -84,10 +89,7 @@ export class OpviousClient {
     );
 
     const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
-      headers: {
-        'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
-        authorization: auth.includes(' ') ? auth : 'Bearer ' + auth,
-      },
+      headers,
       encoders: {
         'application/json': jsonBrotliEncoder(logger),
       },
@@ -104,7 +106,14 @@ export class OpviousClient {
     const graphqlSdk = api.createGraphqlSdk(sdk);
 
     logger.debug('Created new client.');
-    return new OpviousClient(tel, apiEndpoint, hubEndpoint, sdk, graphqlSdk);
+    return new OpviousClient(
+      tel,
+      !!auth,
+      apiEndpoint,
+      hubEndpoint,
+      sdk,
+      graphqlSdk
+    );
   }
 
   // Solving
@@ -142,6 +151,7 @@ export class OpviousClient {
         },
       });
       assertHasCode(res, 200);
+      assert(res.raw.body, 'Missing body');
       await streamPipeline(res.raw.body, pt);
     });
   }
@@ -451,6 +461,7 @@ export class OpviousClient {
         throw clientErrors.unknownAttempt(uuid);
       }
       assertHasCode(res, 200);
+      assert(res.raw.body, 'Missing body');
       await streamPipeline(res.raw.body, pt);
     });
   }

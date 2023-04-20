@@ -15,7 +15,7 @@
  * the License.
  */
 
-export * from './inputs';
-export * from './results';
-export * from './spreadsheet';
-export * from './table';
+export * from './inputs/index.js';
+export * from './results.js';
+export * from './spreadsheet/index.js';
+export * from './table.js';

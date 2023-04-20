@@ -19,7 +19,7 @@ import * as api from '@opvious/api';
 import {types as graphqlTypes} from '@opvious/api/graphql';
 import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
 import {Logger} from '@opvious/stl-telemetry';
-import {EventConsumer} from '@opvious/stl-utils';
+import {EventConsumer} from '@opvious/stl-utils/events';
 import * as gql from 'graphql';
 import fetch, {FetchError, Response} from 'node-fetch';
 import zlib from 'zlib';

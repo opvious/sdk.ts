@@ -25,7 +25,7 @@ import {
   SheetName,
   Spreadsheet,
   Value,
-} from './common';
+} from './common.js';
 
 /** In-memory spreadsheet implementation. */
 export class InMemorySpreadsheet implements Spreadsheet {

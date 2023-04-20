@@ -22,8 +22,8 @@ import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
 
-import {COMMAND_NAME, telemetry} from '../common';
-import {loadConfig} from '../config';
+import {COMMAND_NAME, telemetry} from '../common.js';
+import {loadConfig} from '../config.js';
 
 const [errors, codes] = errorFactories({
   definitions: {
@@ -38,7 +38,8 @@ const [errors, codes] = errorFactories({
 });
 
 export const commandAbortedError = errors.commandAborted;
-export const commandCodes = codes;
+
+export const errorCodes = codes;
 
 export function newCommand(): Command {
   return new Command().exitOverride((cause) => {

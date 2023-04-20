@@ -16,20 +16,18 @@
  */
 
 import {assert, check} from '@opvious/stl-errors';
-import {resolvable} from '@opvious/stl-utils';
+import {resolvable} from '@opvious/stl-utils/functions';
 import {Command} from 'commander';
 import Fifo from 'fast-fifo';
 import fs from 'fs';
 import readline from 'readline';
 
-import {COMMAND_NAME, logPath, packageInfo} from '../common';
-import {display} from '../io';
-import {accountCommand} from './account';
-import {attemptCommand} from './attempt';
-import {newCommand} from './common';
-import {formulationCommand} from './formulation';
-
-export {commandCodes} from './common';
+import {COMMAND_NAME, logPath, packageInfo} from '../common.js';
+import {display} from '../io.js';
+import {accountCommand} from './account.js';
+import {attemptCommand} from './attempt.js';
+import {newCommand} from './common.js';
+import {formulationCommand} from './formulation.js';
 
 export function mainCommand(): Command {
   return newCommand()

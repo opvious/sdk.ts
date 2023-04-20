@@ -22,5 +22,5 @@ export {
   KeyBox,
   KeyBoxKind,
   TensorMapping,
-} from './mapping';
-export {extractInputValues} from './values';
+} from './mapping.js';
+export {extractInputValues} from './values.js';

@@ -15,5 +15,5 @@
  * the License.
  */
 
-export * from './common';
-export * from './local';
+export * from './common.js';
+export * from './local.js';
