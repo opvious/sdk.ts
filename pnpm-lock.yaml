@@ -94,7 +94,7 @@ importers:
   packages/sdk:
     specifiers:
       '@opentelemetry/api': ~1.3.0
-      '@opvious/api': ^0.15.0
+      '@opvious/api': ^0.15.1
       '@opvious/stl-errors': ^0.17.12
       '@opvious/stl-telemetry': ^0.17.12
       '@opvious/stl-utils': ^0.17.12
@@ -103,9 +103,10 @@ importers:
       graphql: ^16.6.0
       inlinable: ^0.1.10
       node-fetch: ^3.3.1
+      yasdk-runtime: ^0.2.29
     dependencies:
       '@opentelemetry/api': 1.3.0
-      '@opvious/api': 0.15.0
+      '@opvious/api': 0.15.1
       '@opvious/stl-errors': 0.17.12
       '@opvious/stl-telemetry': 0.17.12_@opentelemetry+api@1.3.0
       '@opvious/stl-utils': 0.17.12
@@ -115,17 +116,18 @@ importers:
     devDependencies:
       '@types/backoff': 2.5.2
       inlinable: 0.1.10
+      yasdk-runtime: 0.2.29
 
   packages/sheets:
     specifiers:
-      '@opvious/api': ^0.15.0
+      '@opvious/api': ^0.15.1
       '@opvious/stl-errors': ^0.17.12
       '@opvious/stl-utils': ^0.17.12
       '@types/pluralize': ^0.0.29
       change-case: ^4.1.2
       pluralize: ^8.0.0
     dependencies:
-      '@opvious/api': 0.15.0
+      '@opvious/api': 0.15.1
       '@opvious/stl-errors': 0.17.12
       '@opvious/stl-utils': 0.17.12
       change-case: 4.1.2
@@ -644,8 +646,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@opvious/api/0.15.0:
-    resolution: {integrity: sha512-Cy8xAfqQ5v32yIMpuS0THOV953I7BJuMvpAz1CIvDc/icZW/MYu2F0/0L6wHtxOES8wjWfkTh9m3daj38PeuSQ==, tarball: download/@opvious/api/0.15.0/90ed36a687fbb8099808a6903c8c4e7092ca4635}
+  /@opvious/api/0.15.1:
+    resolution: {integrity: sha512-sHDJR4XoRN88qkM2/4c6p230MvdLpr76u1AsTxmbbdfSLPIo+vS2AHd1IujqB/gsAuBfLHhk55OlbM/ZZK1eJA==, tarball: download/@opvious/api/0.15.1/def133c21056f27f0b73a46ad9d9b2d966fb9f4a}
     dependencies:
       graphql: 16.6.0
     dev: false
@@ -3465,6 +3467,10 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 20.2.9
+    dev: true
+
+  /yasdk-runtime/0.2.29:
+    resolution: {integrity: sha512-iAZsVBPB04ab8N6it2dlfcnJk19Cb004mDzmIFhm3LmZ5/YhTyFoMcqjyangOKrOoeLIxjgfzoJUdsZJf+bWdg==}
     dev: true
 
   /yocto-queue/0.1.0:
