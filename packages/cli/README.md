@@ -7,7 +7,7 @@ A command line interface to the Opvious API.
 First install this package via [Node.js][]'s built-in `npm`:
 
 ```sh
-npm i opvious-cli
+npm i -g opvious-cli
 ```
 
 Then set a valid [Opvious API token][token] as `OPVIOUS_TOKEN` environment
@@ -40,7 +40,7 @@ By default the first profile from the configuration is selected. You can select
 another one by specifying the `-P, --profile` flag when running any command.
 
 ```sh
-opvious -P second formulation list # List the second profile's formulations
+opvious -P second formulation list
 ```
 
 

@@ -87,7 +87,6 @@ export function jsonBrotliEncoder(log: Logger): Encoder<unknown, typeof fetch> {
     const str = JSON.stringify(body);
     const len = str.length;
     if (len <= COMPRESSION_THRESHOLD) {
-      log.debug({data: {len}}, 'Sending uncompressed body...');
       return str;
     }
     ctx.headers[ENCODING_HEADER] = 'br';
@@ -100,7 +99,7 @@ export function jsonBrotliEncoder(log: Logger): Encoder<unknown, typeof fetch> {
     process.nextTick(() => {
       compressed.end(str);
     });
-    log.debug({data: {len}}, 'Sending compressed body...');
+    log.debug('Compressing request body... [uncompressed_size=%s]', len);
     return compressed;
   };
 }

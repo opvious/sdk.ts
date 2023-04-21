@@ -95,12 +95,26 @@ export class OpviousClient {
       },
       fetch: async (url, init): Promise<Response> => {
         otel.propagation.inject(otel.context.active(), init.headers);
+        logger.debug({data: {req: init}}, 'Sending API request...');
+        let res;
         try {
-          return await fetch(url, init);
+          res = await fetch(url, init);
         } catch (err) {
           assertCause(err instanceof FetchError, err);
           throw clientErrors.fetchFailed(err);
         }
+        logger.debug(
+          {
+            data: {
+              res: {
+                status: res.status,
+                headers: Object.fromEntries(res.headers),
+              },
+            },
+          },
+          'Received API response.'
+        );
+        return res;
       },
     });
     const graphqlSdk = api.createGraphqlSdk(sdk);
@@ -123,17 +137,6 @@ export class OpviousClient {
     args: api.RequestBody<'runSolve'>
   ): Promise<api.ResponseData<'runSolve', 200>> {
     const res = await this.sdk.runSolve({body: args});
-    return okData(res);
-  }
-
-  /** Parses and validates a specification's sources. */
-  async parseSources(args: {
-    readonly sources: ReadonlyArray<string>;
-    readonly includeOutline?: boolean;
-  }): Promise<api.ResponseData<'parseSources', 200>> {
-    const res = await this.sdk.parseSources({
-      body: {sources: args.sources, outline: args.includeOutline},
-    });
     return okData(res);
   }
 
@@ -187,6 +190,17 @@ export class OpviousClient {
   }
 
   // Formulations
+
+  /** Parses and validates a formulation's sources. */
+  async parseSources(args: {
+    readonly sources: ReadonlyArray<string>;
+    readonly includeOutline?: boolean;
+  }): Promise<api.ResponseData<'parseSources', 200>> {
+    const res = await this.sdk.parseSources({
+      body: {sources: args.sources, outline: args.includeOutline},
+    });
+    return okData(res);
+  }
 
   /** Adds a new specification. */
   async registerSpecification(
