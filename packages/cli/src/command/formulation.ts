@@ -26,6 +26,7 @@ import {readFile} from 'fs/promises';
 import {DateTime} from 'luxon';
 import * as api from 'opvious/api';
 import path from 'path';
+import url from 'url';
 
 import {display} from '../io.js';
 import {contextualAction, newCommand} from './common.js';
@@ -252,8 +253,16 @@ function deleteFormulationCommand(): Command {
 
 function registerSpecificationCommand(): Command {
   return newCommand()
-    .command('register <path...>')
-    .description('add a new specification')
+    .command('register')
+    .description(
+      'add a new specification. the formulation will be created ' +
+        'automatically if it doesn\'t already exist'
+    )
+    .argument(
+      '<path...>',
+      'path(s) to source files. publicly available http(s) URLs are also ' +
+        'supported'
+    )
     .option(
       '-f, --formulation <name>',
       'formulation name, defaults to the trimmed name of the first source file'
@@ -271,14 +280,12 @@ function registerSpecificationCommand(): Command {
       contextualAction(async function (srcPaths, opts) {
         const {client, spinner} = this;
         spinner.start('Reading sources...');
-        const srcs = await Promise.all(
-          srcPaths.map((p: string) => readFile(p, 'utf8'))
-        );
+        const srcs = await Promise.all(srcPaths.map(readSource));
         const desc = await ifPresent(opts.description, (p) =>
           readFile(p, 'utf8')
         );
         spinner
-          .succeed(`Read ${srcs.length} sources.`)
+          .succeed(`Read ${srcs.length} source(s).`)
           .start('Registering specification...');
         const spec = await client.registerSpecification({
           formulationName: opts.formulation ?? path.parse(srcPaths[0]).name,
@@ -292,6 +299,20 @@ function registerSpecificationCommand(): Command {
     );
 }
 
+async function readSource(src: string): Promise<string> {
+  let u;
+  try {
+    u = new URL(src);
+  } catch (_err) {
+    u = url.pathToFileURL(src);
+  }
+  if (u.protocol === 'file:') {
+    return readFile(u, 'utf8');
+  }
+  const res = await fetch(u);
+  return res.text();
+}
+
 const DEBOUNCE_MS = 250;
 
 enum ErrorFormat {
@@ -302,8 +323,9 @@ enum ErrorFormat {
 
 function validateSpecification(): Command {
   return newCommand()
-    .command('validate <path...>')
+    .command('validate')
     .description('validate a specification\'s sources')
+    .argument('<path...>', 'local path(s) to source files')
     .option(
       '-a, --show-all',
       'always show all errors. by default non-fatal errors are hidden when ' +
