@@ -24,11 +24,11 @@ opvious -h # Shows the list of available commands
 
 As an alternative to `OPVIOUS_TOKEN`, the CLI supports reading a configuration
 file from `~/.config/opvious/cli.yml` (this location can be changed by setting
-the `OPVIOUS_CONFIG` environment variable):
-
-This configuration allows declaring multiple profiles to access the API 
+the `OPVIOUS_CONFIG` environment variable). This configuration allows declaring
+multiple profiles to access the API.
 
 ```yaml
+# Sample configuration with two profiles
 profiles:
   - name: first
     authorization: $FIRST_OPVIOUS_TOKEN
@@ -38,6 +38,10 @@ profiles:
 
 By default the first profile from the configuration is selected. You can select
 another one by specifying the `-P, --profile` flag when running any command.
+
+```sh
+opvious -P second formulation list # List the second profile's formulations
+```
 
 
 [Node.js]: https://nodejs.org
