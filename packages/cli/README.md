@@ -1,32 +1,48 @@
 # Opvious CLI [![NPM version](https://img.shields.io/npm/v/opvious-cli.svg)](https://www.npmjs.com/package/opvious-cli)
 
+A command line interface to the Opvious API.
+
+## Quickstart
+
+First install this package via [Node.js][]'s built-in `npm`:
+
 ```sh
 npm i opvious-cli
 ```
 
-This package provides a command line interface to the Opvious API.
-
-## Quickstart
-
-> You'll need an API access token to run commands. You can generate one at
-> https://hub.beta.opvious.io/authorizations.
-
-To get started, create a configuration file with at least one profile (its
-location can be changed by setting the `OPVIOUS_CONFIG` environment variable):
-
-```yaml
-# ~/.config/opvious/cli.yml
-profiles:
-  - name: my-profile
-    authorization: $OPVIOUS_TOKEN # API access token
-```
-
-You should now be able to run all CLI commands, for example:
+Then set a valid [Opvious API token][token] as `OPVIOUS_TOKEN` environment
+variable in your local environment (for example inside your Bash profile).
 
 ```sh
-$ opvious formulation list # List available formulations
-$ opvious -h # Show help message
+opvious me # Should show your account's email
+opvious -h # Shows the list of available commands
 ```
 
-By default the first profile from the configuration is selected. You can run
-with another one by specifying the `-P, --profile` flag.
+## Next steps
+
+### Profiles
+
+As an alternative to `OPVIOUS_TOKEN`, the CLI supports reading a configuration
+file from `~/.config/opvious/cli.yml` (this location can be changed by setting
+the `OPVIOUS_CONFIG` environment variable). This configuration allows declaring
+multiple profiles to access the API.
+
+```yaml
+# Sample configuration with two profiles
+profiles:
+  - name: first
+    authorization: $FIRST_OPVIOUS_TOKEN
+  - name: second
+    authorization: $SECOND_OPVIOUS_TOKEN
+```
+
+By default the first profile from the configuration is selected. You can select
+another one by specifying the `-P, --profile` flag when running any command.
+
+```sh
+opvious -P second formulation list # List the second profile's formulations
+```
+
+
+[Node.js]: https://nodejs.org
+[token]: https://hub.beta.opvious.io/authorizations.
