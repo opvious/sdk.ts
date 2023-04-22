@@ -25,11 +25,13 @@ export async function loadConfig(args: {
 
   const env = args.env ?? process.env;
   const dpath = env[CONFIG_DPATH_EVAR] ?? DEFAULT_CONFIG_DPATH;
-
   const cfgFile = await loadConfigFile(dpath);
+
   let auth: string | undefined;
   let profile: Profile | undefined;
-  if (cfgFile) {
+  if (env.OPVIOUS_TOKEN && !args.profile) {
+    auth = env.OPVIOUS_TOKEN;
+  } else if (cfgFile) {
     if (args.profile) {
       profile = cfgFile.profiles.find((p) => p.name === args.profile);
     } else {
@@ -39,11 +41,10 @@ export async function loadConfig(args: {
       throw new Error('Unknown or missing profile');
     }
     auth = profile.authorization.startsWith('$')
-      ? process.env[profile.authorization.substring(1)]
+      ? env[profile.authorization.substring(1)]
       : profile.authorization;
-  } else {
-    auth = process.env.OPVIOUS_TOKEN;
   }
+
   return {
     profileName: profile?.name,
     client: OpviousClient.create({
