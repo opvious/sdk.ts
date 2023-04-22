@@ -66,12 +66,12 @@ export function contextualAction(
         .info(`Initialized context. [trace=${traceId}]`)
         .start('Loading client...');
 
-      let config;
+      let cfg;
       try {
-        config = await loadConfig({profile: opts.profile});
+        cfg = await loadConfig({profile: opts.profile});
         let msg = 'Loaded client.';
-        if (config.profileName) {
-          msg += ` [profile=${config.profileName}]`;
+        if (cfg.profileName) {
+          msg += ` [profile=${cfg.profileName}]`;
         }
         spinner.succeed(msg);
       } catch (cause) {
@@ -79,8 +79,13 @@ export function contextualAction(
         throw errors.setupFailed(cause);
       }
 
+      const ctx: ActionContext = {
+        client: cfg.client,
+        spinner,
+        token: cfg.token,
+      };
       try {
-        await fn.call({client: config.client, spinner}, ...args);
+        await fn.call(ctx, ...args);
       } catch (cause) {
         spinner.fail(errorMessage(cause));
         throw errors.actionFailed(cause);
@@ -92,4 +97,5 @@ export function contextualAction(
 export interface ActionContext {
   readonly spinner: Ora;
   readonly client: OpviousClient;
+  readonly token?: string;
 }

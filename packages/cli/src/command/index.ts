@@ -41,6 +41,7 @@ export function mainCommand(): Command {
     .addCommand(attemptCommand())
     .addCommand(formulationCommand())
     .addCommand(showCredentialsCommand())
+    .addCommand(showTokenCommand())
     .addCommand(showLogPathCommand())
     .addCommand(showVersionCommand());
 }
@@ -48,7 +49,7 @@ export function mainCommand(): Command {
 function showCredentialsCommand(): Command {
   return newCommand()
     .command('me')
-    .description('display current credentials')
+    .description('display active account information')
     .action(
       contextualAction(async function () {
         const {client, spinner} = this;
@@ -64,6 +65,21 @@ function showCredentialsCommand(): Command {
         table.cell('tier', member.productTier);
         table.newRow();
         display(table.printTransposed());
+      })
+    );
+}
+
+function showTokenCommand(): Command {
+  return newCommand()
+    .command('token')
+    .description('display active API token')
+    .action(
+      contextualAction(async function () {
+        const {token} = this;
+        if (!token) {
+          throw new Error('No active token');
+        }
+        display(token);
       })
     );
 }
