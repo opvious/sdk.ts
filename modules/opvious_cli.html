@@ -30,21 +30,46 @@
 </code></pre>
 <p>Then set a valid <a href="https://hub.beta.opvious.io/authorizations.">Opvious API token</a> as <code>OPVIOUS_TOKEN</code> environment
 variable in your local environment (for example inside your Bash profile).</p>
-<pre><code class="language-sh"><span class="hl-0">opvious me </span><span class="hl-4"># Should show your account&#39;s email</span><br/><span class="hl-0">opvious -h </span><span class="hl-4"># Shows the list of available commands</span>
+<pre><code class="language-sh"><span class="hl-0">opvious me </span><span class="hl-4"># Should show your account&#39;s email</span>
+</code></pre>
+
+<a href="#sample-usage" id="sample-usage" style="color: inherit; text-decoration: none;">
+  <h2>Sample usage</h2>
+</a>
+
+<a href="#validating-formulations-interactively" id="validating-formulations-interactively" style="color: inherit; text-decoration: none;">
+  <h3>Validating formulations interactively</h3>
+</a>
+<pre><code class="language-sh"><span class="hl-0">opvious formulation validate -w sources/*</span>
+</code></pre>
+
+<a href="#creating-and-listing-existing-formulations" id="creating-and-listing-existing-formulations" style="color: inherit; text-decoration: none;">
+  <h3>Creating and listing existing formulations</h3>
+</a>
+<pre><code class="language-sh"><span class="hl-0">opvious formulation register -f </span><span class="hl-3">&quot;</span><span class="hl-2">$NAME</span><span class="hl-3">&quot;</span><span class="hl-0"> sources/*</span><br/><span class="hl-0">opvious formulation list</span>
+</code></pre>
+
+<a href="#displaying-a-formulation39s-outline" id="displaying-a-formulation39s-outline" style="color: inherit; text-decoration: none;">
+  <h3>Displaying a formulation&#39;s outline</h3>
+</a>
+<pre><code class="language-sh"><span class="hl-0">opvious formulation outline </span><span class="hl-3">&quot;</span><span class="hl-2">$NAME</span><span class="hl-3">&quot;</span>
 </code></pre>
 
 <a href="#next-steps" id="next-steps" style="color: inherit; text-decoration: none;">
   <h2>Next steps</h2>
 </a>
+<p>You can view the full list of available commands by running:</p>
+<pre><code class="language-sh"><span class="hl-0">opvious -h</span>
+</code></pre>
 
-<a href="#profiles" id="profiles" style="color: inherit; text-decoration: none;">
-  <h3>Profiles</h3>
+<a href="#configuration-profiles" id="configuration-profiles" style="color: inherit; text-decoration: none;">
+  <h3>Configuration profiles</h3>
 </a>
 <p>As an alternative to <code>OPVIOUS_TOKEN</code>, the CLI supports reading a configuration
 file from <code>~/.config/opvious/cli.yml</code> (this location can be changed by setting
 the <code>OPVIOUS_CONFIG</code> environment variable). This configuration allows declaring
 multiple profiles to access the API.</p>
-<pre><code class="language-yaml"><span class="hl-4"># Sample configuration with two profiles</span><br/><span class="hl-8">profiles</span><span class="hl-0">:</span><br/><span class="hl-0">  - </span><span class="hl-8">name</span><span class="hl-0">: </span><span class="hl-9">first</span><br/><span class="hl-0">    </span><span class="hl-8">authorization</span><span class="hl-0">: </span><span class="hl-9">$FIRST_OPVIOUS_TOKEN</span><br/><span class="hl-0">  - </span><span class="hl-8">name</span><span class="hl-0">: </span><span class="hl-9">second</span><br/><span class="hl-0">    </span><span class="hl-8">authorization</span><span class="hl-0">: </span><span class="hl-9">$SECOND_OPVIOUS_TOKEN</span>
+<pre><code class="language-yaml"><span class="hl-4"># Sample configuration with two profiles</span><br/><span class="hl-8">profiles</span><span class="hl-0">:</span><br/><span class="hl-0">  - </span><span class="hl-8">name</span><span class="hl-0">: </span><span class="hl-9">first</span><br/><span class="hl-0">    </span><span class="hl-8">token</span><span class="hl-0">: </span><span class="hl-9">$FIRST_OPVIOUS_TOKEN</span><br/><span class="hl-0">  - </span><span class="hl-8">name</span><span class="hl-0">: </span><span class="hl-9">second</span><br/><span class="hl-0">    </span><span class="hl-8">token</span><span class="hl-0">: </span><span class="hl-9">$SECOND_OPVIOUS_TOKEN</span>
 </code></pre>
 <p>By default the first profile from the configuration is selected. You can select
 another one by specifying the <code>-P, --profile</code> flag when running any command.</p>
