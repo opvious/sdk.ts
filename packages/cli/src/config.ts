@@ -15,6 +15,7 @@ const Ajv = Ajv_.default ?? Ajv_;
 export interface Config {
   readonly profileName?: string;
   readonly client: OpviousClient;
+  readonly token?: string;
 }
 
 export async function loadConfig(args: {
@@ -27,10 +28,10 @@ export async function loadConfig(args: {
   const dpath = env[CONFIG_DPATH_EVAR] ?? DEFAULT_CONFIG_DPATH;
   const cfgFile = await loadConfigFile(dpath);
 
-  let auth: string | undefined;
+  let token: string | undefined;
   let profile: Profile | undefined;
   if (env.OPVIOUS_TOKEN && !args.profile) {
-    auth = env.OPVIOUS_TOKEN;
+    token = env.OPVIOUS_TOKEN;
   } else if (cfgFile) {
     if (args.profile) {
       profile = cfgFile.profiles.find((p) => p.name === args.profile);
@@ -40,18 +41,19 @@ export async function loadConfig(args: {
     if (!profile) {
       throw new Error('Unknown or missing profile');
     }
-    auth = profile.authorization.startsWith('$')
-      ? env[profile.authorization.substring(1)]
-      : profile.authorization;
+    token = profile.token.startsWith('$')
+      ? env[profile.token.substring(1)]
+      : profile.token;
   }
 
   return {
     profileName: profile?.name,
     client: OpviousClient.create({
-      authorization: auth,
+      authorization: token,
       domain: profile?.domain,
       telemetry,
     }),
+    token,
   };
 }
 
@@ -64,7 +66,7 @@ const ajv = new Ajv();
 interface Profile {
   readonly name: string;
   readonly domain?: string;
-  readonly authorization: string;
+  readonly token: string;
 }
 
 const validate = ajv.compile<DeepWritable<ConfigFile>>({
@@ -75,11 +77,11 @@ const validate = ajv.compile<DeepWritable<ConfigFile>>({
       type: 'array',
       items: {
         type: 'object',
-        required: ['name', 'authorization'],
+        required: ['name', 'token'],
         properties: {
           name: {type: 'string'},
           domain: {type: 'string'},
-          authorization: {type: 'string'},
+          token: {type: 'string'},
         },
       },
     },
