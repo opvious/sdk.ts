@@ -70,6 +70,7 @@ export class OpviousClient {
 
     const headers: Record<string, string> = {
       'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
+      'opvious-client': `TypeScript SDK v${packageInfo.version}`,
     };
     const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
     if (auth) {
