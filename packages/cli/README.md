@@ -15,12 +15,38 @@ variable in your local environment (for example inside your Bash profile).
 
 ```sh
 opvious me # Should show your account's email
-opvious -h # Shows the list of available commands
+```
+
+## Sample usage
+
+### Validating formulations interactively
+
+```sh
+opvious formulation validate -w sources/*
+```
+
+### Creating and listing existing formulations
+
+```sh
+opvious formulation register -f "$NAME" sources/*
+opvious formulation list
+```
+
+### Displaying a formulation's outline
+
+```sh
+opvious formulation outline "$NAME"
 ```
 
 ## Next steps
 
-### Profiles
+You can view the full list of available commands by running:
+
+```sh
+opvious -h
+```
+
+### Configuration profiles
 
 As an alternative to `OPVIOUS_TOKEN`, the CLI supports reading a configuration
 file from `~/.config/opvious/cli.yml` (this location can be changed by setting
@@ -31,9 +57,9 @@ multiple profiles to access the API.
 # Sample configuration with two profiles
 profiles:
   - name: first
-    authorization: $FIRST_OPVIOUS_TOKEN
+    token: $FIRST_OPVIOUS_TOKEN
   - name: second
-    authorization: $SECOND_OPVIOUS_TOKEN
+    token: $SECOND_OPVIOUS_TOKEN
 ```
 
 By default the first profile from the configuration is selected. You can select
