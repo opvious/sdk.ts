@@ -25,6 +25,8 @@ opvious me # Should show your account's email
 opvious formulation validate -w sources/*
 ```
 
+[![asciicast](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy.svg)](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy)
+
 ### Creating and listing existing formulations
 
 ```sh
