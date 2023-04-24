@@ -41,7 +41,6 @@ export function mainCommand(): Command {
     .addCommand(attemptCommand())
     .addCommand(formulationCommand())
     .addCommand(showCredentialsCommand())
-    .addCommand(showTokenCommand())
     .addCommand(showLogPathCommand())
     .addCommand(showVersionCommand());
 }
@@ -50,9 +49,17 @@ function showCredentialsCommand(): Command {
   return newCommand()
     .command('me')
     .description('display active account information')
+    .option('-t, --token', 'show API token instead')
     .action(
-      contextualAction(async function () {
-        const {client, spinner} = this;
+      contextualAction(async function (opts) {
+        const {client, spinner, token} = this;
+        if (!token) {
+          throw new Error('Unauthenticated');
+        }
+        if (opts.token) {
+          display(token);
+          return;
+        }
         spinner.start('Fetching credentials...');
         const member = await client.fetchMember();
         spinner.succeed('Fetched credentials.\n');
@@ -65,21 +72,6 @@ function showCredentialsCommand(): Command {
         table.cell('tier', member.productTier);
         table.newRow();
         display(table.printTransposed());
-      })
-    );
-}
-
-function showTokenCommand(): Command {
-  return newCommand()
-    .command('token')
-    .description('display active API token')
-    .action(
-      contextualAction(async function () {
-        const {token} = this;
-        if (!token) {
-          throw new Error('No active token');
-        }
-        display(token);
       })
     );
 }
