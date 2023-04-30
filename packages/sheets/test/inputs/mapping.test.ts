@@ -1,7 +1,7 @@
 import {Schema} from '@opvious/api/sdk';
 
-import * as sut from '../../src/inputs/mapping';
-import {extractTables, SHEET, tensorOutline} from '../helpers';
+import * as sut from '../../src/inputs/mapping.js';
+import {extractTables, SHEET, tensorOutline} from '../helpers.js';
 
 describe('computes mapping', () => {
   test.each<[string, string, Schema<'Outline'>, sut.InputMapping]>([

@@ -1,10 +1,10 @@
 import {Schema} from '@opvious/api/sdk';
 
-import {computeInputMapping} from '../src/inputs';
-import * as sut from '../src/results';
-import {InMemorySpreadsheet} from '../src/spreadsheet';
-import {identifyTables} from '../src/table';
-import {SHEET, tensorOutline} from './helpers';
+import {computeInputMapping} from '../src/inputs/index.js';
+import * as sut from '../src/results.js';
+import {InMemorySpreadsheet} from '../src/spreadsheet/index.js';
+import {identifyTables} from '../src/table.js';
+import {SHEET, tensorOutline} from './helpers.js';
 
 describe('populates results', () => {
   test.each<
@@ -38,6 +38,7 @@ describe('populates results', () => {
           tensorOutline('v2', [{dimensionLabel: 'd2'}], true),
         ],
         constraints: [],
+        objectives: [],
       },
       [
         {
@@ -69,6 +70,7 @@ describe('populates results', () => {
         parameters: [tensorOutline('p1', [])],
         variables: [tensorOutline('v1', [])],
         constraints: [],
+        objectives: [],
       },
       [
         {
@@ -104,6 +106,7 @@ describe('populates results', () => {
           ),
         ],
         constraints: [],
+        objectives: [],
       },
       [
         {
@@ -135,6 +138,7 @@ describe('populates results', () => {
         parameters: [],
         variables: [tensorOutline('v1', [{dimensionLabel: 'd1'}], true)],
         constraints: [],
+        objectives: [],
       },
       [
         {
@@ -171,6 +175,7 @@ describe('populates results', () => {
           ]),
         ],
         constraints: [],
+        objectives: [],
       },
       [
         {
@@ -213,6 +218,7 @@ describe('populates results', () => {
           ),
         ],
         constraints: [],
+        objectives: [],
       },
       [
         {
@@ -249,6 +255,7 @@ describe('populates results', () => {
           ),
         ],
         constraints: [],
+        objectives: [],
       },
       [
         {

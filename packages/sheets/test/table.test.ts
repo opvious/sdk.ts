@@ -1,5 +1,5 @@
-import {InMemorySpreadsheet} from '../src/spreadsheet';
-import * as sut from '../src/table';
+import {InMemorySpreadsheet} from '../src/spreadsheet/index.js';
+import * as sut from '../src/table.js';
 
 const h = sut.newHeader;
 const SHEET = 's1';

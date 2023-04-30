@@ -60,35 +60,21 @@ function fetchOutlineCommand(): Command {
         const {revno, outline} = form.tag.specification;
         spinner.succeed(`Fetched outline. [revno=${revno}]\n`);
 
-        if (outline.objectives.length) {
-          const table = new Table();
-          for (const obj of outline.objectives) {
-            table.cell('label', obj.label);
-            table.cell('is_maximization', obj.isMaximization);
-            table.cell('is_quadratic', obj.isQuadratic);
-            table.newRow();
-          }
-          display('\n# Objectivex\n\n' + table);
-        } else {
-          display('\n# No objective');
-        }
-
-        const {constraints, dimensions, parameters, variables} = outline;
+        const {dimensions, parameters, variables, constraints, objectives} =
+          outline;
         if (dimensions.length) {
           const table = new Table();
           for (const dim of dimensions) {
-            table.cell('label', dim.label);
+            table.cell('dimension', dim.label);
             table.cell('numeric', dim.isNumeric);
             table.newRow();
           }
-          display('\n# Dimensions\n\n' + table);
-        } else {
-          display('\n# No dimensions');
+          display('' + table);
         }
         if (parameters.length) {
           const table = new Table();
           for (const param of parameters) {
-            table.cell('label', param.label);
+            table.cell('parameter', param.label);
             table.cell('integral', param.isIntegral);
             table.cell('bounds', `[${param.lowerBound}, ${param.upperBound}]`);
             table.cell('rank', param.bindings.length);
@@ -98,29 +84,12 @@ function fetchOutlineCommand(): Command {
             );
             table.newRow();
           }
-          display('\n# Parameters\n\n' + table);
-        } else {
-          display('\n# No parameters');
-        }
-        if (constraints.length) {
-          const table = new Table();
-          for (const constraint of constraints) {
-            table.cell('label', constraint.label);
-            table.cell('rank', constraint.bindings.length);
-            table.cell(
-              'bindings',
-              constraint.bindings.map(formatBinding).join(', ')
-            );
-            table.newRow();
-          }
-          display('\n# Constraints\n\n' + table);
-        } else {
-          display('\n# No constraints');
+          display('' + table);
         }
         if (variables.length) {
           const table = new Table();
           for (const variable of variables) {
-            table.cell('label', variable.label);
+            table.cell('variable', variable.label);
             table.cell('integral', variable.isIntegral);
             table.cell(
               'bounds',
@@ -133,9 +102,30 @@ function fetchOutlineCommand(): Command {
             );
             table.newRow();
           }
-          display('\n# Variables\n\n' + table);
-        } else {
-          display('\n# No variables');
+          display('' + table);
+        }
+        if (constraints.length) {
+          const table = new Table();
+          for (const constraint of constraints) {
+            table.cell('constraint', constraint.label);
+            table.cell('rank', constraint.bindings.length);
+            table.cell(
+              'bindings',
+              constraint.bindings.map(formatBinding).join(', ')
+            );
+            table.newRow();
+          }
+          display('' + table);
+        }
+        if (objectives.length) {
+          const table = new Table();
+          for (const obj of outline.objectives) {
+            table.cell('objective', obj.label);
+            table.cell('maximization', obj.isMaximization);
+            table.cell('quadratic', obj.isQuadratic);
+            table.newRow();
+          }
+          display('' + table);
         }
       })
     );

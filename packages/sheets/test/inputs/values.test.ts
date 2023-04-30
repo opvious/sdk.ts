@@ -1,10 +1,10 @@
 import {Schema} from '@opvious/api/sdk';
 
-import {computeInputMapping} from '../../src/inputs/mapping';
-import * as sut from '../../src/inputs/values';
-import {InMemorySpreadsheet} from '../../src/spreadsheet';
-import {identifyTables} from '../../src/table';
-import {SHEET, tensorOutline} from '../helpers';
+import {computeInputMapping} from '../../src/inputs/mapping.js';
+import * as sut from '../../src/inputs/values.js';
+import {InMemorySpreadsheet} from '../../src/spreadsheet/index.js';
+import {identifyTables} from '../../src/table.js';
+import {SHEET, tensorOutline} from '../helpers.js';
 
 describe('extract input values', () => {
   test.each<[string, string, Schema<'Outline'>, Schema<'SolveInputs'>]>([
@@ -32,6 +32,7 @@ describe('extract input values', () => {
         ],
         variables: [tensorOutline('v1', [{dimensionLabel: 'd1'}])],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [
@@ -62,10 +63,8 @@ describe('extract input values', () => {
               {key: ['b', 20], value: 1},
             ],
           },
-        ],
-        pinnedVariables: [
           {
-            label: 'v1',
+            label: 'v1_pin',
             entries: [{key: ['a'], value: 5}],
           },
         ],
@@ -93,6 +92,7 @@ describe('extract input values', () => {
         ],
         variables: [],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [
@@ -112,7 +112,6 @@ describe('extract input values', () => {
             ],
           },
         ],
-        pinnedVariables: [],
       },
     ],
     [
@@ -127,6 +126,7 @@ describe('extract input values', () => {
         parameters: [tensorOutline('p', [{dimensionLabel: 'd'}])],
         variables: [],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [{label: 'd', items: ['A', 'B', 'C', 'D']}],
@@ -140,7 +140,6 @@ describe('extract input values', () => {
             ],
           },
         ],
-        pinnedVariables: [],
       },
     ],
     [
@@ -164,6 +163,7 @@ describe('extract input values', () => {
         ],
         variables: [],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [
@@ -180,7 +180,6 @@ describe('extract input values', () => {
             ],
           },
         ],
-        pinnedVariables: [],
       },
     ],
     [
@@ -203,6 +202,7 @@ describe('extract input values', () => {
         ],
         variables: [],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [],
@@ -217,7 +217,6 @@ describe('extract input values', () => {
             ],
           },
         ],
-        pinnedVariables: [],
       },
     ],
   ])('handles %s case', (_desc, csv, sig, want) => {
