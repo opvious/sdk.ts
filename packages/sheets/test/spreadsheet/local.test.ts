@@ -1,4 +1,4 @@
-import * as sut from '../../src/spreadsheet/local';
+import * as sut from '../../src/spreadsheet/local.js';
 
 const SHEET = 's1';
 

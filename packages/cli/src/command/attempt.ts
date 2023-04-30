@@ -18,14 +18,8 @@
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {createWriteStream} from 'fs';
-import {readFile} from 'fs/promises';
-import {DateTime, Duration} from 'luxon';
-import {
-  computeInputMapping,
-  extractInputValues,
-  identifyTables,
-  InMemorySpreadsheet,
-} from 'opvious-sheets';
+import {DateTime} from 'luxon';
+import {loadSolveCandidate} from 'opvious';
 import {pipeline as streamPipeline} from 'stream/promises';
 
 import {humanizeMillis} from '../common.js';
@@ -47,98 +41,18 @@ function runAttemptCommand(): Command {
   return newCommand()
     .command('run')
     .description('run a new attempt')
-    .requiredOption('-f, --formulation <name>', 'formulation name')
-    .option('-t, --tag <name>', 'specification tag')
-    .option<ReadonlyArray<string>>(
-      '-s, --sheet <path>',
-      'path to input spreadsheet. may be specified multiple times.',
-      collect,
-      []
-    )
-    .option<ReadonlyArray<string>>(
-      '-r, --relax-constraint <label>',
-      'soften a constraint. may be specified multiple times.',
-      collect,
-      []
-    )
-    .option(
-      '-g, --relative-gap <gap>',
-      'relative gap threshold. 0.01 is 1%',
-      parseFloat,
-      0.01
-    )
-    .option<ReadonlyArray<string>>(
-      '--scalar <label=value>',
-      'scalar parameter value. may be specified multiple times.',
-      collect,
-      []
-    )
-    .option('--detach', 'do not wait for the attempt to complete')
-    .option('--solve-timeout <iso>', 'solve timeout', 'PT15S')
-    .option('--absolute-gap <gap>', 'absolute gap threshold', parseFloat)
-    .option(
-      '--relaxation-penalty <penalty>',
-      'penalization used for relaxed constraints',
-      'TOTAL_DEVIATION'
-    )
-    .option(
-      '--relaxation-objective-weight <weight>',
-      'original objective weight in the combined relaxed objective',
-      parseFloat,
-      0.1
-    )
+    .argument('<path>', 'path to candidate data')
+    .option('-j, --json-path <path>', 'JSONPath to nested data')
+    .option('-d, --detach', 'do not wait for the attempt to complete')
     .action(
-      contextualAction(async function (opts) {
+      contextualAction(async function (lp, opts) {
         const {client, spinner} = this;
-        spinner.start('Fetching outline...');
-        const form = await client.fetchFormulationOutline(
-          opts.formulation,
-          opts.tag
-        );
-        const spec = form.tag.specification;
-
-        spinner
-          .succeed(`Fetched outline. [revno=${spec.revno}]`)
-          .start('Gathering inputs...');
-        const sheets = await Promise.all(
-          opts.sheet.map(async (s: string) => [s, await readFile(s, 'utf8')])
-        );
-        for (const scalar of opts.scalar) {
-          const [key, value] = scalar.split('=');
-          if (value == null) {
-            throw new Error('Invalid scalar: ' + scalar);
-          }
-          sheets.push(['__scalar_' + key, `${key}\n${value}`]);
-        }
-        const ss = InMemorySpreadsheet.forCsvs(Object.fromEntries(sheets));
-        const tables = identifyTables(ss);
-        const mapping = computeInputMapping(tables, spec.outline);
-        const inputs = extractInputValues(mapping, ss);
-
-        spinner.succeed('Gathered inputs.').start('Starting attempt...');
-        const {uuid} = await client.startAttempt({
-          formulationName: opts.formulation,
-          specificationTagName: opts.tag,
-          inputs: {
-            parameters: inputs.parameters ?? [],
-            dimensions: inputs.dimensions,
-            pinnedVariables: inputs.pinnedVariables,
-          },
-          options: {
-            relativeGapThreshold: opts.relativeGap,
-            absoluteGapThreshold: opts.absoluteGap,
-            timeoutMillis: +Duration.fromISO(opts.solveTimeout),
-            relaxation: opts.relaxConstraint.length
-              ? {
-                  penalty: opts.relaxationPenalty,
-                  constraints: opts.relaxConstraint.map((l: string) => ({
-                    label: l,
-                  })),
-                  objectiveWeight: opts.relaxationObjectiveWeight,
-                }
-              : undefined,
-          },
+        spinner.start('Parsing candidate...');
+        const candidate = await loadSolveCandidate(lp, {
+          jsonPath: opts.jsonPath,
         });
+        spinner.succeed('Parsed candidate.').start('Starting attempt...');
+        const {uuid} = await client.startAttempt({candidate});
         spinner.succeed(`Started attempt. [uuid=${uuid}]`);
         if (opts.detach) {
           display('' + client.attemptUrl(uuid));
@@ -159,15 +73,15 @@ function runAttemptCommand(): Command {
               if (outcome.objectiveValue != null) {
                 details.push(`objective=${outcome.objectiveValue}`);
               }
-              spinner.succeed(`Attempt solved. [${details.join(', ')}]\n`);
+              spinner.succeed(`Problem solved. [${details.join(', ')}]\n`);
               ok();
             })
             .on('infeasible', () => {
-              spinner.warn('Attempt problem is infeasible.\n');
+              spinner.warn('Problem is infeasible.\n');
               ok();
             })
             .on('unbounded', () => {
-              spinner.warn('Attempt problem is unbounded.\n');
+              spinner.warn('Problem is unbounded.\n');
               ok();
             });
         });
@@ -192,8 +106,8 @@ function cancelAttemptCommand(): Command {
 function fetchAttemptInstructions(): Command {
   return newCommand()
     .command('instructions <uuid>')
-    .description('print the attempt\'s underlying instructions')
-    .option('-o, --output <path>', 'output path, defaults to stdout')
+    .description('download the attempt\'s underlying instructions')
+    .option('-o, --output <path>', 'output path (default: stdout)')
     .action(
       contextualAction(async function (uuid, opts) {
         const {client, spinner} = this;
@@ -300,10 +214,6 @@ function listAttemptNotificationsCommand(): Command {
         }
       })
     );
-}
-
-function collect<V>(val: V, acc: ReadonlyArray<V>): ReadonlyArray<V> {
-  return acc.concat([val]);
 }
 
 function percent(arg: number | string | undefined): string {

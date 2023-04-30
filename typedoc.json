@@ -9,9 +9,6 @@
     "Guides": "https://docs.opvious.io",
     "Hub": "https://hub.opvious.io"
   },
-  "plugin": [
-    "typedoc-plugin-resolve-crossmodule-references"
-  ],
   "readme": "none",
   "sort": "alphabetical",
   "titleLink": "https://www.opvious.io/sdk.ts"

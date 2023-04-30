@@ -30,6 +30,7 @@ import {accountCommand} from './account.js';
 import {attemptCommand} from './attempt.js';
 import {contextualAction, newCommand} from './common.js';
 import {formulationCommand} from './formulation.js';
+import {solveCommand} from './solve.js';
 
 export function mainCommand(): Command {
   return newCommand()
@@ -40,6 +41,7 @@ export function mainCommand(): Command {
     .addCommand(accountCommand())
     .addCommand(attemptCommand())
     .addCommand(formulationCommand())
+    .addCommand(solveCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())
     .addCommand(showVersionCommand());

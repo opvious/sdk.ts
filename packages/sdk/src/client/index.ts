@@ -22,11 +22,13 @@ import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import {withEmitter, withTypedEmitter} from '@opvious/stl-utils/events';
 import {MarkPresent} from '@opvious/stl-utils/objects';
 import backoff from 'backoff';
+import jsonSeq from 'json-text-sequence';
 import fetch, {FetchError, Response} from 'node-fetch';
 import stream from 'stream';
 import {pipeline as streamPipeline} from 'stream/promises';
 
 import {packageInfo, strippingTrailingSlashes} from '../common.js';
+import {SolveTracker,SolveTrackerListeners} from '../solves.js';
 import {
   assertHasCode,
   AttemptTracker,
@@ -91,9 +93,6 @@ export class OpviousClient {
 
     const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
       headers,
-      encoders: {
-        'application/json': jsonBrotliEncoder(logger),
-      },
       fetch: async (url, init): Promise<Response> => {
         otel.propagation.inject(otel.context.active(), init.headers);
         logger.debug({data: {req: init}}, 'Sending API request...');
@@ -117,6 +116,16 @@ export class OpviousClient {
         );
         return res;
       },
+      decoders: {
+        'application/json-seq': (res) => {
+          const parser = new jsonSeq.Parser();
+          res.body!.pipe(parser);
+          return parser;
+        },
+      },
+      encoders: {
+        'application/json': jsonBrotliEncoder(logger),
+      },
     });
     const graphqlSdk = api.createGraphqlSdk(sdk);
 
@@ -134,18 +143,43 @@ export class OpviousClient {
   // Solving
 
   /** Solves an optimization model. */
-  async runSolve(
-    args: api.RequestBody<'runSolve'>
-  ): Promise<api.ResponseData<'runSolve', 200>> {
-    const res = await this.sdk.runSolve({body: args});
-    return okData(res);
+  runSolve(args: {
+    readonly candidate: api.Schema<'SolveCandidate'>;
+  }): SolveTracker {
+    const {candidate} = args;
+    return withTypedEmitter<SolveTrackerListeners>(async (ee) => {
+      const res = await this.sdk.runSolve({
+        body: {candidate},
+        headers: {accept: 'application/json-seq, text/*'},
+      });
+      const iter = okData(res);
+      for await (const data of iter) {
+        switch (data.kind) {
+          case 'error':
+            ee.emit('error', new Error(data.error.message));
+            break;
+          case 'reified':
+            ee.emit('reified', data.summary);
+            break;
+          case 'solving':
+            ee.emit('solving', data.progress);
+            break;
+          case 'solved':
+            ee.emit('solved', data.outcome, data.outputs);
+            break;
+        }
+      }
+    });
   }
 
   /** Returns an optimization model's underlying instructions. */
-  inspectSolveInstructions(args: api.RequestBody<'runSolve'>): stream.Readable {
+  inspectSolveInstructions(args: {
+    readonly candidate: api.Schema<'SolveCandidate'>;
+  }): stream.Readable {
+    const {candidate} = args;
     return withEmitter(new stream.PassThrough(), async (pt) => {
       const res = await this.sdk.inspectSolveInstructions({
-        body: {runRequest: args},
+        body: {candidate},
         headers: {accept: 'text/plain'},
         decoder: (res) => {
           if (res.status !== 200) {
@@ -320,12 +354,10 @@ export class OpviousClient {
    * outputs, etc.
    */
   async startAttempt(args: {
-    readonly formulationName: string;
-    readonly specificationTagName?: string;
-    readonly inputs: api.Schema<'SolveInputs'>;
-    readonly options?: api.Schema<'SolveOptions'>;
+    readonly candidate: api.Schema<'SolveCandidate'>;
   }): Promise<api.ResponseData<'startAttempt', 200>> {
-    const res = await this.sdk.startAttempt({body: args});
+    const {candidate} = args;
+    const res = await this.sdk.startAttempt({body: {candidate}});
     return okData(res);
   }
 

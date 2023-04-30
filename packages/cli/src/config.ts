@@ -1,10 +1,10 @@
 import {default as Ajv_} from 'ajv';
 import {readFile} from 'fs/promises';
-import yaml from 'js-yaml';
 import {OpviousClient} from 'opvious';
 import os from 'os';
 import path from 'path';
 import {DeepWritable} from 'ts-essentials';
+import YAML from 'yaml';
 
 import {telemetry} from './common.js';
 
@@ -102,7 +102,7 @@ async function loadConfigFile(dp: string): Promise<ConfigFile | undefined> {
     return undefined;
   }
   logger.info('Loaded config from %s.', fp);
-  const obj = yaml.load(str);
+  const obj = YAML.parse(str);
   if (validate(obj)) {
     return obj;
   }

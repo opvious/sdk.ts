@@ -1,0 +1,14 @@
+formulation:
+  name: sudoku-ts-sdk-test
+inputs:
+  parameters:
+    - label: hints
+      entries:
+        - key: [0, 0, 1]
+        - key: [0, 1, 2]
+        - key: [0, 2, 3]
+        - key: [1, 0, 3] #  Conflicting hint
+        - key: [1, 3, 3]
+transformations:
+  - kind: relaxConstraint
+    label: matchHint

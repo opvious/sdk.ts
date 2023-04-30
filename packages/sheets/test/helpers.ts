@@ -1,8 +1,8 @@
 import {Schema} from '@opvious/api/sdk';
 
-import {TensorOutline} from '../src/common';
-import {InMemorySpreadsheet} from '../src/spreadsheet';
-import {identifyTables, Table} from '../src/table';
+import {TensorOutline} from '../src/common.js';
+import {InMemorySpreadsheet} from '../src/spreadsheet/index.js';
+import {identifyTables, Table} from '../src/table.js';
 
 export const SHEET = 'default';
 
