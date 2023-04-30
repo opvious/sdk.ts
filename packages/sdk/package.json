@@ -36,6 +36,7 @@
     "backoff": "^2.5.0",
     "graphql": "^16.6.0",
     "jsonpath": "^1.1.1",
+    "json-text-sequence": "^1.0.1",
     "node-fetch": "^3.3.1",
     "yaml": "^2.2.2",
     "yasdk-openapi": "^0.3.13"

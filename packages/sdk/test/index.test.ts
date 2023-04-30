@@ -1,22 +1,22 @@
 import {RecordingTelemetry} from '@opvious/stl-telemetry';
-import {readFile} from 'fs/promises';
-import path from 'path';
+import {waitForEvent} from '@opvious/stl-utils/events';
+import {ResourceLoader} from '@opvious/stl-utils/files';
 
-import * as sut from '../src';
+import * as sut from '../src/index.js';
 
 const telemetry = RecordingTelemetry.forTesting();
 
+const loader = ResourceLoader.enclosing(import.meta.url).scoped('test');
+
 const client = sut.OpviousClient.create({telemetry});
+
+const NAME_SUFFIX = '-ts-sdk-test';
 
 const ATTEMPT_TIMEOUT = 20_000;
 
-(client.authenticated ? describe : describe.skip)('client', () => {
-  test('register and deletes specification', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await registerSpecification(client, formulationName, 'n-queens.md');
-    await client.deleteFormulation(formulationName);
-  });
+const SOLVE_TIMEOUT = 10_000;
 
+describe.skipIf(!client.authenticated)('client', () => {
   test('generates, lists, and revokes authorizations', async () => {
     const name = 'test-token';
     await client.revokeAuthorization(name);
@@ -30,9 +30,17 @@ const ATTEMPT_TIMEOUT = 20_000;
     expect(infos2.find((i) => i.name === name)).toBeUndefined();
   });
 
+  test('register and deletes specification', async () => {
+    const formulationName = 'n-queens' + NAME_SUFFIX;
+    const {contents} = await loader.load('sources/n-queens.md');
+    await client.registerSpecification({formulationName, sources: [contents]});
+    await client.deleteFormulation(formulationName);
+  });
+
   test('paginates formulations', async () => {
-    const formulationName = 'n-queens' + SUFFIX;
-    await registerSpecification(client, formulationName, 'n-queens.md');
+    const formulationName = 'n-queens' + NAME_SUFFIX;
+    const {contents} = await loader.load('sources/n-queens.md');
+    await client.registerSpecification({formulationName, sources: [contents]});
     const infos1 = await client.paginateFormulations({
       first: 10,
       filter: {displayNameLike: formulationName},
@@ -53,23 +61,25 @@ const ATTEMPT_TIMEOUT = 20_000;
   test(
     'runs n-queens attempt',
     async () => {
-      const formulationName = 'n-queens' + SUFFIX;
-      await registerSpecification(client, formulationName, 'n-queens.md');
+      const formulationName = 'n-queens' + NAME_SUFFIX;
+      const {contents: src} = await loader.load('sources/n-queens.md');
+      await client.registerSpecification({formulationName, sources: [src]});
 
       const {uuid} = await client.startAttempt({
-        formulationName,
-        inputs: {parameters: [{label: 'size', entries: [{key: [], value: 5}]}]},
+        candidate: {
+          formulation: {name: formulationName},
+          inputs: {
+            parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
+          },
+          options: {timeoutMillis: 5_000},
+        },
       });
 
       const outcome = await client.waitForFeasibleOutcome(uuid);
       expect(outcome).toMatchObject({isOptimal: true});
 
       const fetched = await client.fetchAttempt(uuid);
-      expect(fetched).toMatchObject({
-        outline: {
-          parameters: [{label: 'size', isIntegral: true}],
-        },
-      });
+      expect(fetched).toMatchObject({solveOptions: {timeoutMillis: 5_000}});
 
       const inputs = await client.fetchAttemptInputs(uuid);
       expect(inputs).toEqual({
@@ -81,103 +91,75 @@ const ATTEMPT_TIMEOUT = 20_000;
             entries: [{key: [], value: 5}],
           },
         ],
-        pinnedVariables: [],
       });
     },
     ATTEMPT_TIMEOUT
   );
 
   test(
-    'runs set-cover attempt',
+    'solves set-cover',
     async () => {
-      const formulationName = 'set-cover' + SUFFIX;
-      await registerSpecification(client, formulationName, 'set-cover.md');
-      const {uuid} = await client.startAttempt({
-        formulationName,
-        inputs: {
-          dimensions: [
-            {label: 'sets', items: ['s1', 's2']},
-            {label: 'vertices', items: ['v1', 'v2', 'v3']},
-          ],
-          parameters: [
-            {
-              label: 'coverage',
-              entries: [
-                {key: ['s1', 'v1']},
-                {key: ['s1', 'v2']},
-                {key: ['s2', 'v2']},
-                {key: ['s2', 'v3']},
+      const {contents} = await loader.load('sources/set-cover.md');
+      const tracker = client
+        .runSolve({
+          candidate: {
+            formulation: {sources: [contents]},
+            inputs: {
+              dimensions: [
+                {label: 'sets', items: ['s1', 's2']},
+                {label: 'vertices', items: ['v1', 'v2', 'v3']},
+              ],
+              parameters: [
+                {
+                  label: 'coverage',
+                  entries: [
+                    {key: ['s1', 'v1']},
+                    {key: ['s1', 'v2']},
+                    {key: ['s2', 'v2']},
+                    {key: ['s2', 'v3']},
+                  ],
+                },
               ],
             },
-          ],
-        },
-      });
-      const outcome = await client.waitForFeasibleOutcome(uuid);
-      expect(outcome).toMatchObject({isOptimal: true, objectiveValue: 2});
-    },
-    ATTEMPT_TIMEOUT
-  );
-
-  test(
-    'runs relaxed sudoku attempt',
-    async () => {
-      const formulationName = 'sudoku' + SUFFIX;
-      await registerSpecification(client, formulationName, 'sudoku.md');
-      const {uuid} = await client.startAttempt({
-        formulationName,
-        inputs: {
-          parameters: [
-            {
-              label: 'hints',
-              entries: [
-                {key: [0, 0, 1]},
-                {key: [0, 1, 2]},
-                {key: [0, 2, 3]},
-                {key: [1, 0, 3]}, // Conflicting hint.
-                {key: [1, 3, 3]},
-              ],
-            },
-          ],
-        },
-        options: {
-          relaxation: {
-            penalty: 'DEVIATION_CARDINALITY',
-            constraints: [{label: 'matchHint', deficitBound: -1}],
           },
-        },
-      });
-      const outcome = await client.waitForFeasibleOutcome(uuid);
-      expect(outcome).toMatchObject({isOptimal: true});
-      const outputs = await client.fetchAttemptOutputs(uuid);
+        })
+        .on('reified', (summary) => {
+          expect(summary).toMatchObject({
+            parameters: [{label: 'coverage', entryProfile: {count: 4}}],
+          });
+        });
+      const [outcome] = await waitForEvent(tracker, 'solved');
+      expect(outcome.status).toEqual('OPTIMAL');
+      expect.assertions(2);
+    },
+    SOLVE_TIMEOUT
+  );
+
+  test(
+    'solves relaxed sudoku attempt',
+    async () => {
+      const formulationName = 'sudoku' + NAME_SUFFIX;
+
+      const {contents: src} = await loader.load('sources/sudoku.md');
+      await client.registerSpecification({formulationName, sources: [src]});
+
+      const candidate = await sut.loadSolveCandidate(
+        loader.localUrl('candidates/relaxed-sudoku.yaml')
+      );
+      const tracker = await client.runSolve({candidate});
+      const [outcome, outputs] = await waitForEvent(tracker, 'solved');
+
+      expect(outcome.status).toEqual('OPTIMAL');
       expect(outputs).toMatchObject({
         variables: [
           {
             label: 'matchHint_deficit',
-            entries: [
-              {key: [1, 0, 3], value: -1}, // Same key as above.
-            ],
+            entries: [{key: [1, 0, 3], value: 1}],
           },
           {label: 'positions'},
         ],
       });
     },
-    ATTEMPT_TIMEOUT
+    SOLVE_TIMEOUT
   );
 });
-
-const SUFFIX = '-ts-sdk-test';
-
-const DATA_DPATH = path.join(__dirname, 'data');
-
-function readSource(fname: string): Promise<string> {
-  return readFile(path.join(DATA_DPATH, fname), 'utf8');
-}
-
-async function registerSpecification(
-  client: sut.OpviousClient,
-  name: string,
-  path: string
-): Promise<void> {
-  const src = await readSource(path);
-  await client.registerSpecification({formulationName: name, sources: [src]});
-}

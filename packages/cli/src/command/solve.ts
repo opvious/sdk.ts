@@ -15,6 +15,7 @@
  * the License.
  */
 
+import {waitForEvent} from '@opvious/stl-utils/events';
 import {Command} from 'commander';
 import {createWriteStream} from 'fs';
 import {loadSolveCandidate} from 'opvious';
@@ -42,9 +43,10 @@ function runCommand(): Command {
         spinner.start('Parsing candidate...');
         const cand = await loadSolveCandidate(lp, {jsonPath: opts.jsonPath});
         spinner.succeed('Parsed candidate.').start('Starting solve...');
-        const data = await client.runSolve({candidate: cand});
-        spinner.succeed(`Completed solve. [status=${data.outcome.status}]`);
-        console.log(data);
+        const tracker = client.runSolve({candidate: cand});
+        const [outcome] = await waitForEvent(tracker, 'solved');
+        spinner.succeed(`Completed solve. [status=${outcome.status}]`);
+        // TODO: Write outputs.
       })
     );
 }

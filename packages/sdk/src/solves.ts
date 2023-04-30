@@ -16,7 +16,8 @@
  */
 
 import * as api from '@opvious/api';
-import {LocalPath} from '@opvious/stl-utils/files';
+import {EventConsumer} from '@opvious/stl-utils/events';
+import {PathLike} from '@opvious/stl-utils/files';
 import {readFile} from 'fs/promises';
 import jp from 'jsonpath';
 import YAML from 'yaml';
@@ -27,7 +28,7 @@ import {schemaEnforcer} from './common.js';
 const validators = schemaEnforcer.validators({names: ['SolveCandidate']});
 
 export async function loadSolveCandidate(
-  lp: LocalPath,
+  lp: PathLike,
   opts?: {
     readonly jsonPath?: string;
   }
@@ -49,3 +50,16 @@ export function parseSolveCandidate(
   assertValue(validators.isSolveCandidate, data);
   return data;
 }
+
+export interface SolveTrackerListeners {
+  reified(summary: api.Schema<'SolveSummary'>): void;
+
+  solving(progress: api.Schema<'SolveProgress'>): void;
+
+  solved(
+    outcome: api.Schema<'SolveOutcome'>,
+    outputs?: api.Schema<'SolveOutputs'>
+  ): void;
+}
+
+export type SolveTracker = EventConsumer<SolveTrackerListeners>;
