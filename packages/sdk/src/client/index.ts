@@ -134,18 +134,23 @@ export class OpviousClient {
   // Solving
 
   /** Solves an optimization model. */
-  async runSolve(
-    args: api.RequestBody<'runSolve'>
-  ): Promise<api.ResponseData<'runSolve', 200>> {
-    const res = await this.sdk.runSolve({body: args});
+  async runSolve(args: {
+    readonly candidate: api.Schema<'SolveCandidate'>;
+  }): Promise<api.ResponseData<'runSolve', 200>> {
+    // TODO: Return solve event tracker.
+    const {candidate} = args;
+    const res = await this.sdk.runSolve({body: {candidate}});
     return okData(res);
   }
 
   /** Returns an optimization model's underlying instructions. */
-  inspectSolveInstructions(args: api.RequestBody<'runSolve'>): stream.Readable {
+  inspectSolveInstructions(args: {
+    readonly candidate: api.Schema<'SolveCandidate'>;
+  }): stream.Readable {
+    const {candidate} = args;
     return withEmitter(new stream.PassThrough(), async (pt) => {
       const res = await this.sdk.inspectSolveInstructions({
-        body: {runRequest: args},
+        body: {candidate},
         headers: {accept: 'text/plain'},
         decoder: (res) => {
           if (res.status !== 200) {
@@ -320,12 +325,10 @@ export class OpviousClient {
    * outputs, etc.
    */
   async startAttempt(args: {
-    readonly formulationName: string;
-    readonly specificationTagName?: string;
-    readonly inputs: api.Schema<'SolveInputs'>;
-    readonly options?: api.Schema<'SolveOptions'>;
+    readonly candidate: api.Schema<'SolveCandidate'>;
   }): Promise<api.ResponseData<'startAttempt', 200>> {
-    const res = await this.sdk.startAttempt({body: args});
+    const {candidate} = args;
+    const res = await this.sdk.startAttempt({body: {candidate}});
     return okData(res);
   }
 

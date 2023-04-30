@@ -60,11 +60,15 @@ function fetchOutlineCommand(): Command {
         const {revno, outline} = form.tag.specification;
         spinner.succeed(`Fetched outline. [revno=${revno}]\n`);
 
-        if (outline.objective) {
+        if (outline.objectives.length) {
           const table = new Table();
-          table.cell('is_maximization', outline.objective.isMaximization);
-          table.newRow();
-          display('\n# Objective\n\n' + table.printTransposed());
+          for (const obj of outline.objectives) {
+            table.cell('label', obj.label);
+            table.cell('is_maximization', obj.isMaximization);
+            table.cell('is_quadratic', obj.isQuadratic);
+            table.newRow();
+          }
+          display('\n# Objectivex\n\n' + table);
         } else {
           display('\n# No objective');
         }

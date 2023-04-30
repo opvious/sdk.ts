@@ -1,6 +1,6 @@
 {
   "name": "opvious-cli",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious CLI",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_cli.html",
@@ -29,10 +29,10 @@
   "dependencies": {
     "@babel/code-frame": "^7.18.6",
     "@opentelemetry/api": "~1.3.0",
-    "@opvious/stl-bootstrap": "^0.17.12",
-    "@opvious/stl-errors": "^0.17.12",
-    "@opvious/stl-telemetry": "^0.17.12",
-    "@opvious/stl-utils": "^0.17.12",
+    "@opvious/stl-bootstrap": "^0.17.32",
+    "@opvious/stl-errors": "^0.17.32",
+    "@opvious/stl-telemetry": "^0.17.32",
+    "@opvious/stl-utils": "^0.17.32",
     "ajv": "^8.11.0",
     "chokidar": "^3.5.3",
     "commander": "^9.1.0",
@@ -40,21 +40,19 @@
     "easy-table": "^1.2.0",
     "fast-fifo": "^1.1.0",
     "humanize-duration": "^3.27.3",
-    "js-yaml": "^4.1.0",
     "luxon": "^3.0.4",
     "node-fetch": "^3.3.1",
     "opvious": "workspace:*",
-    "opvious-sheets": "workspace:*",
-    "ora": "^6.3.0"
+    "ora": "^6.3.0",
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
     "@types/babel__code-frame": "^7.0.3",
     "@types/debounce": "^1.2.1",
     "@types/fast-fifo": "^1.0.0",
     "@types/humanize-duration": "^3.27.1",
-    "@types/js-yaml": "^4.0.5",
     "@types/luxon": "^3.0.2",
-    "inlinable": "^0.1.10"
+    "inlinable": "^0.1.11"
   },
   "typedoc": {
     "entryPoint": "src/index.ts"

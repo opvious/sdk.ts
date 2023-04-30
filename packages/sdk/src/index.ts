@@ -15,4 +15,5 @@
  * the License.
  */
 
+export * from './candidates.js';
 export * from './client/index.js';

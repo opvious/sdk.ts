@@ -14,7 +14,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+import * as api from '@opvious/api';
 import __inlinable from 'inlinable';
+import {
+  OpenapiDocument,
+  openapiSchemaEnforcer,
+  parseOpenapiDocument,
+} from 'yasdk-openapi';
 
 /** Package metadata. */
 export const packageInfo = __inlinable((ctx) =>
@@ -25,3 +31,10 @@ export const packageInfo = __inlinable((ctx) =>
 export function strippingTrailingSlashes(arg: string): string {
   return arg.replace(/\/+$/, '');
 }
+
+export const openapiDocument: OpenapiDocument = parseOpenapiDocument(
+  api.OPENAPI_SCHEMA
+);
+
+export const schemaEnforcer =
+  openapiSchemaEnforcer<api.Schemas>(openapiDocument);

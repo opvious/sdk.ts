@@ -58,19 +58,20 @@ export function extractInputValues(
     dimInputs.push({label, items: [...items]});
   }
 
+  const parameters: Schema<'Tensor'>[] = [];
   const pgt = new TensorInputGatherer(ss, readParameter);
-  const parameters = mapping.parameters.map((p) => pgt.gatherInput(p));
-
+  for (const p of mapping.parameters) {
+    parameters.push(pgt.gatherInput(p));
+  }
   const vgt = new TensorInputGatherer(ss, readVariable);
-  const pins: Schema<'Tensor'>[] = [];
-  for (const tensor of mapping.variables) {
-    const input = vgt.gatherInput(tensor);
-    if (input.entries.length) {
-      pins.push(input);
+  for (const v of mapping.variables) {
+    const t = vgt.gatherInput(v);
+    if (t.entries.length) {
+      parameters.push({...t, label: v.label + '_pin'});
     }
   }
 
-  return {dimensions: dimInputs, parameters, pinnedVariables: pins};
+  return {dimensions: dimInputs, parameters};
 }
 
 class TensorInputGatherer {
