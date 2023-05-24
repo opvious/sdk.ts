@@ -18,8 +18,10 @@ export function tensorOutline(
   return {
     label,
     bindings,
-    isIntegral: !!indic,
-    lowerBound: indic ? 0 : 'Dynamic',
-    upperBound: indic ? 1 : 'Dynamic',
+    image: {
+      isIntegral: !!indic,
+      lowerBound: indic ? 0 : 'Dynamic',
+      upperBound: indic ? 1 : 'Dynamic',
+    },
   };
 }
