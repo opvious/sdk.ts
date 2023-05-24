@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
       - name: Install
         run: pnpm i
         env:
@@ -33,6 +33,11 @@ jobs:
         id: extract-version
         run: |
           echo "PACKAGE_VERSION=${GITHUB_REF#refs/tags/v}" >>"$GITHUB_OUTPUT"
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
       - name: Tag packages
         run: |
           for p in opvious{,-cli,-sheets}; do
