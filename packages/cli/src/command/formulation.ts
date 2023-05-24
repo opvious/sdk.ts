@@ -74,9 +74,10 @@ function fetchOutlineCommand(): Command {
         if (parameters.length) {
           const table = new Table();
           for (const param of parameters) {
+            const {image} = param;
             table.cell('parameter', param.label);
-            table.cell('integral', param.isIntegral);
-            table.cell('bounds', `[${param.lowerBound}, ${param.upperBound}]`);
+            table.cell('integral', image.isIntegral);
+            table.cell('bounds', `[${image.lowerBound}, ${image.upperBound}]`);
             table.cell('rank', param.bindings.length);
             table.cell(
               'bindings',
@@ -89,12 +90,10 @@ function fetchOutlineCommand(): Command {
         if (variables.length) {
           const table = new Table();
           for (const variable of variables) {
+            const {image} = variable;
             table.cell('variable', variable.label);
-            table.cell('integral', variable.isIntegral);
-            table.cell(
-              'bounds',
-              `[${variable.lowerBound}, ${variable.upperBound}]`
-            );
+            table.cell('integral', image.isIntegral);
+            table.cell('bounds', `[${image.lowerBound}, ${image.upperBound}]`);
             table.cell('rank', variable.bindings.length);
             table.cell(
               'bindings',

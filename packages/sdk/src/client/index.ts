@@ -28,7 +28,7 @@ import stream from 'stream';
 import {pipeline as streamPipeline} from 'stream/promises';
 
 import {packageInfo, strippingTrailingSlashes} from '../common.js';
-import {SolveTracker,SolveTrackerListeners} from '../solves.js';
+import {SolveTracker, SolveTrackerListeners} from '../solves.js';
 import {
   assertHasCode,
   AttemptTracker,

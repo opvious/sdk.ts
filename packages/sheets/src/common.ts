@@ -22,7 +22,8 @@ export type Label = string;
 export type TensorOutline = Omit<Schema<'ParameterOutline'>, 'derivation'>;
 
 export function isIndicator(sig: TensorOutline): boolean {
-  return sig.isIntegral && sig.lowerBound === 0 && sig.upperBound === 1;
+  const {image} = sig;
+  return image.isIntegral && image.lowerBound === 0 && image.upperBound === 1;
 }
 
 const EPSILON = 1e-6;
