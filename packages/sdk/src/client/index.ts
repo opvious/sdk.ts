@@ -26,6 +26,7 @@ import jsonSeq from 'json-text-sequence';
 import fetch, {FetchError, Response} from 'node-fetch';
 import stream from 'stream';
 import {pipeline as streamPipeline} from 'stream/promises';
+import {setTimeout} from 'timers/promises';
 
 import {packageInfo, strippingTrailingSlashes} from '../common.js';
 import {SolveTracker, SolveTrackerListeners} from '../solves.js';
@@ -91,29 +92,43 @@ export class OpviousClient {
         : process.env.OPVIOUS_HUB_ENDPOINT ?? defaultEndpoint('hub', domain)
     );
 
+    const throttledRetryCount = opts?.throttledRetryCount ?? 1;
     const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
       headers,
       fetch: async (url, init): Promise<Response> => {
         otel.propagation.inject(otel.context.active(), init.headers);
         logger.debug({data: {req: init}}, 'Sending API request...');
+
         let res;
-        try {
-          res = await fetch(url, init);
-        } catch (err) {
-          assertCause(err instanceof FetchError, err);
-          throw clientErrors.fetchFailed(err);
-        }
-        logger.debug(
-          {
-            data: {
-              res: {
-                status: res.status,
-                headers: Object.fromEntries(res.headers),
-              },
-            },
-          },
-          'Received API response.'
-        );
+        let attempt = 1;
+        do {
+          try {
+            res = await fetch(url, init);
+          } catch (err) {
+            assertCause(err instanceof FetchError, err);
+            throw clientErrors.fetchFailed(err);
+          }
+          const headers = Object.fromEntries(res.headers);
+          logger.debug(
+            {data: {res: {status: res.status, headers}}},
+            'Received API response.'
+          );
+          if (res.status !== 429 || attempt++ > throttledRetryCount) {
+            break;
+          }
+          const retryAfter = res.headers.get('retry-after');
+          if (!retryAfter) {
+            break;
+          }
+          const ms = +new Date(retryAfter) - Date.now() + 1_000;
+          logger.info(
+            {data: {retryAfter}},
+            'Retrying throttled API request in %sms...',
+            ms
+          );
+          await setTimeout(ms);
+        } while (true); // eslint-disable-line no-constant-condition
+
         return res;
       },
       decoders: {
@@ -586,6 +601,9 @@ export interface OpviousClientOptions {
    * domain's endpoint otherwise.
    */
   readonly hubEndpoint?: string | URL;
+
+  /** Number of retry attempts on throttled errors. Defaults to 1. */
+  readonly throttledRetryCount?: number;
 }
 
 const DEFAULT_DOMAIN = 'beta.opvious.io';

@@ -44,12 +44,13 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
     }),
     graphqlRequestErrored: (
       errs: ReadonlyArray<gql.GraphQLError>,
-      trace: string | undefined
+      trace: string | undefined,
+      extensions: gql.GraphQLErrorExtensions
     ) => ({
       message:
         `GraphQL response${traceDetails(trace)} included errors: ` +
         errs.map(formatError).join(', '),
-      tags: {errors: errs},
+      tags: {errors: errs, extensions},
     }),
     attemptCancelled: (uuid: Uuid) => ({
       message: 'Attempt was cancelled',
@@ -131,7 +132,8 @@ export function okResultData<V>(
   res: gql.ExecutionResult<V, {readonly trace?: string}>
 ): V {
   if (res.errors?.length) {
-    throw clientErrors.graphqlRequestErrored(res.errors, res.extensions?.trace);
+    const {trace, ...exts} = res.extensions ?? {};
+    throw clientErrors.graphqlRequestErrored(res.errors, trace, exts);
   }
   return check.isPresent(res.data);
 }
