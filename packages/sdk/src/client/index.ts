@@ -120,8 +120,9 @@ export class OpviousClient {
           if (res.status !== 429 || !retryAfter || retryAfter > retryCutoff) {
             break;
           }
-          logger.info('Retrying throttled API request in %sms...', retryAfter);
-          await setTimeout(retryAfter);
+          const ms = retryAfter - Date.now();
+          logger.info('Retrying throttled API request in %sms...', ms);
+          await setTimeout(ms);
         } while (true); // eslint-disable-line no-constant-condition
 
         return res;
@@ -599,7 +600,7 @@ export interface OpviousClientOptions {
 
   /**
    * Maximum number of milliseconds to wait for when retrying rate-limited
-   * request. Defaults to 2_500.
+   * requests. Defaults to 2_500.
    */
   readonly maxRetryDelayMillis?: number;
 }
