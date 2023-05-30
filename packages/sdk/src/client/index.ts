@@ -20,6 +20,7 @@ import * as api from '@opvious/api';
 import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import {withEmitter, withTypedEmitter} from '@opvious/stl-utils/events';
+import {ifPresent} from '@opvious/stl-utils/functions';
 import {MarkPresent} from '@opvious/stl-utils/objects';
 import backoff from 'backoff';
 import jsonSeq from 'json-text-sequence';
@@ -92,7 +93,7 @@ export class OpviousClient {
         : process.env.OPVIOUS_HUB_ENDPOINT ?? defaultEndpoint('hub', domain)
     );
 
-    const throttledRetryCount = opts?.throttledRetryCount ?? 1;
+    const retryCutoff = Date.now() + (opts?.maxRetryDelayMillis ?? 2_500);
     const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
       headers,
       fetch: async (url, init): Promise<Response> => {
@@ -100,7 +101,6 @@ export class OpviousClient {
         logger.debug({data: {req: init}}, 'Sending API request...');
 
         let res;
-        let attempt = 1;
         do {
           try {
             res = await fetch(url, init);
@@ -113,19 +113,15 @@ export class OpviousClient {
             {data: {res: {status: res.status, headers}}},
             'Received API response.'
           );
-          if (res.status !== 429 || attempt++ > throttledRetryCount) {
-            break;
-          }
-          const retryAfter = res.headers.get('retry-after');
-          if (!retryAfter) {
-            break;
-          }
-          const ms = +new Date(retryAfter) - Date.now() + 1_000;
-          logger.info(
-            {data: {retryAfter}},
-            'Retrying throttled API request in %sms...',
-            ms
+          const retryAfter = ifPresent(
+            res.headers.get('retry-after') || undefined,
+            (d) => +new Date(d) + 100
           );
+          if (res.status !== 429 || !retryAfter || retryAfter > retryCutoff) {
+            break;
+          }
+          const ms = retryAfter - Date.now();
+          logger.info('Retrying throttled API request in %sms...', ms);
           await setTimeout(ms);
         } while (true); // eslint-disable-line no-constant-condition
 
@@ -602,8 +598,11 @@ export interface OpviousClientOptions {
    */
   readonly hubEndpoint?: string | URL;
 
-  /** Number of retry attempts on throttled errors. Defaults to 1. */
-  readonly throttledRetryCount?: number;
+  /**
+   * Maximum number of milliseconds to wait for when retrying rate-limited
+   * requests. Defaults to 2_500.
+   */
+  readonly maxRetryDelayMillis?: number;
 }
 
 const DEFAULT_DOMAIN = 'beta.opvious.io';
