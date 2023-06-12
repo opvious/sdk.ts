@@ -33,7 +33,10 @@ const TRACE_HEADER = 'opvious-trace';
 export const [clientErrors, clientErrorCodes] = errorFactories({
   definitions: {
     fetchFailed: (cause: FetchError) => ({
-      message: 'API fetch failed: ' + cause.message,
+      message:
+        'API fetch failed: ' +
+        cause.message.replace(/, reason:\s+$/, '') + // Strip empty reasons
+        (cause.code ? ` [${cause.code}]` : ''),
       cause,
     }),
     unexpectedResponseStatus: (res: Response, data: unknown) => ({
@@ -145,7 +148,9 @@ function formatError(err: gql.GraphQLError): string {
       (e) =>
         `${e[0]}: ${typeof e[1] === 'string' ? e[1] : JSON.stringify(e[1])}`
     );
-    msg += ` (${details.join(', ')})`;
+    if (details.length) {
+      msg += ` (${details.join(', ')})`;
+    }
   }
   return msg;
 }
@@ -196,8 +201,3 @@ export interface AttemptTrackerListeners {
  * associated listeners for more information.
  */
 export type AttemptTracker = EventConsumer<AttemptTrackerListeners>;
-
-export interface BlueprintUrls {
-  readonly apiUrl: URL;
-  readonly hubUrl: URL;
-}

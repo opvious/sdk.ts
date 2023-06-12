@@ -35,7 +35,6 @@ import {
   assertHasCode,
   AttemptTracker,
   AttemptTrackerListeners,
-  BlueprintUrls,
   clientErrors,
   FeasibleOutcomeFragment,
   jsonBrotliEncoder,
@@ -48,7 +47,6 @@ import {
 export {
   AttemptTracker,
   AttemptTrackerListeners,
-  BlueprintUrls,
   FeasibleOutcomeFragment,
   Paginated,
 } from './common.js';
@@ -59,10 +57,8 @@ export class OpviousClient {
     private readonly telemetry: Telemetry,
     /** Whether the client was created with an API token. */
     readonly authenticated: boolean,
-    /** Base endpoint to the GraphQL API. */
+    /** Base API endpoint. */
     readonly apiEndpoint: string,
-    /** Base optimization hub endpoint. */
-    readonly hubEndpoint: string,
     private readonly sdk: api.Sdk<typeof fetch>,
     private readonly graphqlSdk: api.GraphqlSdk<typeof fetch>
   ) {}
@@ -76,25 +72,23 @@ export class OpviousClient {
       'accept-encoding': 'br;q=1.0, gzip;q=0.5, *;q=0.1',
       'opvious-client': `TypeScript SDK v${packageInfo.version}`,
     };
-    const auth = opts?.authorization ?? process.env.OPVIOUS_TOKEN;
+    const auth = opts?.token ?? process.env.OPVIOUS_TOKEN;
     if (auth) {
-      headers.authorization = auth.includes(' ') ? auth : 'Bearer ' + auth;
+      headers.authorization = auth.includes(' ')
+        ? auth
+        : auth.includes(':')
+        ? `Basic ${Buffer.from(auth).toString('base64')}`
+        : `Bearer ${auth}`;
     }
 
-    const domain = opts?.domain ?? process.env.OPVIOUS_DOMAIN;
-    const apiEndpoint = strippingTrailingSlashes(
-      opts?.apiEndpoint
-        ? '' + opts.apiEndpoint
-        : process.env.OPVIOUS_API_ENDPOINT ?? defaultEndpoint('api', domain)
-    );
-    const hubEndpoint = strippingTrailingSlashes(
-      opts?.hubEndpoint
-        ? '' + opts.hubEndpoint
-        : process.env.OPVIOUS_HUB_ENDPOINT ?? defaultEndpoint('hub', domain)
+    const endpoint = strippingTrailingSlashes(
+      opts?.endpoint
+        ? '' + opts.endpoint
+        : process.env.OPVIOUS_ENDPOINT ?? DEFAULT_ENDPOINT
     );
 
     const retryCutoff = Date.now() + (opts?.maxRetryDelayMillis ?? 2_500);
-    const sdk = api.createSdk<typeof fetch>(apiEndpoint, {
+    const sdk = api.createSdk<typeof fetch>(endpoint, {
       headers,
       fetch: async (url, init): Promise<Response> => {
         otel.propagation.inject(otel.context.active(), init.headers);
@@ -141,14 +135,7 @@ export class OpviousClient {
     const graphqlSdk = api.createGraphqlSdk(sdk);
 
     logger.debug('Created new client.');
-    return new OpviousClient(
-      tel,
-      !!auth,
-      apiEndpoint,
-      hubEndpoint,
-      sdk,
-      graphqlSdk
-    );
+    return new OpviousClient(tel, !!auth, endpoint, sdk, graphqlSdk);
   }
 
   // Solving
@@ -545,27 +532,6 @@ export class OpviousClient {
         throw clientErrors.unexpectedResponseStatus(res.raw, res.data);
     }
   }
-
-  formulationUrl(name: string): URL {
-    return new URL(this.hubEndpoint + `/formulations/${name}`);
-  }
-
-  specificationUrl(formulation: string, revno: number): URL {
-    const pathname = `/formulations/${formulation}/overview/${revno}`;
-    return new URL(this.hubEndpoint + pathname);
-  }
-
-  attemptUrl(uuid: Uuid): URL {
-    return new URL(this.hubEndpoint + `/attempts/${uuid}`);
-  }
-
-  blueprintUrls(slug: string): BlueprintUrls {
-    const suffix = `/blueprints/${slug}`;
-    return {
-      apiUrl: new URL(this.apiEndpoint + suffix),
-      hubUrl: new URL(this.hubEndpoint + suffix),
-    };
-  }
 }
 
 export interface OpviousClientOptions {
@@ -573,30 +539,16 @@ export interface OpviousClientOptions {
    * API authorization header or access token, defaulting to
    * `process.env.OPVIOUS_TOKEN`.
    */
-  readonly authorization?: string;
+  readonly token?: string;
+
+  /**
+   * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_ENDPOINT` if
+   * set, and falls back to the default endpoint otherwise.
+   */
+  readonly endpoint?: string | URL;
 
   /** Telemetry instance used for logging, etc. */
   readonly telemetry?: Telemetry;
-
-  /**
-   * API and hub parent domain. If unset, uses `process.env.OPVIOUS_DOMAIN` if
-   * set. See `apiEndpoint` and `hubEndpoint` for additional configuration
-   * granularity.
-   */
-  readonly domain?: string;
-
-  /**
-   * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_ENDPOINT` if
-   * set, and falls back to the default domain's endpoint otherwise.
-   */
-  readonly apiEndpoint?: string | URL;
-
-  /**
-   * Base model hub endpoint URL. If unset, uses
-   * `process.env.OPVIOUS_HUB_ENDPOINT` if set, and falls back to the default
-   * domain's endpoint otherwise.
-   */
-  readonly hubEndpoint?: string | URL;
 
   /**
    * Maximum number of milliseconds to wait for when retrying rate-limited
@@ -605,8 +557,4 @@ export interface OpviousClientOptions {
   readonly maxRetryDelayMillis?: number;
 }
 
-const DEFAULT_DOMAIN = 'beta.opvious.io';
-
-function defaultEndpoint(leaf: string, domain = DEFAULT_DOMAIN): string {
-  return `https://${leaf}.${domain}`;
-}
+const DEFAULT_ENDPOINT = 'https://api.beta.opvious.io';

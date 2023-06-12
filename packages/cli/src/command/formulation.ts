@@ -40,9 +40,7 @@ export function formulationCommand(): Command {
     .addCommand(listFormulationsCommand())
     .addCommand(listFormulationTagsCommand())
     .addCommand(fetchOutlineCommand())
-    .addCommand(deleteFormulationCommand())
-    .addCommand(shareFormulationCommand())
-    .addCommand(unshareFormulationCommand());
+    .addCommand(deleteFormulationCommand());
 }
 
 const PAGE_LIMIT = 25;
@@ -163,7 +161,6 @@ function listFormulationsCommand(): Command {
               DateTime.fromISO(node.lastSpecifiedAt).toRelative()
             );
             table.cell('specifications', node.specifications.totalCount);
-            table.cell('url', client.formulationUrl(node.name));
             table.newRow();
           }
           const {hasNextPage, endCursor} = paginated.info;
@@ -286,8 +283,10 @@ function registerSpecificationCommand(): Command {
           description: desc ?? srcs.join('\n\n'),
           tagNames: opts.tags?.split(','),
         });
-        const url = client.specificationUrl(spec.formulation.name, spec.revno);
-        spinner.succeed('Registered specification: ' + url);
+        const {name} = spec.formulation;
+        spinner.succeed(
+          `Registered specification. [name=${name}, revno=${spec.revno}]`
+        );
       })
     );
 }
@@ -437,44 +436,4 @@ function errorPreview(args: {
 
 function formatBinding(b: api.Schema<'SourceBinding'>): string {
   return (b.dimensionLabel ?? '#') + (b.qualifier ? ` (${b.qualifier})` : '');
-}
-
-function shareFormulationCommand(): Command {
-  return newCommand()
-    .command('share <name>')
-    .description('start sharing a formulation')
-    .requiredOption('-t, --tag <name>', 'tag name to share')
-    .action(
-      contextualAction(async function (name, opts) {
-        const {client, spinner} = this;
-        spinner.start('Sharing formulation...');
-        const tag = await client.shareFormulation({
-          name,
-          tagName: opts.tag,
-        });
-        const {hubUrl} = client.blueprintUrls(tag.sharedVia);
-        spinner.succeed('Shared formulation: ' + hubUrl);
-      })
-    );
-}
-
-function unshareFormulationCommand(): Command {
-  return newCommand()
-    .command('unshare <name>')
-    .description('stop sharing a formulation')
-    .option(
-      '-t, --tags <names>',
-      'comma-separated names to unshare, defaults to all'
-    )
-    .action(
-      contextualAction(async function (name, opts) {
-        const {client, spinner} = this;
-        spinner.start('Unsharing formulation...');
-        await client.unshareFormulation({
-          name,
-          tagNames: opts.tags ? opts.tags.split(',') : undefined,
-        });
-        spinner.succeed('Unshared formulation.');
-      })
-    );
 }

@@ -1,6 +1,6 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
@@ -14,7 +14,7 @@
     "test": "pnpm -r run test run --coverage && rm -rf out/coverage && mkdir -p out/coverage && for p in packages/*; do if [ -d \"$p/out/coverage\" ]; then cp -r \"$p/out/coverage\" out/coverage/\"${p#*/}\"; fi; done"
   },
   "devDependencies": {
-    "@opentelemetry/api": "~1.3.0",
+    "@opentelemetry/api": "~1.4.1",
     "@opvious/eslint-plugin": "^0.1.22",
     "@opvious/prettier-typescript": "^0.1.22",
     "@opvious/tsconfig": "^0.1.22",

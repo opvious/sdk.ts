@@ -55,7 +55,6 @@ function runAttemptCommand(): Command {
         const {uuid} = await client.startAttempt({candidate});
         spinner.succeed(`Started attempt. [uuid=${uuid}]`);
         if (opts.detach) {
-          display('' + client.attemptUrl(uuid));
           return;
         }
         spinner.start('Solving...');
@@ -158,7 +157,6 @@ function listAttemptsCommand(): Command {
               'runtime',
               endedAt ? humanizeMillis(+endedAt.diff(startedAt)) : ''
             );
-            table.cell('url', client.attemptUrl(attempt.uuid));
             table.newRow();
           }
           const {hasPreviousPage, startCursor} = paginated.info;
