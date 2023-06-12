@@ -33,7 +33,7 @@ jobs:
       - name: Test
         run: pnpm t
         env:
-          OPVIOUS_DOMAIN: alpha.opvious.io
+          OPVIOUS_ENDPOINT: https://api.alpha.opvious.io
           OPVIOUS_TOKEN: ${{ secrets.OPVIOUS_ALPHA_TOKEN }}
       - name: Upload coverage
         uses: codecov/codecov-action@v3

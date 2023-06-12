@@ -3,6 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "module": "node16",
+    "noEmit": true,
     "noImplicitAny": false,
     "outDir": "../out/test",
     "types": ["vitest/globals"],
