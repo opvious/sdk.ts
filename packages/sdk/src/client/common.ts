@@ -201,8 +201,3 @@ export interface AttemptTrackerListeners {
  * associated listeners for more information.
  */
 export type AttemptTracker = EventConsumer<AttemptTrackerListeners>;
-
-export interface BlueprintUrls {
-  readonly apiUrl: URL;
-  readonly hubUrl: URL;
-}

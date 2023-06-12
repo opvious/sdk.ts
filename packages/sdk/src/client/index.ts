@@ -47,7 +47,6 @@ import {
 export {
   AttemptTracker,
   AttemptTrackerListeners,
-  BlueprintUrls,
   FeasibleOutcomeFragment,
   Paginated,
 } from './common.js';
@@ -85,7 +84,7 @@ export class OpviousClient {
     const endpoint = strippingTrailingSlashes(
       opts?.endpoint
         ? '' + opts.endpoint
-        : process.env.OPVIOUS_API_URL ?? DEFAULT_API_URL
+        : process.env.OPVIOUS_ENDPOINT ?? DEFAULT_ENDPOINT
     );
 
     const retryCutoff = Date.now() + (opts?.maxRetryDelayMillis ?? 2_500);
@@ -542,14 +541,14 @@ export interface OpviousClientOptions {
    */
   readonly token?: string;
 
-  /** Telemetry instance used for logging, etc. */
-  readonly telemetry?: Telemetry;
-
   /**
-   * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_API_URL` if set,
-   * and falls back to the default endpoint otherwise.
+   * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_ENDPOINT` if
+   * set, and falls back to the default endpoint otherwise.
    */
   readonly endpoint?: string | URL;
+
+  /** Telemetry instance used for logging, etc. */
+  readonly telemetry?: Telemetry;
 
   /**
    * Maximum number of milliseconds to wait for when retrying rate-limited
@@ -558,4 +557,4 @@ export interface OpviousClientOptions {
   readonly maxRetryDelayMillis?: number;
 }
 
-const DEFAULT_API_URL = 'https://api.beta.opvious.io';
+const DEFAULT_ENDPOINT = 'https://api.beta.opvious.io';
