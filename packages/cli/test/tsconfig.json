@@ -2,6 +2,7 @@
   "extends": "@opvious/tsconfig",
   "compilerOptions": {
     "composite": true,
+    "noEmit": true,
     "noImplicitAny": false,
     "outDir": "../out/test",
     "types": ["vitest/globals"],
