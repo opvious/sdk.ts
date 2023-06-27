@@ -16,6 +16,7 @@
  */
 
 import {appTelemetry} from '@opvious/stl-bootstrap';
+import {ResourceLoader} from '@opvious/stl-utils/files';
 import humanizeDuration from 'humanize-duration';
 import __inlinable from 'inlinable';
 import os from 'os';
@@ -49,3 +50,5 @@ export const telemetry = appTelemetry(packageInfo, {
     base: {pid: process.pid},
   },
 });
+
+export const resourceLoader = ResourceLoader.enclosing(import.meta.url);

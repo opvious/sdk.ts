@@ -16,6 +16,7 @@ export interface Config {
   readonly profileName?: string;
   readonly client: OpviousClient;
   readonly token?: string;
+  readonly dockerComposePath?: string;
 }
 
 export async function loadConfig(args: {
@@ -41,7 +42,7 @@ export async function loadConfig(args: {
     if (!profile) {
       throw new Error('Unknown or missing profile');
     }
-    token = profile.token.startsWith('$')
+    token = profile.token?.startsWith('$')
       ? env[profile.token.substring(1)]
       : profile.token;
   }
@@ -54,18 +55,20 @@ export async function loadConfig(args: {
       telemetry,
     }),
     token,
+    dockerComposePath: cfgFile?.dockerComposePath,
   };
 }
 
 interface ConfigFile {
   readonly profiles: ReadonlyArray<Profile>;
+  readonly dockerComposePath?: string;
 }
 
 const ajv = new Ajv();
 
 interface Profile {
   readonly name: string;
-  readonly token: string;
+  readonly token?: string;
   readonly endpoint?: string;
 }
 
@@ -77,13 +80,16 @@ const validate = ajv.compile<DeepWritable<ConfigFile>>({
       type: 'array',
       items: {
         type: 'object',
-        required: ['name', 'token'],
+        required: ['name'],
         properties: {
           name: {type: 'string'},
-          domain: {type: 'string'},
           token: {type: 'string'},
+          endpoint: {type: 'string'},
         },
       },
+    },
+    dockerComposePath: {
+      type: 'string',
     },
   },
 });

@@ -23,7 +23,7 @@ import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
 
 import {COMMAND_NAME, telemetry} from '../common.js';
-import {loadConfig} from '../config.js';
+import {Config, loadConfig} from '../config.js';
 
 const [errors, codes] = errorFactories({
   definitions: {
@@ -73,17 +73,13 @@ export function contextualAction(
         if (cfg.profileName) {
           msg += ` [profile=${cfg.profileName}]`;
         }
-        spinner.succeed(msg);
+        spinner.info(msg);
       } catch (cause) {
         spinner.fail(errorMessage(cause));
         throw errors.setupFailed(cause);
       }
 
-      const ctx: ActionContext = {
-        client: cfg.client,
-        spinner,
-        token: cfg.token,
-      };
+      const ctx: ActionContext = {spinner, config: cfg, client: cfg.client};
       try {
         await fn.call(ctx, ...args);
       } catch (cause) {
@@ -96,6 +92,6 @@ export function contextualAction(
 
 export interface ActionContext {
   readonly spinner: Ora;
+  readonly config: Config;
   readonly client: OpviousClient;
-  readonly token?: string;
 }

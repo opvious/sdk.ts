@@ -1,0 +1,42 @@
+formulation:
+  sources:
+    - |
+      $\S^d_{asset}: A$
+      $\S^v_{fraction}: \alpha \in [0,1]^A$
+      $\S^p_{covariance}: c \in \mathbb{R}^{A \times A}$
+      $\S^p_{mean}: m \in \mathbb{R}^A$
+      $\S^p_{return}: r \in \mathbb{R}$
+      $\S^c_{cap}: \sum_{a \in A} m_a \alpha_a \geq r$
+      $\S^c_{sum}: \sum_{a \in A} \alpha_a \leq 1$
+      $\S^o_{risk}: \min \sum_{a^l, a^r \in A} c_{a^l,a^r} \alpha_{a^l} \alpha_{a^r}$
+inputs:
+  dimensions:
+    - label: asset
+      items: [A, B, C]
+  parameters:
+    - label: covariance
+      entries:
+        - key: [A, B]
+          value: 0.5
+        - key: [B, A]
+          value: 0.5
+        - key: [A, C]
+          value: -0.75
+        - key: [C, A]
+          value: -0.75
+        - key: [B, C]
+          value: -0.25
+        - key: [C, B]
+          value: -0.25
+    - label: mean
+      entries:
+        - key: [A]
+          value: 8
+        - key: [B]
+          value: 3
+        - key: [C]
+          value: 12
+    - label: return
+      entries:
+        - key: []
+          value: 10
