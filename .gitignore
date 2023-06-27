@@ -5,3 +5,4 @@ lib/
 node_modules/
 out/
 tsconfig.tsbuildinfo
+npm-shrinkwrap.json

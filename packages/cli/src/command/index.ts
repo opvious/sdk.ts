@@ -27,6 +27,7 @@ import readline from 'readline';
 import {COMMAND_NAME, logPath, packageInfo} from '../common.js';
 import {display} from '../io.js';
 import {accountCommand} from './account.js';
+import {apiCommand} from './api.js';
 import {attemptCommand} from './attempt.js';
 import {contextualAction, newCommand} from './common.js';
 import {formulationCommand} from './formulation.js';
@@ -42,6 +43,7 @@ export function mainCommand(): Command {
     .addCommand(attemptCommand())
     .addCommand(formulationCommand())
     .addCommand(solveCommand())
+    .addCommand(apiCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())
     .addCommand(showVersionCommand());
@@ -54,12 +56,12 @@ function showCredentialsCommand(): Command {
     .option('-t, --token', 'show API token instead')
     .action(
       contextualAction(async function (opts) {
-        const {client, spinner, token} = this;
-        if (!token) {
-          throw new Error('Unauthenticated');
-        }
+        const {client, spinner, config} = this;
         if (opts.token) {
-          display(token);
+          if (!config.token) {
+            throw new Error('Missing token');
+          }
+          display(config.token);
           return;
         }
         spinner.start('Fetching credentials...');
