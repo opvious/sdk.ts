@@ -57,10 +57,7 @@ function startCommand(): Command {
   return (
     newCommand()
       .command('start')
-      .description(
-        'start API server. this requires `docker-compose` and a running ' +
-          'Docker daemon'
-      )
+      .description('start API server')
       .option('-w, --wait', 'wait for all services to be ready')
       // TODO: bundle variant based on active license
       .action(
