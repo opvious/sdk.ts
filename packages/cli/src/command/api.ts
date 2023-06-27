@@ -22,6 +22,8 @@ import {spawn} from 'child_process';
 import {Command} from 'commander';
 import crypto from 'crypto';
 import events from 'events';
+import os from 'os';
+import path from 'path';
 import {AsyncOrSync} from 'ts-essentials';
 
 import {resourceLoader} from '../common.js';
@@ -54,24 +56,58 @@ export function apiCommand(): Command {
     .addCommand(viewLogsCommand());
 }
 
+const defaultBucketPath = path.join(os.tmpdir(), 'opvious-data');
+
+const DEFAULT_IMAGE_TAG = 'latest';
+
 function startCommand(): Command {
-  return (
-    newCommand()
-      .command('start')
-      .description('start server')
-      .option('-t, --tag <tag>', 'image tag', 'latest')
-      .option('-w, --wait', 'wait for all services to be ready')
-      // TODO: bundle variant based on active license
-      .action(
-        dockerComposeAction(async function (opts) {
-          const args = ['up', '--detach', '--no-recreate'];
-          if (opts.wait) {
-            args.push('--wait');
-          }
-          await this.run(args, {IMAGE_TAG: opts.tag});
-        })
-      )
-  );
+  return newCommand()
+    .command('start')
+    .description('start server')
+    .option(
+      '-b, --bucket <path>',
+      'local path where attempt data will be stored',
+      defaultBucketPath
+    )
+    .option(
+      '-f, --fresh',
+      'always recreate fresh containers. by default this command is a ' +
+        'no-op if the API is already running'
+    )
+    .option(
+      '-i, --image-tag <tag>',
+      'server image tag. setting this flag explicitly will also cause ' +
+        'the image to always be pulled. (default: "latest")'
+    )
+    .option(
+      '-l, --log-level <level>',
+      'server log level',
+      'info,@opvious/api-server=debug'
+    )
+    .option('-t, --static-tokens <tokens>', 'static authorization tokens', '')
+    .option('-w, --wait', 'wait for all services to be ready')
+    .action(
+      dockerComposeAction(async function (opts) {
+        const args = ['up', '--detach'];
+        if (opts.fresh) {
+          args.push('--force-recreate', '--renew-anon-volumes');
+        } else {
+          args.push('--no-recreate');
+        }
+        if (opts.imageTag) {
+          args.push('--pull=always');
+        }
+        if (opts.wait) {
+          args.push('--wait');
+        }
+        await this.run(args, {
+          BUCKET_PATH: opts.bucket,
+          IMAGE_TAG: opts.imageTag ?? DEFAULT_IMAGE_TAG,
+          LOG_LEVEL: opts.logLevel,
+          STATIC_TOKENS: opts.staticTokens,
+        });
+      })
+    );
 }
 
 function stopCommand(): Command {
@@ -89,8 +125,8 @@ function viewLogsCommand(): Command {
   return newCommand()
     .command('logs')
     .description('view server logs')
-    .option('-f, --follow')
-    .option('-s, --since <duration>', 'TODO', '5m')
+    .option('-f, --follow', 'follow changes')
+    .option('-s, --since <duration>', 'log start time cutoff', '5m')
     .action(
       dockerComposeAction(async function (opts) {
         const args = ['logs', 'server', '--no-log-prefix'];
@@ -133,7 +169,10 @@ async function dockerCompose(
     stdio: 'inherit',
     env: {
       ...process.env,
-      IMAGE_TAG: 'latest',
+      BUCKET_PATH: '/unused',
+      IMAGE_TAG: DEFAULT_IMAGE_TAG,
+      STATIC_TOKENS: '',
+      LOG_LEVEL: '',
       POSTGRES_PASS: randomPassword(),
       REDIS_PASS: randomPassword(),
       ...env,
