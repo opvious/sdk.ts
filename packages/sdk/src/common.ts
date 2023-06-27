@@ -18,9 +18,9 @@
 import * as api from '@opvious/api';
 import __inlinable from 'inlinable';
 import {
-  OpenapiDocument,
   openapiSchemaEnforcer,
   parseOpenapiDocument,
+  SchemaEnforcer,
 } from 'yasdk-openapi';
 
 /** Package metadata. */
@@ -33,9 +33,11 @@ export function strippingTrailingSlashes(arg: string): string {
   return arg.replace(/\/+$/, '');
 }
 
-export const openapiDocument: OpenapiDocument = parseOpenapiDocument(
-  api.OPENAPI_SCHEMA
-);
-
-export const schemaEnforcer =
-  openapiSchemaEnforcer<api.Schemas>(openapiDocument);
+let enforcer: SchemaEnforcer<api.Schemas> | undefined;
+export function schemaEnforcer(): SchemaEnforcer<api.Schemas> {
+  if (!enforcer) {
+    const doc = parseOpenapiDocument(api.OPENAPI_SCHEMA);
+    enforcer = openapiSchemaEnforcer(doc);
+  }
+  return enforcer;
+}

@@ -25,8 +25,6 @@ import {assertValue} from 'yasdk-openapi';
 
 import {schemaEnforcer} from './common.js';
 
-const validators = schemaEnforcer.validators({names: ['SolveCandidate']});
-
 export async function loadSolveCandidate(
   lp: PathLike,
   opts?: {
@@ -47,7 +45,7 @@ export function parseSolveCandidate(
   if (opts?.jsonPath) {
     data = jp.value(data, opts?.jsonPath);
   }
-  assertValue(validators.isSolveCandidate, data);
+  assertCandidate(data);
   return data;
 }
 
@@ -63,3 +61,10 @@ export interface SolveTrackerListeners {
 }
 
 export type SolveTracker = EventConsumer<SolveTrackerListeners>;
+
+function assertCandidate(
+  arg: unknown
+): asserts arg is api.Schema<'SolveCandidate'> {
+  const validators = schemaEnforcer().validators({names: ['SolveCandidate']});
+  assertValue(validators.isSolveCandidate, arg);
+}
