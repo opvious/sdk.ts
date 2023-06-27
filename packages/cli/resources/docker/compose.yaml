@@ -8,10 +8,15 @@ services:
       redis:
         condition: service_healthy
     environment:
+      BUCKET_URL: file:///mnt/bucket
       DB_URL: postgres://postgres:$POSTGRES_PASS@db/opvious
+      LL: $LOG_LEVEL
       REDIS_URL: redis://:$REDIS_PASS@redis
+      STATIC_TOKENS: $STATIC_TOKENS
     ports:
       - '8080:8080'
+    volumes:
+      - $BUCKET_PATH:/mnt/bucket
   db:
     image: postgres:15-alpine
     healthcheck:
