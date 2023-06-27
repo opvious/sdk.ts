@@ -1,7 +1,7 @@
 name: opvious-api
 services:
   server:
-    image: opvious/api-server
+    image: opvious/api-server:$IMAGE_TAG
     depends_on:
       db:
         condition: service_healthy
