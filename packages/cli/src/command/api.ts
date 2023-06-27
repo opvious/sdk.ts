@@ -16,6 +16,7 @@
  */
 
 import {errorFactories} from '@opvious/stl-errors';
+import {ProcessEnv} from '@opvious/stl-utils/environment';
 import {LocalPath, localPath} from '@opvious/stl-utils/files';
 import {spawn} from 'child_process';
 import {Command} from 'commander';
@@ -57,10 +58,8 @@ function startCommand(): Command {
   return (
     newCommand()
       .command('start')
-      .description(
-        'start API server. this requires `docker-compose` and a running ' +
-          'Docker daemon'
-      )
+      .description('start server')
+      .option('-t, --tag <tag>', 'image tag', 'latest')
       .option('-w, --wait', 'wait for all services to be ready')
       // TODO: bundle variant based on active license
       .action(
@@ -69,7 +68,7 @@ function startCommand(): Command {
           if (opts.wait) {
             args.push('--wait');
           }
-          await this.run(args);
+          await this.run(args, {IMAGE_TAG: opts.tag});
         })
       )
   );
@@ -78,7 +77,7 @@ function startCommand(): Command {
 function stopCommand(): Command {
   return newCommand()
     .command('stop')
-    .description('stop running API server')
+    .description('stop server')
     .action(
       dockerComposeAction(async function () {
         await this.run(['down']);
@@ -89,7 +88,7 @@ function stopCommand(): Command {
 function viewLogsCommand(): Command {
   return newCommand()
     .command('logs')
-    .description('view API logs')
+    .description('view server logs')
     .option('-f, --follow')
     .option('-s, --since <duration>', 'TODO', '5m')
     .action(
@@ -113,25 +112,31 @@ function dockerComposeAction(
     const {config, spinner} = this;
     const lp = config.dockerComposePath ?? 'docker-compose';
     spinner.info(`Running command... [path=${lp}]`);
-    return fn.call({run: (args) => dockerCompose(lp, args)}, ...args);
+    return fn.call({run: (args, env) => dockerCompose(lp, args, env)}, ...args);
   });
 }
 
 interface DockerComposeActionContext {
-  readonly run: (args: ReadonlyArray<string>) => Promise<void>;
+  readonly run: (
+    args: ReadonlyArray<string>,
+    env?: ProcessEnv
+  ) => Promise<void>;
 }
 
 async function dockerCompose(
   lp: LocalPath,
-  args: ReadonlyArray<string>
+  args: ReadonlyArray<string>,
+  env?: ProcessEnv
 ): Promise<void> {
   const child = spawn(lp, args, {
     cwd: localPath(resourceLoader.localUrl('docker')),
     stdio: 'inherit',
     env: {
       ...process.env,
+      IMAGE_TAG: 'latest',
       POSTGRES_PASS: randomPassword(),
       REDIS_PASS: randomPassword(),
+      ...env,
     },
   });
   let code;
