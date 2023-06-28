@@ -1,6 +1,6 @@
 {
   "name": "opvious-sheets",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious spreadsheet utilities",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_sheets.html",
