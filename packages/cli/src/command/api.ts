@@ -56,13 +56,13 @@ export function apiCommand(): Command {
     .addCommand(viewLogsCommand());
 }
 
-const defaultBucketPath = path.join(os.tmpdir(), 'opvious-data');
+const defaultBucketPath = path.join(os.tmpdir(), 'opvious-api-bucket');
 
 const DEFAULT_IMAGE_TAG = 'latest';
 
 const DEFAULT_PORT = '8080';
 
-const DEFAULT_SECRET = 'unsafe-default-secret';
+const DEFAULT_SECRET = 'unsafe-secret';
 
 function startCommand(): Command {
   return newCommand()
@@ -95,9 +95,9 @@ function startCommand(): Command {
       'password used to connect to the database and cache'
     )
     .option(
-      '-t, --static-tokens <tokens>',
+      '-t, --static-tokens <entries>',
       'comma-separated list of static authorization tokens, where each ' +
-        'entry has the form <email>=<token>'
+        'entry has the form `<email>=<token>`'
     )
     .option('-w, --wait', 'wait for all services to be ready')
     .action(
