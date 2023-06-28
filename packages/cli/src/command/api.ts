@@ -20,8 +20,8 @@ import {ProcessEnv} from '@opvious/stl-utils/environment';
 import {LocalPath, localPath} from '@opvious/stl-utils/files';
 import {spawn} from 'child_process';
 import {Command} from 'commander';
-import crypto from 'crypto';
 import events from 'events';
+import {mkdir} from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import {AsyncOrSync} from 'ts-essentials';
@@ -56,9 +56,13 @@ export function apiCommand(): Command {
     .addCommand(viewLogsCommand());
 }
 
-const defaultBucketPath = path.join(os.tmpdir(), 'opvious-data');
+const defaultBucketPath = path.join(os.tmpdir(), 'opvious-api-bucket');
 
 const DEFAULT_IMAGE_TAG = 'latest';
+
+const DEFAULT_PORT = '8080';
+
+const DEFAULT_SECRET = 'unsafe-secret';
 
 function startCommand(): Command {
   return newCommand()
@@ -66,12 +70,13 @@ function startCommand(): Command {
     .description('start server')
     .option(
       '-b, --bucket <path>',
-      'local path where attempt data will be stored',
+      'local path where attempt data will be stored. the folder will be ' +
+        'created if it does not already exist',
       defaultBucketPath
     )
     .option(
       '-f, --fresh',
-      'always recreate fresh containers. by default this command is a ' +
+      'always create fresh containers. by default this command is a ' +
         'no-op if the API is already running'
     )
     .option(
@@ -84,13 +89,22 @@ function startCommand(): Command {
       'server log level',
       'info,@opvious/api-server=debug'
     )
-    .option('-t, --static-tokens <tokens>', 'static authorization tokens', '')
+    .option('-p, --port <port>', 'host port to bind to', DEFAULT_PORT)
+    .option(
+      '-s, --secret <secret>',
+      'password used to connect to the database and cache'
+    )
+    .option(
+      '-t, --static-tokens <entries>',
+      'comma-separated list of static authorization tokens, where each ' +
+        'entry has the form `<email>=<token>`'
+    )
     .option('-w, --wait', 'wait for all services to be ready')
     .action(
       dockerComposeAction(async function (opts) {
         const args = ['up', '--detach'];
         if (opts.fresh) {
-          args.push('--force-recreate', '--renew-anon-volumes');
+          args.push('--force-recreate');
         } else {
           args.push('--no-recreate');
         }
@@ -100,11 +114,15 @@ function startCommand(): Command {
         if (opts.wait) {
           args.push('--wait');
         }
+        const bucket = path.resolve(opts.bucket);
+        await mkdir(bucket, {recursive: true});
         await this.run(args, {
-          BUCKET_PATH: opts.bucket,
+          BUCKET_PATH: bucket,
           IMAGE_TAG: opts.imageTag ?? DEFAULT_IMAGE_TAG,
           LOG_LEVEL: opts.logLevel,
-          STATIC_TOKENS: opts.staticTokens,
+          PORT: opts.port,
+          SECRET: opts.secret ?? DEFAULT_SECRET,
+          STATIC_TOKENS: opts.staticTokens ?? '',
         });
       })
     );
@@ -173,8 +191,8 @@ async function dockerCompose(
       IMAGE_TAG: DEFAULT_IMAGE_TAG,
       STATIC_TOKENS: '',
       LOG_LEVEL: '',
-      POSTGRES_PASS: randomPassword(),
-      REDIS_PASS: randomPassword(),
+      PORT: DEFAULT_PORT,
+      SECRET: DEFAULT_SECRET,
       ...env,
     },
   });
@@ -190,8 +208,4 @@ async function dockerCompose(
   if (code) {
     throw errors.nonZeroExitCode(code);
   }
-}
-
-function randomPassword(): string {
-  return crypto.randomBytes(12).toString('hex');
 }

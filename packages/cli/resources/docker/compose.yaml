@@ -9,14 +9,14 @@ services:
         condition: service_healthy
     environment:
       BUCKET_URL: file:///mnt/bucket
-      DB_URL: postgres://postgres:$POSTGRES_PASS@db/opvious
+      DB_URL: postgres://postgres:$SECRET@db/opvious
       LL: $LOG_LEVEL
-      REDIS_URL: redis://:$REDIS_PASS@redis
+      REDIS_URL: redis://:$SECRET@redis
       STATIC_TOKENS: $STATIC_TOKENS
     ports:
-      - '8080:8080'
+      - $PORT:8080
     volumes:
-      - $BUCKET_PATH:/mnt/bucket
+      - $BUCKET_PATH:/mnt/bucket:rw
   db:
     image: postgres:15-alpine
     healthcheck:
@@ -26,10 +26,10 @@ services:
       retries: 10
     environment:
       POSTGRES_DB: opvious
-      POSTGRES_PASSWORD: $POSTGRES_PASS
+      POSTGRES_PASSWORD: $SECRET
   redis:
     image: redis:7-alpine
-    command: redis-server --requirepass $REDIS_PASS
+    command: redis-server --requirepass $SECRET
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 2s
