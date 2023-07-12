@@ -58,6 +58,9 @@ opvious api start
 
 You can then use this API's endpoint instead of the default Opvious cloud API by
 setting the `OPVIOUS_ENDPOINT` environment variable to `http://localhost:8080`.
+Consider for example creating an alternate configuration profile pointing to it
+(see below).
+
 The following commands may also be useful:
 
 ```sh
@@ -88,17 +91,17 @@ multiple profiles to access the API.
 ```yaml
 # Sample configuration with two profiles
 profiles:
-  - name: first
-    token: $FIRST_OPVIOUS_TOKEN
-  - name: second
-    token: $SECOND_OPVIOUS_TOKEN
+  - name: default
+    token: ... # Cloud API token
+  - name: local
+    endpoint: http://localhost:8080
 ```
 
 By default the first profile from the configuration is selected. You can select
 another one by specifying the `-P, --profile` flag when running any command.
 
 ```sh
-opvious -P second formulation list
+opvious -P local formulation list
 ```
 
 
