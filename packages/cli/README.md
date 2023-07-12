@@ -19,7 +19,7 @@ opvious me # Should show your account's email
 
 ## Sample usage
 
-### Validating formulations interactively
+### Interactively validating LaTeX formulations
 
 ```sh
 opvious formulation validate -w sources/*
@@ -38,6 +38,15 @@ opvious formulation list
 
 ```sh
 opvious formulation outline "$NAME"
+```
+
+### Starting a local API server
+
+_Use of the API server is subject to the [Opvious API image
+EULA](https://www.opvious.io/end-user-license-agreements/api-image)_
+
+```sh
+opvious api start
 ```
 
 ## Next steps
