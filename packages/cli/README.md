@@ -66,8 +66,8 @@ opvious api stop # Stop the server
 opvious api logs # View server logs
 ```
 
-Under the hood this command uses `docker-compose` to start the server along with
-its dependencies.
+Under the hood these commands wrap `docker-compose` to manage the server's image
+along with its dependencies ([`compose.yaml`][API server compose]).
 
 
 ## Next steps
@@ -105,3 +105,4 @@ opvious -P second formulation list
 [Node.js]: https://nodejs.org
 [token]: https://hub.beta.opvious.io/authorizations.
 [API server]: https://hub.docker.com/repository/docker/opvious/api-server
+[API server compose]: https://github.com/opvious/sdk.ts/blob/main/packages/cli/resources/docker/compose.yaml
