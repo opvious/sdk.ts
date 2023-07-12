@@ -11,6 +11,7 @@ services:
       BUCKET_URL: file:///mnt/bucket
       DB_URL: postgres://postgres:$SECRET@db/opvious
       LL: $LOG_LEVEL
+      OPVIOUS_API_IMAGE_EULA: $OPVIOUS_API_IMAGE_EULA
       REDIS_URL: redis://:$SECRET@redis
       STATIC_TOKENS: $STATIC_TOKENS
     ports:

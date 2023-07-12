@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious.html",
@@ -29,22 +29,22 @@
   },
   "dependencies": {
     "@opentelemetry/api": "~1.4.1",
-    "@opvious/api": "^0.16.23",
-    "@opvious/stl-errors": "^0.21.4",
-    "@opvious/stl-telemetry": "^0.21.4",
-    "@opvious/stl-utils": "^0.21.4",
+    "@opvious/api": "^0.16.26",
+    "@opvious/stl-errors": "^0.21.8",
+    "@opvious/stl-telemetry": "^0.21.8",
+    "@opvious/stl-utils": "^0.21.8",
     "backoff": "^2.5.0",
     "graphql": "^16.6.0",
     "json-text-sequence": "^1.0.1",
     "jsonpath": "^1.1.1",
     "node-fetch": "^3.3.1",
     "yaml": "^2.2.2",
-    "yasdk-openapi": "^0.3.16"
+    "yasdk-openapi": "^0.3.18"
   },
   "devDependencies": {
     "@types/backoff": "^2.5.2",
     "@types/jsonpath": "^0.2.0",
-    "inlinable": "^0.2.5",
-    "yasdk-runtime": "^0.3.16"
+    "inlinable": "^0.2.6",
+    "yasdk-runtime": "^0.3.18"
   }
 }

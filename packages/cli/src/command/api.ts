@@ -15,6 +15,7 @@
  * the License.
  */
 
+import {assertApiImageEulaAccepted} from '@opvious/api/eulas';
 import {errorFactories} from '@opvious/stl-errors';
 import {ProcessEnv} from '@opvious/stl-utils/environment';
 import {LocalPath, localPath} from '@opvious/stl-utils/files';
@@ -102,6 +103,7 @@ function startCommand(): Command {
     .option('-w, --wait', 'wait for all services to be ready')
     .action(
       dockerComposeAction(async function (opts) {
+        assertApiImageEulaAccepted();
         const args = ['up', '--detach'];
         if (opts.fresh) {
           args.push('--force-recreate');
