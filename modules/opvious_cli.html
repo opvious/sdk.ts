@@ -23,13 +23,32 @@
 variable in your local environment (for example inside your Bash profile).</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">me</span><span class="hl-1"> </span><span class="hl-4"># Should show your account&#39;s email</span>
 </code><button>Copy</button></pre>
-<a id="md:sample-usage" class="tsd-anchor"></a><h2><a href="#md:sample-usage">Sample usage</a></h2><a id="md:validating-formulations-interactively" class="tsd-anchor"></a><h3><a href="#md:validating-formulations-interactively">Validating formulations interactively</a></h3><pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">validate</span><span class="hl-1"> </span><span class="hl-3">-w</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
+<a id="md:sample-usage" class="tsd-anchor"></a><h2><a href="#md:sample-usage">Sample usage</a></h2><a id="md:creating-and-listing-existing-formulations" class="tsd-anchor"></a><h3><a href="#md:creating-and-listing-existing-formulations">Creating and listing existing formulations</a></h3><p>Create formulations directly from local specification files (typically in
+Markdown or LaTeX):</p>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">register</span><span class="hl-1"> </span><span class="hl-3">-f</span><span class="hl-1"> </span><span class="hl-2">&quot;</span><span class="hl-5">$NAME</span><span class="hl-2">&quot;</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
+</code><button>Copy</button></pre>
+<p>These can then be used to start long-running optimization attempts. You can also
+list currently available formulations in your account:</p>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">list</span>
+</code><button>Copy</button></pre>
+<a id="md:interactively-validating-specifications" class="tsd-anchor"></a><h3><a href="#md:interactively-validating-specifications">Interactively validating specifications</a></h3><p>Get real-time feedback as you write a model&#39;s specification:</p>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">validate</span><span class="hl-1"> </span><span class="hl-3">-w</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
 </code><button>Copy</button></pre>
 <p><a href="https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy"><img src="https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy.svg" alt="asciicast"></a></p>
-<a id="md:creating-and-listing-existing-formulations" class="tsd-anchor"></a><h3><a href="#md:creating-and-listing-existing-formulations">Creating and listing existing formulations</a></h3><pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">register</span><span class="hl-1"> </span><span class="hl-3">-f</span><span class="hl-1"> </span><span class="hl-2">&quot;</span><span class="hl-5">$NAME</span><span class="hl-2">&quot;</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">list</span>
+<a id="md:starting-a-local-api-server" class="tsd-anchor"></a><h3><a href="#md:starting-a-local-api-server">Starting a local API server</a></h3><p><em>Use of API servers is subject to the <a href="https://www.opvious.io/end-user-license-agreements/api-image">Opvious API image
+EULA</a>.</em></p>
+<p>Start an <a href="https://hub.docker.com/repository/docker/opvious/api-server">API server</a> locally on port 8080:</p>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">start</span>
 </code><button>Copy</button></pre>
-<a id="md:displaying-a-formulation39s-outline" class="tsd-anchor"></a><h3><a href="#md:displaying-a-formulation39s-outline">Displaying a formulation&#39;s outline</a></h3><pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">outline</span><span class="hl-1"> </span><span class="hl-2">&quot;</span><span class="hl-5">$NAME</span><span class="hl-2">&quot;</span>
+<p>You can then use this API&#39;s endpoint instead of the default Opvious cloud API by
+setting the <code>OPVIOUS_ENDPOINT</code> environment variable to <code>http://localhost:8080</code>.
+Consider for example creating an alternate configuration profile pointing to it
+(see below).</p>
+<p>The following commands may also be useful:</p>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">start</span><span class="hl-1"> </span><span class="hl-3">-h</span><span class="hl-1"> </span><span class="hl-4"># View available options (custom port, ...)</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">stop</span><span class="hl-1"> </span><span class="hl-4"># Stop the server</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">logs</span><span class="hl-1"> </span><span class="hl-4"># View server logs</span>
 </code><button>Copy</button></pre>
+<p>Under the hood these commands wrap <code>docker-compose</code> to manage the server&#39;s image
+along with its dependencies (<a href="https://github.com/opvious/sdk.ts/blob/main/packages/cli/resources/docker/compose.yaml"><code>compose.yaml</code></a>).</p>
 <a id="md:next-steps" class="tsd-anchor"></a><h2><a href="#md:next-steps">Next steps</a></h2><p>You can view the full list of available commands by running:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-3">-h</span>
 </code><button>Copy</button></pre>
@@ -37,11 +56,11 @@ variable in your local environment (for example inside your Bash profile).</p>
 file from <code>~/.config/opvious/cli.yml</code> (this location can be changed by setting
 the <code>OPVIOUS_CONFIG</code> environment variable). This configuration allows declaring
 multiple profiles to access the API.</p>
-<pre><code class="language-yaml"><span class="hl-4"># Sample configuration with two profiles</span><br/><span class="hl-6">profiles</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-6">name</span><span class="hl-1">: </span><span class="hl-7">first</span><br/><span class="hl-1">    </span><span class="hl-6">token</span><span class="hl-1">: </span><span class="hl-7">$FIRST_OPVIOUS_TOKEN</span><br/><span class="hl-1">  - </span><span class="hl-6">name</span><span class="hl-1">: </span><span class="hl-7">second</span><br/><span class="hl-1">    </span><span class="hl-6">token</span><span class="hl-1">: </span><span class="hl-7">$SECOND_OPVIOUS_TOKEN</span>
+<pre><code class="language-yaml"><span class="hl-4"># Sample configuration with two profiles</span><br/><span class="hl-6">profiles</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-6">name</span><span class="hl-1">: </span><span class="hl-7">default</span><br/><span class="hl-1">    </span><span class="hl-6">token</span><span class="hl-1">: </span><span class="hl-8">...</span><span class="hl-1"> </span><span class="hl-4"># Cloud API token</span><br/><span class="hl-1">  - </span><span class="hl-6">name</span><span class="hl-1">: </span><span class="hl-7">local</span><br/><span class="hl-1">    </span><span class="hl-6">endpoint</span><span class="hl-1">: </span><span class="hl-7">http://localhost:8080</span>
 </code><button>Copy</button></pre>
 <p>By default the first profile from the configuration is selected. You can select
 another one by specifying the <code>-P, --profile</code> flag when running any command.</p>
-<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-3">-P</span><span class="hl-1"> </span><span class="hl-2">second</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">list</span>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-3">-P</span><span class="hl-1"> </span><span class="hl-2">local</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">list</span>
 </code><button>Copy</button></pre>
 </section>
 <section class="tsd-panel-group tsd-index-group">
@@ -83,9 +102,9 @@ another one by specifying the <code>-P, --profile</code> flag when running any c
 <li><a href="#md:sample-usage"><span>Sample usage</span></a></li>
 <li>
 <ul>
-<li><a href="#md:validating-formulations-interactively"><span>Validating formulations interactively</span></a></li>
 <li><a href="#md:creating-and-listing-existing-formulations"><span>Creating and listing existing formulations</span></a></li>
-<li><a href="#md:displaying-a-formulation39s-outline"><span>Displaying a formulation&#39;s outline</span></a></li></ul></li>
+<li><a href="#md:interactively-validating-specifications"><span>Interactively validating specifications</span></a></li>
+<li><a href="#md:starting-a-local-api-server"><span>Starting a local API server</span></a></li></ul></li>
 <li><a href="#md:next-steps"><span>Next steps</span></a></li>
 <li>
 <ul>
