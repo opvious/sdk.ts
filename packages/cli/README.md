@@ -19,7 +19,25 @@ opvious me # Should show your account's email
 
 ## Sample usage
 
-### Interactively validating LaTeX formulations
+### Creating and listing existing formulations
+
+Create formulations directly from local specification files (typically in
+Markdown or LaTeX):
+
+```sh
+opvious formulation register -f "$NAME" sources/*
+```
+
+These can then be used to start long-running optimization attempts. You can also
+list currently available formulations in your account:
+
+```sh
+opvious formulation list
+```
+
+### Interactively validating specifications
+
+Get real-time feedback as you write a model's specification:
 
 ```sh
 opvious formulation validate -w sources/*
@@ -27,27 +45,30 @@ opvious formulation validate -w sources/*
 
 [![asciicast](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy.svg)](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy)
 
-### Creating and listing existing formulations
-
-```sh
-opvious formulation register -f "$NAME" sources/*
-opvious formulation list
-```
-
-### Displaying a formulation's outline
-
-```sh
-opvious formulation outline "$NAME"
-```
-
 ### Starting a local API server
 
-_Use of the API server is subject to the [Opvious API image
-EULA](https://www.opvious.io/end-user-license-agreements/api-image)_
+_Use of API servers is subject to the [Opvious API image
+EULA](https://www.opvious.io/end-user-license-agreements/api-image)._
+
+Start an [API server][] locally on port 8080:
 
 ```sh
 opvious api start
 ```
+
+You can then use this API's endpoint instead of the default Opvious cloud API by
+setting the `OPVIOUS_ENDPOINT` environment variable to `http://localhost:8080`.
+The following commands may also be useful:
+
+```sh
+opvious api start -h # View available options (custom port, ...)
+opvious api stop # Stop the server
+opvious api logs # View server logs
+```
+
+Under the hood this command uses `docker-compose` to start the server along with
+its dependencies.
+
 
 ## Next steps
 
@@ -83,3 +104,4 @@ opvious -P second formulation list
 
 [Node.js]: https://nodejs.org
 [token]: https://hub.beta.opvious.io/authorizations.
+[API server]: https://hub.docker.com/repository/docker/opvious/api-server
