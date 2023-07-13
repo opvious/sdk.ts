@@ -8,20 +8,20 @@ This package exposes a typesafe SDK for the Opvious API.
 
 ## Quickstart
 
-> You'll need an Opvious API access token to run client methods. You can
-> generate one at https://hub.beta.opvious.io/authorizations.
-
 ```typescript
 import {OpviousClient} from 'opvious';
 
-// Generates a client using the access token stored in the
-// `OPVIOUS_TOKEN` environment variable. You can also pass
-// one explicitly via the `authorization` option.
+// Generates a client using the access token stored in the `OPVIOUS_TOKEN`
+// environment variable, if any. You can also pass one explicitly via the
+// `token` option.
 const client = OpviousClient.create();
 
-// Solves an optimization model asynchronously.
-const attempt = await client.startAttempt({
-  formulationName: 'my-formulation',
-  // ...
-});
+// Solves an optimization problem
+client.runSolve({/* Input data */})
+  .on('solving', (progress) => {
+    console.log(`Solving... [gap=${progress.relativeGap}]`);
+  })
+  .on('solved', (outcome) => {
+    console.log(`${outcome.status} solve. [value=${outcome.objectiveValue}]`);
+  });
 ```
