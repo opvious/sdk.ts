@@ -557,4 +557,4 @@ export interface OpviousClientOptions {
   readonly maxRetryDelayMillis?: number;
 }
 
-const DEFAULT_ENDPOINT = 'https://api.beta.opvious.io';
+const DEFAULT_ENDPOINT = 'https://api.cloud.opvious.io';

@@ -106,6 +106,6 @@ opvious -P local formulation list
 
 
 [Node.js]: https://nodejs.org
-[token]: https://hub.beta.opvious.io/authorizations.
+[token]: https://hub.cloud.opvious.io/authorizations.
 [API server]: https://hub.docker.com/repository/docker/opvious/api-server
 [API server compose]: https://github.com/opvious/sdk.ts/blob/main/packages/cli/resources/docker/compose.yaml
