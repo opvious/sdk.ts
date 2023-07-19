@@ -22,9 +22,9 @@
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "@opvious/api": "^0.16.29",
-    "@opvious/stl-errors": "^0.21.8",
-    "@opvious/stl-utils": "^0.21.8",
+    "@opvious/api": "^0.16.32",
+    "@opvious/stl-errors": "^0.21.10",
+    "@opvious/stl-utils": "^0.21.10",
     "change-case": "^4.1.2",
     "pluralize": "^8.0.0"
   },
