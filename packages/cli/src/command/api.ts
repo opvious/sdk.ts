@@ -34,8 +34,8 @@ const [errors] = errorFactories({
   definitions: {
     commandMissing: (lp: LocalPath) => ({
       message:
-        `No command available at \`${lp}\`. Please make sure docker-compose ` +
-        'is installed',
+        `No command available at \`${lp}\`. Please make sure docker is ` +
+        'installed',
     }),
     spawnFailed: (cause: unknown) => ({
       message: 'Unable to run command',
@@ -102,9 +102,9 @@ function startCommand(): Command {
     )
     .option('-w, --wait', 'wait for all services to be ready')
     .action(
-      dockerComposeAction(async function (opts) {
+      dockerAction(async function (opts) {
         assertApiImageEulaAccepted();
-        const args = ['up', '--detach'];
+        const args = ['compose', 'up', '--detach'];
         if (opts.fresh) {
           args.push('--force-recreate');
         } else {
@@ -135,8 +135,8 @@ function stopCommand(): Command {
     .command('stop')
     .description('stop server')
     .action(
-      dockerComposeAction(async function () {
-        await this.run(['down']);
+      dockerAction(async function () {
+        await this.run(['compose', 'down']);
       })
     );
 }
@@ -148,8 +148,8 @@ function viewLogsCommand(): Command {
     .option('-f, --follow', 'follow changes')
     .option('-s, --since <duration>', 'log start time cutoff', '5m')
     .action(
-      dockerComposeAction(async function (opts) {
-        const args = ['logs', 'server', '--no-log-prefix'];
+      dockerAction(async function (opts) {
+        const args = ['compose', 'logs', 'server', '--no-log-prefix'];
         if (opts.follow) {
           args.push('--follow');
         }
@@ -161,14 +161,14 @@ function viewLogsCommand(): Command {
     );
 }
 
-function dockerComposeAction(
+function dockerAction(
   fn: (this: DockerComposeActionContext, ...args: any[]) => AsyncOrSync<void>
 ): (...args: any[]) => Promise<void> {
   return contextualAction(async function (...args) {
     const {config, spinner} = this;
-    const lp = config.dockerComposePath ?? 'docker-compose';
-    spinner.info(`Running command... [path=${lp}]`);
-    return fn.call({run: (args, env) => dockerCompose(lp, args, env)}, ...args);
+    const lp = config.dockerPath ?? 'docker';
+    spinner.info(`Running docker command... [path=${lp}]`);
+    return fn.call({run: (args, env) => runDocker(lp, args, env)}, ...args);
   });
 }
 
@@ -179,7 +179,7 @@ interface DockerComposeActionContext {
   ) => Promise<void>;
 }
 
-async function dockerCompose(
+async function runDocker(
   lp: LocalPath,
   args: ReadonlyArray<string>,
   env?: ProcessEnv

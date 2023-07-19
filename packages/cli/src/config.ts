@@ -16,7 +16,7 @@ export interface Config {
   readonly profileName?: string;
   readonly client: OpviousClient;
   readonly token?: string;
-  readonly dockerComposePath?: string;
+  readonly dockerPath?: string;
 }
 
 export async function loadConfig(args: {
@@ -55,13 +55,13 @@ export async function loadConfig(args: {
       telemetry,
     }),
     token,
-    dockerComposePath: cfgFile?.dockerComposePath,
+    dockerPath: cfgFile?.dockerPath,
   };
 }
 
 interface ConfigFile {
   readonly profiles: ReadonlyArray<Profile>;
-  readonly dockerComposePath?: string;
+  readonly dockerPath?: string;
 }
 
 const ajv = new Ajv();
@@ -88,7 +88,7 @@ const validate = ajv.compile<DeepWritable<ConfigFile>>({
         },
       },
     },
-    dockerComposePath: {
+    dockerPath: {
       type: 'string',
     },
   },
