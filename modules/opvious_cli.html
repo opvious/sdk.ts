@@ -47,7 +47,7 @@ Consider for example creating an alternate configuration profile pointing to it
 <p>The following commands may also be useful:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">start</span><span class="hl-1"> </span><span class="hl-3">-h</span><span class="hl-1"> </span><span class="hl-4"># View available options (custom port, ...)</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">stop</span><span class="hl-1"> </span><span class="hl-4"># Stop the server</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">logs</span><span class="hl-1"> </span><span class="hl-4"># View server logs</span>
 </code><button>Copy</button></pre>
-<p>Under the hood these commands wrap <code>docker-compose</code> to manage the server&#39;s image
+<p>Under the hood these commands wrap <code>docker compose</code> to manage the server&#39;s image
 along with its dependencies (<a href="https://github.com/opvious/sdk.ts/blob/main/packages/cli/resources/docker/compose.yaml"><code>compose.yaml</code></a>).</p>
 <a id="md:next-steps" class="tsd-anchor"></a><h2><a href="#md:next-steps">Next steps</a></h2><p>You can view the full list of available commands by running:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-3">-h</span>
