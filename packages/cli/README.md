@@ -69,7 +69,7 @@ opvious api stop # Stop the server
 opvious api logs # View server logs
 ```
 
-Under the hood these commands wrap `docker-compose` to manage the server's image
+Under the hood these commands wrap `docker compose` to manage the server's image
 along with its dependencies ([`compose.yaml`][API server compose]).
 
 
