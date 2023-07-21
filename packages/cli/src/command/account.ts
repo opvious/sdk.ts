@@ -25,7 +25,7 @@ import {contextualAction, newCommand} from './common.js';
 export function accountCommand(): Command {
   return newCommand()
     .command('account')
-    .description('account commands')
+    .description('account management commands')
     .addCommand(listAuthorizationsCommand())
     .addCommand(generateAuthorizationCommand())
     .addCommand(revokeAuthorizationCommand());

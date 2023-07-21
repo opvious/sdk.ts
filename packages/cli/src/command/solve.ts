@@ -26,7 +26,7 @@ import {contextualAction, newCommand} from './common.js';
 export function solveCommand(): Command {
   return newCommand()
     .command('solve')
-    .description('solve commands')
+    .description('solve management commands')
     .addCommand(runCommand())
     .addCommand(inspectInstructionsCommand());
 }

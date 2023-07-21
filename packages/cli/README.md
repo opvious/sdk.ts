@@ -1,28 +1,46 @@
 # Opvious CLI [![NPM version](https://img.shields.io/npm/v/opvious-cli.svg)](https://www.npmjs.com/package/opvious-cli)
 
-A command line interface to the Opvious API.
-
-## Quickstart
-
-First install this package via [Node.js][]'s built-in `npm`:
+A [Node.js][] command line interface to the Opvious API.
 
 ```sh
 npm i -g opvious-cli
 ```
 
-Then set a valid [Opvious API token][token] as `OPVIOUS_TOKEN` environment
-variable in your local environment (for example inside your Bash profile).
+## Configuration
+
+By default the CLI connects to the Opvious cloud API. It can also be configured
+to connect to a self-hosted [API server][] by setting the `OPVIOUS_ENDPOINT`
+environment variable correspondingly, for example `http://localhost:8080` (see
+also [Starting an API server](#starting-an-api-server) below).
+
+In both cases, most commands require a valid API token to be set as
+`OPVIOUS_TOKEN` environment variable. Cloud API tokens can be generated
+[here][authorizations]; refer to the API server documentation to learn how to
+authenticate in the self-hosted case.
+
+You can check that your CLI is authenticated by running the following command:
 
 ```sh
 opvious me # Should show your account's email
 ```
 
-## Sample usage
 
-### Creating and listing existing formulations
+## Sample commands
 
-Create formulations directly from local specification files (typically in
-Markdown or LaTeX):
+### Managing API tokens
+
+The CLI allows you to list, create, and revoke your API tokens.
+
+```sh
+opvious account authorizations # List all tokens
+opvious account generate-authorization # Create a new API token
+opvious account revoke-authorization # Revoke an existing API token
+```
+
+### Managing formulations
+
+You can create formulations directly from local specification files (typically
+in Markdown or LaTeX):
 
 ```sh
 opvious formulation register -f "$NAME" sources/*
@@ -35,7 +53,7 @@ list currently available formulations in your account:
 opvious formulation list
 ```
 
-### Interactively validating specifications
+### Validating specifications
 
 Get real-time feedback as you write a model's specification:
 
@@ -45,10 +63,7 @@ opvious formulation validate -w sources/*
 
 [![asciicast](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy.svg)](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy)
 
-### Starting a local API server
-
-_Use of API servers is subject to the [Opvious API image
-EULA](https://www.opvious.io/end-user-license-agreements/api-image)._
+### Starting an API server
 
 Start an [API server][] locally on port 8080:
 
@@ -106,6 +121,6 @@ opvious -P local formulation list
 
 
 [Node.js]: https://nodejs.org
-[token]: https://hub.cloud.opvious.io/authorizations.
+[authorizations]: https://hub.cloud.opvious.io/authorizations.
 [API server]: https://hub.docker.com/repository/docker/opvious/api-server
 [API server compose]: https://github.com/opvious/sdk.ts/blob/main/packages/cli/resources/docker/compose.yaml

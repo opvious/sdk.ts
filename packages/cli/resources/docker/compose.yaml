@@ -8,12 +8,19 @@ services:
       redis:
         condition: service_healthy
     environment:
-      BUCKET_URL: file:///mnt/bucket
-      DB_URL: postgres://postgres:$SECRET@db/opvious
-      LL: $LOG_LEVEL
-      OPVIOUS_API_IMAGE_EULA: $OPVIOUS_API_IMAGE_EULA
-      REDIS_URL: redis://:$SECRET@redis
-      STATIC_TOKENS: $STATIC_TOKENS
+      # License check
+      - OPVIOUS_API_IMAGE_EULA
+      # Authentication
+      - STATIC_TOKENS
+      # URLs
+      - BUCKET_URL=file:///mnt/bucket
+      - DB_URL=postgres://postgres:$SECRET@db/opvious
+      - REDIS_URL=redis://:$SECRET@redis
+      # Telemetry
+      - LL
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_TRACES_SAMPLER=traceidratio
+      - OTEL_TRACES_SAMPLER_ARG
     ports:
       - $PORT:8080
     volumes:
