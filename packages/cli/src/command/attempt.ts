@@ -29,18 +29,18 @@ import {contextualAction, newCommand} from './common.js';
 export function attemptCommand(): Command {
   return newCommand()
     .command('attempt')
-    .description('attempt commands')
+    .description('attempt management commands')
+    .addCommand(listAttemptsCommand())
     .addCommand(runAttemptCommand())
     .addCommand(cancelAttemptCommand())
     .addCommand(fetchAttemptInstructions())
-    .addCommand(listAttemptsCommand())
     .addCommand(listAttemptNotificationsCommand());
 }
 
 function runAttemptCommand(): Command {
   return newCommand()
     .command('run')
-    .description('run a new attempt')
+    .description('start a new queued solve attempt')
     .argument('<path>', 'path to candidate data')
     .option('-j, --json-path <path>', 'JSONPath to nested data')
     .option('-d, --detach', 'do not wait for the attempt to complete')
@@ -91,7 +91,7 @@ function runAttemptCommand(): Command {
 function cancelAttemptCommand(): Command {
   return newCommand()
     .command('cancel <uuid>')
-    .description('cancel pending attempt')
+    .description('cancel a pending attempt')
     .action(
       contextualAction(async function (uuid) {
         const {client, spinner} = this;

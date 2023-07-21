@@ -31,7 +31,7 @@ export async function loadConfig(args: {
 
   let token: string | undefined;
   let profile: Profile | undefined;
-  if (env.OPVIOUS_TOKEN && !args.profile) {
+  if (env.OPVIOUS_TOKEN != null && !args.profile) {
     token = env.OPVIOUS_TOKEN;
   } else if (cfgFile) {
     if (args.profile) {

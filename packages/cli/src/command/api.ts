@@ -15,7 +15,10 @@
  * the License.
  */
 
-import {assertApiImageEulaAccepted} from '@opvious/api/eulas';
+import {
+  API_IMAGE_EULA_EVAR,
+  assertApiImageEulaAccepted,
+} from '@opvious/api/eulas';
 import {errorFactories} from '@opvious/stl-errors';
 import {ProcessEnv} from '@opvious/stl-utils/environment';
 import {LocalPath, localPath} from '@opvious/stl-utils/files';
@@ -68,11 +71,14 @@ const DEFAULT_SECRET = 'unsafe-secret';
 function startCommand(): Command {
   return newCommand()
     .command('start')
-    .description('start server')
+    .description(
+      'start an API server in the background along with its dependencies'
+    )
     .option(
       '-b, --bucket <path>',
-      'local path where attempt data will be stored. the folder will be ' +
-        'created if it does not already exist',
+      'local path where data will be stored. the folder will be created ' +
+        'with permissions 0777 if it does not already exist. if it already ' +
+        'exists, it must be readable and writable by UID 1000 or GID 1000',
       defaultBucketPath
     )
     .option(
@@ -83,7 +89,7 @@ function startCommand(): Command {
     .option(
       '-i, --image-tag <tag>',
       'server image tag. setting this flag explicitly will also cause ' +
-        'the image to always be pulled. (default: "latest")'
+        'the image to always be pulled (default: "latest")'
     )
     .option(
       '-l, --log-level <level>',
@@ -98,7 +104,8 @@ function startCommand(): Command {
     .option(
       '-t, --static-tokens <entries>',
       'comma-separated list of static authorization tokens, where each ' +
-        'entry has the form `<email>=<token>`'
+        'entry has the form `<email>=<token>`. each token can then be used ' +
+        'to authenticate SDKs by setting `OPVIOUS_TOKEN=static:<token>`'
     )
     .option('-w, --wait', 'wait for all services to be ready')
     .action(
@@ -121,7 +128,7 @@ function startCommand(): Command {
         await this.run(args, {
           BUCKET_PATH: bucket,
           IMAGE_TAG: opts.imageTag ?? DEFAULT_IMAGE_TAG,
-          LOG_LEVEL: opts.logLevel,
+          LL: opts.logLevel,
           PORT: opts.port,
           SECRET: opts.secret ?? DEFAULT_SECRET,
           STATIC_TOKENS: opts.staticTokens ?? '',
@@ -188,11 +195,14 @@ async function runDocker(
     cwd: localPath(resourceLoader.localUrl('docker')),
     stdio: 'inherit',
     env: {
+      [API_IMAGE_EULA_EVAR]: '',
+      OTEL_EXPORTER_OTLP_ENDPOINT: '',
+      OTEL_TRACES_SAMPLER_ARG: '1',
       ...process.env,
       BUCKET_PATH: '/unused',
       IMAGE_TAG: DEFAULT_IMAGE_TAG,
       STATIC_TOKENS: '',
-      LOG_LEVEL: '',
+      LL: '',
       PORT: DEFAULT_PORT,
       SECRET: DEFAULT_SECRET,
       ...env,
