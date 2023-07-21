@@ -50,7 +50,10 @@ function listAuthorizationsCommand(): Command {
               ? DateTime.fromISO(info.lastUsedAt).toRelative()
               : ''
           );
-          table.cell('expires', DateTime.fromISO(info.expiresAt).toRelative());
+          table.cell(
+            'expiration',
+            DateTime.fromISO(info.expiresAt).toRelative()
+          );
           table.cell('token_suffix', info.tokenSuffix);
           table.newRow();
         }
