@@ -29,7 +29,7 @@ profiles](#configuration-profiles) section below.
 
 ## Sample commands
 
-## Solve a candidate problem
+### Solve a candidate problem
 
 The first step is to represent the problem as a
 [`SolveCandidate`](https://api.cloud.opvious.io/schema.json?name=SolveCandidate)
@@ -58,31 +58,31 @@ inputs:
         - {key: [s3, v2]}
 ```
 
-We can now solve the candidate via the CLI. The solve's status will be shown in
-real time in the terminal and the optimal (if any) solution displayed once
-found.
+With the candidate saved, we're ready to start solving. The solve's status (e.g.
+number of LP iterations, relative gap, ...) will be shown in real time in the
+terminal.
 
 ```sh
-$ opvious solve run candidate.yaml
-ℹ Initialized context. [trace=af8e058b2e30265931301961491abeac]
-ℹ Loaded client. [profile=default]
-✔ Parsed candidate.
-✔ Completed solve. [status=OPTIMAL, objective=1, gap=0]
+opvious solve run candidate.yaml -o outputs.yaml
+```
+
+[![asciicast](https://asciinema.org/a/n4AiNKhUY22i1A9VhPF06c1wp.svg)](https://asciinema.org/a/n4AiNKhUY22i1A9VhPF06c1wp)
+
+If the problem was feasible the solution's outputs (variable and constraint
+slack values) will be printed to the terminal unless the `-o, --output` option
+was set.
+
+```yaml
+# outputs.yaml
 constraints:
   - label: allVerticesCovered
     entries:
-      - key:
-          - v1
-        value: 0
-      - key:
-          - v2
-        value: 0
+      - {key: [v1], value: 0}
+      - {key: [v2], value: 0}
 variables:
   - label: usage
     entries:
-      - key:
-          - s3
-        value: 1
+      - {key: [s3], value: 1}
 ```
 
 
@@ -175,7 +175,7 @@ profiles:
 By default the first profile from the configuration is selected unless the
 `OPVIOUS_TOKEN` environment variable is also set, in which case profiles are
 ignored. You can select a profile explicitly by specifying the `-P, --profile`
-flag when running any command. This will take precedence over `OPVIOUS_TOKEN`.
+flag when running any command, this will take precedence over `OPVIOUS_TOKEN`.
 
 
 [Node.js]: https://nodejs.org

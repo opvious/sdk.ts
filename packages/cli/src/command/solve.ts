@@ -25,9 +25,7 @@ import {createWriteStream} from 'fs';
 import {writeFile} from 'fs/promises';
 import {DateTime} from 'luxon';
 import {loadSolveCandidate} from 'opvious';
-import {
-  pipeline as streamPipeline,
-} from 'stream/promises';
+import {pipeline as streamPipeline} from 'stream/promises';
 import YAML from 'yaml';
 
 import {humanizeMillis} from '../common.js';
@@ -59,7 +57,11 @@ function runCommand(): Command {
         const {client, spinner} = this;
         spinner.start('Parsing candidate...');
         const cand = await loadSolveCandidate(lp, {jsonPath: opts.jsonPath});
-        spinner.succeed('Parsed candidate.').start('Solving...');
+        spinner
+          .succeed(
+            `Parsed candidate. [parameters=${cand.inputs.parameters.length}]`
+          )
+          .start('Solving...');
         const tracker = client
           .runSolve({candidate: cand})
           .on('solving', (p) => {
@@ -115,11 +117,13 @@ function queueCommand(): Command {
       contextualAction(async function (lp, opts) {
         const {client, spinner} = this;
         spinner.start('Parsing candidate...');
-        const candidate = await loadSolveCandidate(lp, {
-          jsonPath: opts.jsonPath,
-        });
-        spinner.succeed('Parsed candidate.').start('Queuing solve attemmpt...');
-        const {uuid} = await client.startAttempt({candidate});
+        const cand = await loadSolveCandidate(lp, {jsonPath: opts.jsonPath});
+        spinner
+          .succeed(
+            `Parsed candidate. [parameters=${cand.inputs.parameters.length}]`
+          )
+          .start('Solving...');
+        const {uuid} = await client.startAttempt({candidate: cand});
         spinner.succeed(`Queued solve attempt. [uuid=${uuid}]`);
       })
     );
