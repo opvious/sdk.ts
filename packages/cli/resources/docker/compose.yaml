@@ -17,8 +17,8 @@ services:
       - DB_URL=postgres://postgres:$SECRET@db/opvious
       - REDIS_URL=redis://:$SECRET@redis
       # Telemetry
-      - LL
-      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - LOG_LEVEL
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
       - OTEL_TRACES_SAMPLER=traceidratio
       - OTEL_TRACES_SAMPLER_ARG
     ports:

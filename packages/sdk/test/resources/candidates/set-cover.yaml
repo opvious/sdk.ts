@@ -1,0 +1,17 @@
+formulation:
+  sources:
+    - | # Set cover formulation
+      + $\S^d_{vertices}: V$
+      + $\S^d_{sets}: S$
+      + $\S^p_{coverage}: c \in \{0,1\}^{S \times V}$
+      + $\S^v_{usage}: \alpha \in \{0,1\}^S$
+      + $\S^o_{minimizeSetsUsed}: \min \sum_{s \in S} \alpha_s$
+      + $\S^c_{allVerticesCovered}: \forall v \in V, \sum_{s \in S} \alpha_s c_{s, v} \geq 1$
+inputs:
+  parameters:
+    - label: coverage
+      entries:
+        - {key: [s1, v1]}
+        - {key: [s2, v2]}
+        - {key: [s3, v1]}
+        - {key: [s3, v2]}

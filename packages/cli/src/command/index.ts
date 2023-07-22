@@ -28,7 +28,6 @@ import {COMMAND_NAME, logPath, packageInfo} from '../common.js';
 import {display} from '../io.js';
 import {accountCommand} from './account.js';
 import {apiCommand} from './api.js';
-import {attemptCommand} from './attempt.js';
 import {contextualAction, newCommand} from './common.js';
 import {formulationCommand} from './formulation.js';
 import {solveCommand} from './solve.js';
@@ -39,10 +38,9 @@ export function mainCommand(): Command {
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
     .option('-Q, --quiet', 'suppress spinner output')
-    .addCommand(accountCommand())
-    .addCommand(attemptCommand())
-    .addCommand(formulationCommand())
     .addCommand(solveCommand())
+    .addCommand(formulationCommand())
+    .addCommand(accountCommand())
     .addCommand(apiCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())

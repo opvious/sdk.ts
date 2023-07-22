@@ -94,7 +94,7 @@ function startCommand(): Command {
     .option(
       '-l, --log-level <level>',
       'server log level',
-      'info,@opvious/api-server=debug'
+      'warn,@opvious/api-server=debug'
     )
     .option('-p, --port <port>', 'host port to bind to', DEFAULT_PORT)
     .option(
@@ -107,7 +107,7 @@ function startCommand(): Command {
         'entry has the form `<email>=<token>`. each token can then be used ' +
         'to authenticate SDKs by setting `OPVIOUS_TOKEN=static:<token>`'
     )
-    .option('-w, --wait', 'wait for all services to be ready')
+    .option('-w, --wait', 'wait for the API to be ready before returning')
     .action(
       dockerAction(async function (opts) {
         assertApiImageEulaAccepted();
@@ -128,7 +128,7 @@ function startCommand(): Command {
         await this.run(args, {
           BUCKET_PATH: bucket,
           IMAGE_TAG: opts.imageTag ?? DEFAULT_IMAGE_TAG,
-          LL: opts.logLevel,
+          LOG_LEVEL: opts.logLevel,
           PORT: opts.port,
           SECRET: opts.secret ?? DEFAULT_SECRET,
           STATIC_TOKENS: opts.staticTokens ?? '',
@@ -196,13 +196,13 @@ async function runDocker(
     stdio: 'inherit',
     env: {
       [API_IMAGE_EULA_EVAR]: '',
-      OTEL_EXPORTER_OTLP_ENDPOINT: '',
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: '',
       OTEL_TRACES_SAMPLER_ARG: '1',
       ...process.env,
       BUCKET_PATH: '/unused',
       IMAGE_TAG: DEFAULT_IMAGE_TAG,
       STATIC_TOKENS: '',
-      LL: '',
+      LOG_LEVEL: '',
       PORT: DEFAULT_PORT,
       SECRET: DEFAULT_SECRET,
       ...env,

@@ -29,8 +29,8 @@ export const packageInfo = __inlinable((ctx) =>
 );
 
 /** Returns the input string with any trailing slashes removed. */
-export function strippingTrailingSlashes(arg: string): string {
-  return arg.replace(/\/+$/, '');
+export function strippingTrailingSlashes(arg: string | URL): string {
+  return ('' + arg).replace(/\/+$/, '');
 }
 
 let enforcer: SchemaEnforcer<api.Schemas> | undefined;
