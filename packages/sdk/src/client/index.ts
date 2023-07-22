@@ -82,9 +82,7 @@ export class OpviousClient {
     }
 
     const endpoint = strippingTrailingSlashes(
-      opts?.endpoint
-        ? '' + opts.endpoint
-        : process.env.OPVIOUS_ENDPOINT ?? DEFAULT_ENDPOINT
+      (opts?.endpoint ?? process.env.OPVIOUS_ENDPOINT) || DEFAULT_ENDPOINT
     );
 
     const retryCutoff = Date.now() + (opts?.maxRetryDelayMillis ?? 2_500);
@@ -542,10 +540,11 @@ export interface OpviousClientOptions {
   readonly token?: string;
 
   /**
-   * Base API endpoint URL. If unset, uses `process.env.OPVIOUS_ENDPOINT` if
-   * set, and falls back to the default endpoint otherwise.
+   * Base API endpoint URL. If `undefined`, uses `process.env.OPVIOUS_ENDPOINT`
+   * if set, and falls back to the default endpoint otherwise. Setting this to
+   * `false` will always use the default endpoint.
    */
-  readonly endpoint?: string | URL;
+  readonly endpoint?: string | URL | false;
 
   /** Telemetry instance used for logging, etc. */
   readonly telemetry?: Telemetry;

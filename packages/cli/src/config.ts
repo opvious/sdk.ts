@@ -51,7 +51,7 @@ export async function loadConfig(args: {
     profileName: profile?.name,
     client: OpviousClient.create({
       token,
-      endpoint: profile?.endpoint,
+      endpoint: profile ? profile.endpoint ?? false : undefined,
       telemetry,
     }),
     token,

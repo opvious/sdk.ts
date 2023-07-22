@@ -34,7 +34,7 @@ import {contextualAction, newCommand} from './common.js';
 export function formulationCommand(): Command {
   return newCommand()
     .command('formulation')
-    .description('formulation commands')
+    .description('model formulation commands')
     .addCommand(registerSpecificationCommand())
     .addCommand(validateSpecification())
     .addCommand(listFormulationsCommand())
