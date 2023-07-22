@@ -15,36 +15,61 @@
 <li><a href="../index.html">TypeScript packages</a></li>
 <li><a href="opvious_cli.html">opvious-cli</a></li></ul>
 <h1>Module opvious-cli</h1></div>
-<section class="tsd-panel tsd-typography"><a id="md:opvious-cli-" class="tsd-anchor"></a><h1><a href="#md:opvious-cli-">Opvious CLI <a href="https://www.npmjs.com/package/opvious-cli"><img src="https://img.shields.io/npm/v/opvious-cli.svg" alt="NPM version"></a></a></h1><p>A <a href="https://nodejs.org">Node.js</a> command line interface to the Opvious API.</p>
+<section class="tsd-panel tsd-typography"><a id="md:opvious-cli-" class="tsd-anchor"></a><h1><a href="#md:opvious-cli-">Opvious CLI <a href="https://www.npmjs.com/package/opvious-cli"><img src="https://img.shields.io/npm/v/opvious-cli.svg" alt="NPM version"></a></a></h1><p>A <a href="https://nodejs.org">Node.js</a> command line interface to the <a href="https://www.opvious.io">Opvious</a> API.</p>
 <pre><code class="language-sh"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">i</span><span class="hl-1"> </span><span class="hl-3">-g</span><span class="hl-1"> </span><span class="hl-2">opvious-cli</span>
 </code><button>Copy</button></pre>
 <a id="md:configuration" class="tsd-anchor"></a><h2><a href="#md:configuration">Configuration</a></h2><p>By default the CLI connects to the Opvious cloud API. It can also be configured
-to connect to a self-hosted <a href="https://hub.docker.com/repository/docker/opvious/api-server">API server</a> by setting the <code>OPVIOUS_ENDPOINT</code>
-environment variable correspondingly, for example <code>http://localhost:8080</code> (see
-also <a href="#starting-an-api-server">Starting an API server</a> below).</p>
+to connect to a self-hosted <a href="https://hub.docker.com/r/opvious/api-server">API server</a> by setting the <code>OPVIOUS_ENDPOINT</code>
+environment variable accordingly (see also
+<a href="#starting-an-api-server">Starting an API server</a> below).</p>
 <p>In both cases, most commands require a valid API token to be set as
 <code>OPVIOUS_TOKEN</code> environment variable. Cloud API tokens can be generated
 <a href="https://hub.cloud.opvious.io/authorizations.">here</a>; refer to the API server documentation to learn how to
-authenticate in the self-hosted case.</p>
-<p>You can check that your CLI is authenticated by running the following command:</p>
+authenticate in the self-hosted case. You can check that your CLI is
+authenticated by running the following command:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">me</span><span class="hl-1"> </span><span class="hl-4"># Should show your account&#39;s email</span>
 </code><button>Copy</button></pre>
-<a id="md:sample-commands" class="tsd-anchor"></a><h2><a href="#md:sample-commands">Sample commands</a></h2><a id="md:managing-api-tokens" class="tsd-anchor"></a><h3><a href="#md:managing-api-tokens">Managing API tokens</a></h3><p>The CLI allows you to list, create, and revoke your API tokens.</p>
+<p>For more complex setups, check out the <a href="#configuration-profiles">Configuration
+profiles</a> section below.</p>
+<a id="md:sample-commands" class="tsd-anchor"></a><h2><a href="#md:sample-commands">Sample commands</a></h2><a id="md:solve-a-problem" class="tsd-anchor"></a><h3><a href="#md:solve-a-problem">Solve a problem</a></h3><p>The first step is to represent the problem as a
+<a href="https://api.cloud.opvious.io/schema.json?name=SolveCandidate"><code>SolveCandidate</code></a>
+and save it as JSON or YAML. In general you wouldn&#39;t write it manually but it&#39;s
+simple enough to do for small problems. For example a set-cover instance looks
+like:</p>
+<pre><code class="language-yaml"><span class="hl-4"># candidate.yaml</span><br/><span class="hl-5">formulation</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-5">sources</span><span class="hl-1">:</span><br/><span class="hl-1">    - </span><span class="hl-6">|</span><span class="hl-1"> </span><span class="hl-4"># Set cover formulation</span><br/><span class="hl-7">      + $\S^d_{vertices}: V$</span><br/><span class="hl-7">      + $\S^d_{sets}: S$</span><br/><span class="hl-7">      + $\S^p_{coverage}: c \in \{0,1\}^{S \times V}$</span><br/><span class="hl-7">      + $\S^v_{usage}: \alpha \in \{0,1\}^S$</span><br/><span class="hl-7">      + $\S^o_{minimizeSetsUsed}: \min \sum_{s \in S} \alpha_s$</span><br/><span class="hl-7">      + $\S^c_{allVerticesCovered}: \forall v \in V, \sum_{s \in S} \alpha_s c_{s, v} \geq 1$</span><br/><span class="hl-5">inputs</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-5">parameters</span><span class="hl-1">:</span><br/><span class="hl-1">    - </span><span class="hl-5">label</span><span class="hl-1">: </span><span class="hl-7">coverage</span><br/><span class="hl-1">      </span><span class="hl-5">entries</span><span class="hl-1">:</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s1</span><span class="hl-1">, </span><span class="hl-7">v1</span><span class="hl-1">]}</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s2</span><span class="hl-1">, </span><span class="hl-7">v2</span><span class="hl-1">]}</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s3</span><span class="hl-1">, </span><span class="hl-7">v1</span><span class="hl-1">]}</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s3</span><span class="hl-1">, </span><span class="hl-7">v2</span><span class="hl-1">]}</span>
+</code><button>Copy</button></pre>
+<p>With the candidate saved, we&#39;re ready to start solving. The solve&#39;s status (e.g.
+number of LP iterations, relative gap, ...) will be shown in real time in the
+terminal.</p>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">solve</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">candidate.yaml</span><span class="hl-1"> </span><span class="hl-3">-o</span><span class="hl-1"> </span><span class="hl-2">outputs.yaml</span>
+</code><button>Copy</button></pre>
+<p><a href="https://asciinema.org/a/n4AiNKhUY22i1A9VhPF06c1wp"><img src="https://asciinema.org/a/n4AiNKhUY22i1A9VhPF06c1wp.svg" alt="asciicast"></a></p>
+<p>If the problem was feasible the solution&#39;s outputs (variable and constraint
+slack values) will be printed to the terminal unless the <code>-o, --output</code> option
+was set.</p>
+<pre><code class="language-yaml"><span class="hl-4"># outputs.yaml</span><br/><span class="hl-5">constraints</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-5">label</span><span class="hl-1">: </span><span class="hl-7">allVerticesCovered</span><br/><span class="hl-1">    </span><span class="hl-5">entries</span><span class="hl-1">:</span><br/><span class="hl-1">      - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">v1</span><span class="hl-1">], </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-8">0</span><span class="hl-1">}</span><br/><span class="hl-1">      - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">v2</span><span class="hl-1">], </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-8">0</span><span class="hl-1">}</span><br/><span class="hl-5">variables</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-5">label</span><span class="hl-1">: </span><span class="hl-7">usage</span><br/><span class="hl-1">    </span><span class="hl-5">entries</span><span class="hl-1">:</span><br/><span class="hl-1">      - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s3</span><span class="hl-1">], </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-8">1</span><span class="hl-1">}</span>
+</code><button>Copy</button></pre>
+<p>Note that solves are subject to size and time limits which depend on your
+account&#39;s tier. For large problems, consider also using <code>queue</code> instead of <code>run</code>
+to benefit from longer timeouts. This command will queue an asynchronous solve
+attempt which will run as soon as capacity is available.</p>
+<a id="md:managing-api-tokens" class="tsd-anchor"></a><h3><a href="#md:managing-api-tokens">Managing API tokens</a></h3><p>You can list, create, and revoke your API tokens using the <code>account</code>
+subcommands:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">account</span><span class="hl-1"> </span><span class="hl-2">authorizations</span><span class="hl-1"> </span><span class="hl-4"># List all tokens</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">account</span><span class="hl-1"> </span><span class="hl-2">generate-authorization</span><span class="hl-1"> </span><span class="hl-4"># Create a new API token</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">account</span><span class="hl-1"> </span><span class="hl-2">revoke-authorization</span><span class="hl-1"> </span><span class="hl-4"># Revoke an existing API token</span>
 </code><button>Copy</button></pre>
 <a id="md:managing-formulations" class="tsd-anchor"></a><h3><a href="#md:managing-formulations">Managing formulations</a></h3><p>You can create formulations directly from local specification files (typically
 in Markdown or LaTeX):</p>
-<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">register</span><span class="hl-1"> </span><span class="hl-3">-f</span><span class="hl-1"> </span><span class="hl-2">&quot;</span><span class="hl-5">$NAME</span><span class="hl-2">&quot;</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
+<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">register</span><span class="hl-1"> </span><span class="hl-3">-f</span><span class="hl-1"> </span><span class="hl-2">&quot;</span><span class="hl-9">$NAME</span><span class="hl-2">&quot;</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
 </code><button>Copy</button></pre>
-<p>These can then be used to start long-running optimization attempts. You can also
-list currently available formulations in your account:</p>
+<p>These can then be used to queue solves. You can also list currently available
+formulations in your account:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">list</span>
 </code><button>Copy</button></pre>
 <a id="md:validating-specifications" class="tsd-anchor"></a><h3><a href="#md:validating-specifications">Validating specifications</a></h3><p>Get real-time feedback as you write a model&#39;s specification:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">validate</span><span class="hl-1"> </span><span class="hl-3">-w</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
 </code><button>Copy</button></pre>
 <p><a href="https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy"><img src="https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy.svg" alt="asciicast"></a></p>
-<a id="md:starting-an-api-server" class="tsd-anchor"></a><h3><a href="#md:starting-an-api-server">Starting an API server</a></h3><p>Start an <a href="https://hub.docker.com/repository/docker/opvious/api-server">API server</a> locally on port 8080:</p>
+<a id="md:starting-an-api-server" class="tsd-anchor"></a><h3><a href="#md:starting-an-api-server">Starting an API server</a></h3><p>Start an <a href="https://hub.docker.com/r/opvious/api-server">API server</a> locally on port 8080:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">start</span>
 </code><button>Copy</button></pre>
 <p>You can then use this API&#39;s endpoint instead of the default Opvious cloud API by
@@ -55,20 +80,21 @@ Consider for example creating an alternate configuration profile pointing to it
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">start</span><span class="hl-1"> </span><span class="hl-3">-h</span><span class="hl-1"> </span><span class="hl-4"># View available options (custom port, ...)</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">stop</span><span class="hl-1"> </span><span class="hl-4"># Stop the server</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">api</span><span class="hl-1"> </span><span class="hl-2">logs</span><span class="hl-1"> </span><span class="hl-4"># View server logs</span>
 </code><button>Copy</button></pre>
 <p>Under the hood these commands wrap <code>docker compose</code> to manage the server&#39;s image
-along with its dependencies (<a href="https://github.com/opvious/sdk.ts/blob/main/packages/cli/resources/docker/compose.yaml"><code>compose.yaml</code></a>).</p>
+along with its dependencies.</p>
 <a id="md:next-steps" class="tsd-anchor"></a><h2><a href="#md:next-steps">Next steps</a></h2><p>You can view the full list of available commands by running:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-3">-h</span>
 </code><button>Copy</button></pre>
-<a id="md:configuration-profiles" class="tsd-anchor"></a><h3><a href="#md:configuration-profiles">Configuration profiles</a></h3><p>As an alternative to <code>OPVIOUS_TOKEN</code>, the CLI supports reading a configuration
-file from <code>~/.config/opvious/cli.yml</code> (this location can be changed by setting
-the <code>OPVIOUS_CONFIG</code> environment variable). This configuration allows declaring
+<a id="md:configuration-profiles" class="tsd-anchor"></a><h3><a href="#md:configuration-profiles">Configuration profiles</a></h3><p>As an alternative to <code>OPVIOUS_ENDPOINT</code> and <code>OPVIOUS_TOKEN</code> environment
+variables, the CLI supports reading a configuration file from
+<code>~/.config/opvious/cli.yml</code> (this location can be changed by setting the
+<code>OPVIOUS_CONFIG</code> environment variable). This configuration allows declaring
 multiple profiles to access the API.</p>
-<pre><code class="language-yaml"><span class="hl-4"># Sample configuration with two profiles</span><br/><span class="hl-6">profiles</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-6">name</span><span class="hl-1">: </span><span class="hl-7">default</span><br/><span class="hl-1">    </span><span class="hl-6">token</span><span class="hl-1">: </span><span class="hl-8">...</span><span class="hl-1"> </span><span class="hl-4"># Cloud API token</span><br/><span class="hl-1">  - </span><span class="hl-6">name</span><span class="hl-1">: </span><span class="hl-7">local</span><br/><span class="hl-1">    </span><span class="hl-6">endpoint</span><span class="hl-1">: </span><span class="hl-7">http://localhost:8080</span>
+<pre><code class="language-yaml"><span class="hl-4"># Sample configuration with two profiles</span><br/><span class="hl-5">profiles</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-5">name</span><span class="hl-1">: </span><span class="hl-7">default</span><br/><span class="hl-1">    </span><span class="hl-5">token</span><span class="hl-1">: </span><span class="hl-8">...</span><span class="hl-1"> </span><span class="hl-4"># Cloud API token</span><br/><span class="hl-1">  - </span><span class="hl-5">name</span><span class="hl-1">: </span><span class="hl-7">local</span><br/><span class="hl-1">    </span><span class="hl-5">endpoint</span><span class="hl-1">: </span><span class="hl-7">http://localhost:8080</span>
 </code><button>Copy</button></pre>
-<p>By default the first profile from the configuration is selected. You can select
-another one by specifying the <code>-P, --profile</code> flag when running any command.</p>
-<pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-3">-P</span><span class="hl-1"> </span><span class="hl-2">local</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">list</span>
-</code><button>Copy</button></pre>
+<p>By default the first profile from the configuration is selected unless the
+<code>OPVIOUS_TOKEN</code> environment variable is also set, in which case profiles are
+ignored. You can select a profile explicitly by specifying the <code>-P, --profile</code>
+flag when running any command, this will take precedence over <code>OPVIOUS_TOKEN</code>.</p>
 </section>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
@@ -109,6 +135,7 @@ another one by specifying the <code>-P, --profile</code> flag when running any c
 <li><a href="#md:sample-commands"><span>Sample commands</span></a></li>
 <li>
 <ul>
+<li><a href="#md:solve-a-problem"><span>Solve a problem</span></a></li>
 <li><a href="#md:managing-api-tokens"><span>Managing API tokens</span></a></li>
 <li><a href="#md:managing-formulations"><span>Managing formulations</span></a></li>
 <li><a href="#md:validating-specifications"><span>Validating specifications</span></a></li>
