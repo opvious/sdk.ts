@@ -29,7 +29,7 @@ profiles](#configuration-profiles) section below.
 
 ## Sample commands
 
-### Solve a candidate problem
+### Solve a problem
 
 The first step is to represent the problem as a
 [`SolveCandidate`](https://api.cloud.opvious.io/schema.json?name=SolveCandidate)
@@ -85,16 +85,23 @@ variables:
       - {key: [s3], value: 1}
 ```
 
+Note that solves are subject to size and time limits which depend on your
+account's tier. For large problems, consider also using `queue` instead of `run`
+to benefit from longer timeouts. This command will queue an asynchronous solve
+attempt which will run as soon as capacity is available.
+
 
 ### Managing API tokens
 
-The CLI allows you to list, create, and revoke your API tokens.
+You can list, create, and revoke your API tokens using the `account`
+subcommands:
 
 ```sh
 opvious account authorizations # List all tokens
 opvious account generate-authorization # Create a new API token
 opvious account revoke-authorization # Revoke an existing API token
 ```
+
 
 ### Managing formulations
 
@@ -105,12 +112,13 @@ in Markdown or LaTeX):
 opvious formulation register -f "$NAME" sources/*
 ```
 
-These can then be used to queue optimization attempts. You can also list
-currently available formulations in your account:
+These can then be used to queue solves. You can also list currently available
+formulations in your account:
 
 ```sh
 opvious formulation list
 ```
+
 
 ### Validating specifications
 
@@ -121,6 +129,7 @@ opvious formulation validate -w sources/*
 ```
 
 [![asciicast](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy.svg)](https://asciinema.org/a/KZ9KqW6S4n6CR9PrEOrxfPIUy)
+
 
 ### Starting an API server
 
