@@ -15,7 +15,7 @@
   ],
   "exports": "./lib/index.js",
   "scripts": {
-    "build": "tsc -p src",
+    "build": "tsc -b src test",
     "clean": "rm -rf lib node_modules out",
     "prepare": "pnpm run build",
     "test": "vitest",

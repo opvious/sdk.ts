@@ -21,7 +21,7 @@ describe.skipIf(!client.authenticated)('client', () => {
     const name = 'test-token';
     await client.revokeAuthorization(name);
     const token = await client.generateAccessToken({name, ttlDays: 1});
-    const tokenClient = sut.OpviousClient.create({authorization: token});
+    const tokenClient = sut.OpviousClient.create({token});
     const infos1 = await tokenClient.listAuthorizations();
     expect(infos1.find((i) => i.name === name)).toBeDefined();
     const revoked = await tokenClient.revokeAuthorization(name);
@@ -59,14 +59,14 @@ describe.skipIf(!client.authenticated)('client', () => {
   });
 
   test(
-    'runs n-queens attempt',
+    'queues n-queens solve',
     async () => {
       const formulationName = 'n-queens' + NAME_SUFFIX;
       const {contents: src} = await loader.load('sources/n-queens.md');
       await client.registerSpecification({formulationName, sources: [src]});
 
-      const {uuid} = await client.startAttempt({
-        candidate: {
+      const {uuid} = await client.queueSolve({
+        problem: {
           formulation: {name: formulationName},
           inputs: {
             parameters: [{label: 'size', entries: [{key: [], value: 5}]}],
@@ -75,13 +75,13 @@ describe.skipIf(!client.authenticated)('client', () => {
         },
       });
 
-      const outcome = await client.waitForFeasibleOutcome(uuid);
-      expect(outcome).toMatchObject({isOptimal: true});
+      const outcome = await client.waitForOutcome(uuid);
+      expect(outcome.status).toEqual('OPTIMAL');
 
-      const fetched = await client.fetchAttempt(uuid);
-      expect(fetched).toMatchObject({solveOptions: {timeoutMillis: 5_000}});
+      const fetched = await client.fetchSolve(uuid);
+      expect(fetched).toMatchObject({options: {timeoutMillis: 5_000}});
 
-      const inputs = await client.fetchAttemptInputs(uuid);
+      const inputs = await client.fetchSolveInputs(uuid);
       expect(inputs).toEqual({
         dimensions: [],
         parameters: [
@@ -102,7 +102,7 @@ describe.skipIf(!client.authenticated)('client', () => {
       const {contents} = await loader.load('sources/set-cover.md');
       const tracker = client
         .runSolve({
-          candidate: {
+          problem: {
             formulation: {sources: [contents]},
             inputs: {
               dimensions: [
@@ -143,10 +143,10 @@ describe.skipIf(!client.authenticated)('client', () => {
       const {contents: src} = await loader.load('sources/sudoku.md');
       await client.registerSpecification({formulationName, sources: [src]});
 
-      const candidate = await sut.loadSolveCandidate(
+      const problem = await sut.loadProblem(
         loader.localUrl('candidates/relaxed-sudoku.yaml')
       );
-      const tracker = await client.runSolve({candidate});
+      const tracker = await client.runSolve({problem});
       const [outcome, outputs] = await waitForEvent(tracker, 'solved');
 
       expect(outcome.status).toEqual('OPTIMAL');
