@@ -144,7 +144,7 @@ describe.skipIf(!client.authenticated)('client', () => {
       await client.registerSpecification({formulationName, sources: [src]});
 
       const problem = await sut.loadProblem(
-        loader.localUrl('candidates/relaxed-sudoku.yaml')
+        loader.localUrl('problems/relaxed-sudoku.yaml')
       );
       const tracker = await client.runSolve({problem});
       const [outcome, outputs] = await waitForEvent(tracker, 'solved');
