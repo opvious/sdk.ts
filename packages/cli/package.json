@@ -1,6 +1,6 @@
 {
   "name": "opvious-cli",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious CLI",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious_cli.html",
@@ -30,11 +30,11 @@
   "dependencies": {
     "@babel/code-frame": "^7.18.6",
     "@opentelemetry/api": "~1.4.1",
-    "@opvious/api": "^0.16.44",
-    "@opvious/stl-bootstrap": "^0.21.14",
-    "@opvious/stl-errors": "^0.21.14",
-    "@opvious/stl-telemetry": "^0.21.14",
-    "@opvious/stl-utils": "^0.21.14",
+    "@opvious/api": "^0.17.0",
+    "@opvious/stl-bootstrap": "^0.22.4",
+    "@opvious/stl-errors": "^0.22.4",
+    "@opvious/stl-telemetry": "^0.22.4",
+    "@opvious/stl-utils": "^0.22.4",
     "ajv": "^8.11.0",
     "chokidar": "^3.5.3",
     "commander": "^9.1.0",
@@ -54,7 +54,7 @@
     "@types/fast-fifo": "^1.0.0",
     "@types/humanize-duration": "^3.27.1",
     "@types/luxon": "^3.0.2",
-    "inlinable": "^0.2.6",
+    "inlinable": "^0.2.7",
     "ts-essentials": "^9.3.0"
   }
 }

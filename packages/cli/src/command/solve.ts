@@ -18,13 +18,12 @@
 import * as api from '@opvious/api';
 import {waitForEvent} from '@opvious/stl-utils/events';
 import {ifPresent} from '@opvious/stl-utils/functions';
-import {isUuid} from '@opvious/stl-utils/opaques';
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {createWriteStream} from 'fs';
 import {writeFile} from 'fs/promises';
 import {DateTime} from 'luxon';
-import {loadSolveCandidate} from 'opvious';
+import {loadProblem} from 'opvious';
 import {pipeline as streamPipeline} from 'stream/promises';
 import YAML from 'yaml';
 
@@ -49,28 +48,26 @@ function runCommand(): Command {
   return newCommand()
     .command('run')
     .description('run a solve')
-    .argument('<path>', 'path to candidate data')
-    .option('-j, --json-path <path>', 'JSONPath to nested candidate data')
+    .argument('<path>', 'path to problem data')
+    .option('-j, --json-path <path>', 'JSONPath to nested problem data')
     .option('-o, --output <path>', 'output path (default: stdout)')
     .action(
       contextualAction(async function (lp, opts) {
         const {client, spinner} = this;
-        spinner.start('Parsing candidate...');
-        const cand = await loadSolveCandidate(lp, {jsonPath: opts.jsonPath});
+        spinner.start('Parsing problem...');
+        const prob = await loadProblem(lp, {jsonPath: opts.jsonPath});
         spinner
           .succeed(
-            `Parsed candidate. [parameters=${cand.inputs.parameters.length}]`
+            `Parsed problem. [parameters=${prob.inputs.parameters.length}]`
           )
           .start('Solving...');
-        const tracker = client
-          .runSolve({candidate: cand})
-          .on('solving', (p) => {
-            if (p.kind === 'activity') {
-              spinner.text =
-                `Solving... [gap=${formatGap(p.relativeGap)}, ` +
-                `cuts=${p.cutCount}, iterations=${p.lpIterationCount}]`;
-            }
-          });
+        const tracker = client.runSolve({problem: prob}).on('solving', (p) => {
+          if (p.kind === 'activity') {
+            spinner.text =
+              `Solving... [gap=${formatGap(p.relativeGap)}, ` +
+              `cuts=${p.cutCount}, iterations=${p.lpIterationCount}]`;
+          }
+        });
         const [outcome, outputs] = await waitForEvent(tracker, 'solved');
         const details = [`status=${outcome.status}`];
         ifPresent(
@@ -111,19 +108,19 @@ function queueCommand(): Command {
   return newCommand()
     .command('queue')
     .description('queue a solve attempt')
-    .argument('<path>', 'path to candidate data')
-    .option('-j, --json-path <path>', 'JSONPath to nested candidate data')
+    .argument('<path>', 'path to problem data')
+    .option('-j, --json-path <path>', 'JSONPath to nested problem data')
     .action(
       contextualAction(async function (lp, opts) {
         const {client, spinner} = this;
-        spinner.start('Parsing candidate...');
-        const cand = await loadSolveCandidate(lp, {jsonPath: opts.jsonPath});
+        spinner.start('Parsing problem...');
+        const prob = await loadProblem(lp, {jsonPath: opts.jsonPath});
         spinner
           .succeed(
-            `Parsed candidate. [parameters=${cand.inputs.parameters.length}]`
+            `Parsed problem. [parameters=${prob.inputs.parameters.length}]`
           )
           .start('Solving...');
-        const {uuid} = await client.startAttempt({candidate: cand});
+        const {uuid} = await client.queueSolve({problem: prob});
         spinner.succeed(`Queued solve attempt. [uuid=${uuid}]`);
       })
     );
@@ -138,7 +135,7 @@ function outputsCommand(): Command {
       contextualAction(async function (arg, opts) {
         const {client, spinner} = this;
         spinner.start('Downloading outputs...');
-        const outputs = await client.fetchAttemptOutputs(arg);
+        const outputs = await client.fetchSolveOutputs(arg);
         if (outputs == null) {
           spinner.warn('No outputs found');
           return;
@@ -159,10 +156,10 @@ function instructionsCommand(): Command {
   return newCommand()
     .command('instructions')
     .description('view a solve\'s underlying instructions')
-    .argument('<path|uuid>', 'path to candidate data or queued solve UUID')
+    .argument('<path>', 'path to problem data or queued solve UUID')
     .option(
       '-j, --json-path <path>',
-      'JSONPath to nested candidate data. only applicable with local path'
+      'JSONPath to nested problem data. only applicable with local path'
     )
     .option('-o, --output <path>', 'output path (default: stdout)')
     .action(
@@ -171,18 +168,10 @@ function instructionsCommand(): Command {
         const out = opts.output
           ? createWriteStream(opts.output)
           : process.stdout;
-        let readable;
-        if (isUuid(arg)) {
-          spinner.start('Fetching attempt instructions...');
-          readable = client.fetchAttemptInstructions(arg);
-        } else {
-          spinner.start('Parsing candidate...');
-          const cand = await loadSolveCandidate(arg, {jsonPath: opts.jsonPath});
-          spinner
-            .succeed('Parsed candidate.')
-            .start('Computing instructions...');
-          readable = client.inspectSolveInstructions({candidate: cand});
-        }
+        spinner.start('Parsing problem...');
+        const prob = await loadProblem(arg, {jsonPath: opts.jsonPath});
+        spinner.succeed('Parsed problem.').start('Formatting problem...');
+        const readable = client.inspectSolveInstructions({problem: prob});
         if (!opts.output) {
           spinner.stop().clear();
         }
@@ -202,7 +191,7 @@ function cancelCommand(): Command {
       contextualAction(async function (uuid) {
         const {client, spinner} = this;
         spinner.start('Cancelling attempt...');
-        await client.cancelAttempt(uuid);
+        await client.cancelSolve(uuid);
         spinner.succeed('Cancelled attempt.');
       })
     );
@@ -213,7 +202,7 @@ const PAGE_LIMIT = 25;
 function listCommand(): Command {
   return newCommand()
     .command('list')
-    .description('list solve attempts')
+    .description('list queued solves')
     .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
     .action(
       contextualAction(async function (opts) {
@@ -233,12 +222,16 @@ function listCommand(): Command {
             const endedAt = attempt.endedAt
               ? DateTime.fromISO(attempt.endedAt)
               : undefined;
-            const spec = attempt.pristineSpecification;
-            table.cell('uuid', attempt.uuid);
+            const {content} = attempt;
+            if (content == null) {
+              continue;
+            }
+            const {queuedSolveUuid: uuid, queuedSolveSpecification: spec} =
+              content;
+            table.cell('uuid', uuid);
             table.cell('formulation', spec.formulation.displayName);
-            table.cell('tag', attempt.specificationTagName);
             table.cell('revno', spec.revno);
-            table.cell('status', attempt.status);
+            table.cell('status', attempt.errorStatus);
             table.cell('started', startedAt.toRelative());
             table.cell(
               'runtime',
@@ -274,7 +267,7 @@ function listNotificationsCommand(): Command {
         let count = 0;
         let cursor: string | undefined;
         do {
-          const paginated = await client.paginateAttemptNotifications({
+          const paginated = await client.paginateSolveNotifications({
             uuid,
             last: Math.min(PAGE_LIMIT, limit - count),
             before: cursor,
