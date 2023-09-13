@@ -41,6 +41,7 @@ jobs:
           OPVIOUS_API_IMAGE_EULA: accepted
           REDIS_URL: redis://redis
           STATIC_TOKENS: test@opvious.io=testing
+          TRACE_CONSOLE: always
         ports:
           - 8080:8080
     steps:
