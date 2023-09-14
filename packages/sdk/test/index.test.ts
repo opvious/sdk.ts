@@ -76,6 +76,7 @@ describe.skipIf(!client.authenticated)('client', () => {
       });
 
       const outcome = await client.waitForOutcome(uuid);
+      console.log(JSON.stringify(outcome, null, 2));
       expect(outcome.status).toEqual('OPTIMAL');
 
       const fetched = await client.fetchSolve(uuid);

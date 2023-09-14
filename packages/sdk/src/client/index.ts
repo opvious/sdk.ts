@@ -363,6 +363,7 @@ export class OpviousClient {
         this.graphqlSdk
           .PollQueuedSolve({uuid})
           .then((res) => {
+            console.log(JSON.stringify(res, null, 2));
             const {queuedSolve} = okResultData(res);
             assert(queuedSolve, 'Unknown solve');
             const {failure, outcome} = queuedSolve;
