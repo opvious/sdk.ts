@@ -37,11 +37,9 @@ jobs:
         image: opvious/api-server
         env:
           DB_URL: postgres://default_user:default_pass@postgres/default_db
-          LL: info,@opvious/attempt-server=debug,@opvious/mnesis*=trace
           OPVIOUS_API_IMAGE_EULA: accepted
           REDIS_URL: redis://redis
           STATIC_TOKENS: test@opvious.io=testing
-          TRACE_CONSOLE: always
         ports:
           - 8080:8080
     steps:

@@ -17,7 +17,7 @@ const ATTEMPT_TIMEOUT = 20_000;
 const SOLVE_TIMEOUT = 10_000;
 
 describe.skipIf(!client.authenticated)('client', () => {
-  test.skip('generates, lists, and revokes authorizations', async () => {
+  test('generates, lists, and revokes authorizations', async () => {
     const name = 'test-token';
     await client.revokeAuthorization(name);
     const token = await client.generateAccessToken({name, ttlDays: 1});
@@ -30,14 +30,14 @@ describe.skipIf(!client.authenticated)('client', () => {
     expect(infos2.find((i) => i.name === name)).toBeUndefined();
   });
 
-  test.skip('register and deletes specification', async () => {
+  test('register and deletes specification', async () => {
     const formulationName = 'n-queens' + NAME_SUFFIX;
     const {contents} = await loader.load('sources/n-queens.md');
     await client.registerSpecification({formulationName, sources: [contents]});
     await client.deleteFormulation(formulationName);
   });
 
-  test.skip('paginates formulations', async () => {
+  test('paginates formulations', async () => {
     const formulationName = 'n-queens' + NAME_SUFFIX;
     const {contents} = await loader.load('sources/n-queens.md');
     await client.registerSpecification({formulationName, sources: [contents]});
@@ -53,7 +53,7 @@ describe.skipIf(!client.authenticated)('client', () => {
     ).toBeUndefined();
   });
 
-  test.skip('paginates attempts', async () => {
+  test('paginates attempts', async () => {
     await client.paginateAttempts({first: 10});
     // TODO: Check things...
   });
@@ -76,7 +76,6 @@ describe.skipIf(!client.authenticated)('client', () => {
       });
 
       const outcome = await client.waitForOutcome(uuid);
-      console.log(JSON.stringify(outcome, null, 2));
       expect(outcome.status).toEqual('OPTIMAL');
 
       const fetched = await client.fetchSolve(uuid);
@@ -97,7 +96,7 @@ describe.skipIf(!client.authenticated)('client', () => {
     ATTEMPT_TIMEOUT
   );
 
-  test.skip(
+  test(
     'solves set-cover',
     async () => {
       const {contents} = await loader.load('sources/set-cover.md');
@@ -136,7 +135,7 @@ describe.skipIf(!client.authenticated)('client', () => {
     SOLVE_TIMEOUT
   );
 
-  test.skip(
+  test(
     'solves relaxed sudoku attempt',
     async () => {
       const formulationName = 'sudoku' + NAME_SUFFIX;
