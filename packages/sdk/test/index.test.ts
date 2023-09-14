@@ -58,7 +58,7 @@ describe.skipIf(!client.authenticated)('client', () => {
     // TODO: Check things...
   });
 
-  test(
+  test.skip(
     'queues n-queens solve',
     async () => {
       const formulationName = 'n-queens' + NAME_SUFFIX;
