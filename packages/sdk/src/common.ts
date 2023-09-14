@@ -16,12 +16,13 @@
  */
 
 import * as api from '@opvious/api';
-import __inlinable from 'inlinable';
 import {
-  openapiSchemaEnforcer,
+  CompatibilityPredicatesFor,
+  OpenapiDocument,
   parseOpenapiDocument,
-  SchemaEnforcer,
-} from 'yasdk-openapi';
+  schemaCompatibilityPredicates,
+} from 'abaca-openapi';
+import __inlinable from 'inlinable';
 
 /** Package metadata. */
 export const packageInfo = __inlinable((ctx) =>
@@ -33,11 +34,26 @@ export function strippingTrailingSlashes(arg: string | URL): string {
   return ('' + arg).replace(/\/+$/, '');
 }
 
-let enforcer: SchemaEnforcer<api.Schemas> | undefined;
-export function schemaEnforcer(): SchemaEnforcer<api.Schemas> {
-  if (!enforcer) {
-    const doc = parseOpenapiDocument(api.OPENAPI_SCHEMA);
-    enforcer = openapiSchemaEnforcer(doc);
+let document: OpenapiDocument<api.Schemas> | undefined;
+
+export function openapiDocument(): OpenapiDocument<api.Schemas> {
+  if (!document) {
+    document = parseOpenapiDocument(api.OPENAPI_SCHEMA);
   }
-  return enforcer;
+  return document;
+}
+
+let predicates: CompatibilityPredicatesFor<api.Schemas, 'Problem'> | undefined;
+
+export function compatibilityPredicates(): CompatibilityPredicatesFor<
+  api.Schemas,
+  'Problem'
+> {
+  if (!predicates) {
+    predicates = schemaCompatibilityPredicates({
+      document: openapiDocument(),
+      names: ['Problem'],
+    });
+  }
+  return predicates;
 }

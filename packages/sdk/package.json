@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious.html",
@@ -20,7 +20,7 @@
     "./errors": "./lib/index.errors.js"
   },
   "scripts": {
-    "build": "tsc -p src",
+    "build": "tsc -b src test",
     "clean": "rm -rf lib node_modules out",
     "fix": "prettier --write",
     "prepare": "pnpm run build && inlinable e",
@@ -29,22 +29,22 @@
   },
   "dependencies": {
     "@opentelemetry/api": "~1.4.1",
-    "@opvious/api": "^0.16.44",
-    "@opvious/stl-errors": "^0.21.14",
-    "@opvious/stl-telemetry": "^0.21.14",
-    "@opvious/stl-utils": "^0.21.14",
+    "@opvious/api": "^0.17.0",
+    "@opvious/stl-errors": "^0.22.4",
+    "@opvious/stl-telemetry": "^0.22.4",
+    "@opvious/stl-utils": "^0.22.4",
+    "abaca-openapi": "^0.10.10",
     "backoff": "^2.5.0",
     "graphql": "^16.6.0",
     "json-text-sequence": "^1.0.1",
     "jsonpath": "^1.1.1",
     "node-fetch": "^3.3.1",
-    "yaml": "^2.2.2",
-    "yasdk-openapi": "^0.3.18"
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
     "@types/backoff": "^2.5.2",
     "@types/jsonpath": "^0.2.0",
-    "inlinable": "^0.2.6",
-    "yasdk-runtime": "^0.3.18"
+    "abaca-runtime": "^0.10.10",
+    "inlinable": "^0.2.7"
   }
 }

@@ -15,13 +15,13 @@
  * the License.
  */
 
-import {types as graphqlTypes} from '@opvious/api/graphql';
-import {check, errorFactories, errorMessage} from '@opvious/stl-errors';
+import {graphqlTypes, Schema} from '@opvious/api';
+import {check, errorFactories} from '@opvious/stl-errors';
 import {Logger} from '@opvious/stl-telemetry';
 import {EventConsumer} from '@opvious/stl-utils/events';
+import type {Encoder, ResponseCode} from 'abaca-runtime';
 import * as gql from 'graphql';
 import fetch, {FetchError, Response} from 'node-fetch';
-import type {Encoder, ResponseCode} from 'yasdk-runtime';
 import zlib from 'zlib';
 
 export type Label = graphqlTypes.Scalars['Label'];
@@ -55,16 +55,8 @@ export const [clientErrors, clientErrorCodes] = errorFactories({
         errs.map(formatError).join(', '),
       tags: {errors: errs, extensions},
     }),
-    attemptCancelled: (uuid: Uuid) => ({
-      message: 'Attempt was cancelled',
-      tags: {uuid},
-    }),
-    attemptErrored: (uuid: Uuid, failure: unknown) => ({
-      message: `Attempt errored: ${errorMessage(failure)}`,
-      tags: {uuid, failure},
-    }),
-    unknownAttempt: (uuid: Uuid) => ({
-      message: `Attempt ${uuid} was not found`,
+    unknownSolve: (uuid: Uuid) => ({
+      message: `Queued solve ${uuid} was not found`,
       tags: {uuid},
     }),
     unknownFormulation: (formulation: string, tag?: string) => ({
@@ -161,43 +153,25 @@ export interface Paginated<V> {
   readonly nodes: ReadonlyArray<V>;
 }
 
-export type FeasibleOutcomeFragment =
-  graphqlTypes.PolledAttemptOutcomeFragment & {
-    readonly __typename: 'FeasibleOutcome';
-  };
-
-export interface AttemptTrackerListeners {
+export interface QueuedSolveListeners {
   /**
-   * The attempt is still being solved, with current status as reported in the
+   * The solve is still pending, with current status as reported in the
    * argument notification.
    */
-  notification(frag: graphqlTypes.FullAttemptNotificationFragment): void;
+  notification(data: graphqlTypes.FullSolveNotificationFragment): void;
 
   /**
-   * The attempt completed with the given feasible (possibly optimal) outcome.
-   * Once this event is emitted, no more events will be emitted on this tracker
-   * instance.
-   */
-  feasible(frag: FeasibleOutcomeFragment): void;
-
-  /**
-   * The attempt completed with infeasible status. Once this event is emitted,
-   * no more events will be emitted on this tracker instance.
-   */
-  infeasible(): void;
-
-  /**
-   * The attempt completed with unbounded status. Once this event is emitted, no
+   * The solve completed with the given outcome. Once this event is emitted, no
    * more events will be emitted on this tracker instance.
    */
-  unbounded(): void;
+  outcome(data: Schema<'SolveOutcome'>): void;
 
-  /** The attempt errored. */
-  error(err: Error): void;
+  /** The solve failed */
+  failure(data: Schema<'Failure'>): void;
 }
 
 /**
  * Type-safe event-emitter used for tracking attempt progress. See the
  * associated listeners for more information.
  */
-export type AttemptTracker = EventConsumer<AttemptTrackerListeners>;
+export type QueuedSolveTracker = EventConsumer<QueuedSolveListeners>;

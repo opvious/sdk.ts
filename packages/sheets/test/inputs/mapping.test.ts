@@ -23,6 +23,7 @@ describe('computes mapping', () => {
         ],
         variables: [tensorOutline('v1', [{dimensionLabel: 'd1'}])],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [
@@ -109,6 +110,7 @@ describe('computes mapping', () => {
           ]),
         ],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [
@@ -185,6 +187,7 @@ describe('computes mapping', () => {
           ),
         ],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [],
@@ -231,6 +234,7 @@ describe('computes mapping', () => {
         ],
         variables: [],
         constraints: [],
+        objectives: [],
       },
       {
         dimensions: [

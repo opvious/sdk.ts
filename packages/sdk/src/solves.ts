@@ -18,39 +18,40 @@
 import * as api from '@opvious/api';
 import {EventConsumer} from '@opvious/stl-utils/events';
 import {PathLike} from '@opvious/stl-utils/files';
+import {assertCompatible} from 'abaca-openapi';
 import {readFile} from 'fs/promises';
 import jp from 'jsonpath';
 import YAML from 'yaml';
-import {assertValue} from 'yasdk-openapi';
 
-import {schemaEnforcer} from './common.js';
+import {compatibilityPredicates} from './common.js';
 
-export async function loadSolveCandidate(
+export async function loadProblem(
   lp: PathLike,
   opts?: {
     readonly jsonPath?: string;
   }
-): Promise<api.Schema<'SolveCandidate'>> {
+): Promise<api.Schema<'Problem'>> {
   const str = await readFile(lp, 'utf8');
-  return parseSolveCandidate(str, opts);
+  return parseProblem(str, opts);
 }
 
-export function parseSolveCandidate(
+export function parseProblem(
   str: string,
   opts?: {
     readonly jsonPath?: string;
   }
-): api.Schema<'SolveCandidate'> {
+): api.Schema<'Problem'> {
   let data = YAML.parse(str);
   if (opts?.jsonPath) {
     data = jp.value(data, opts?.jsonPath);
   }
-  assertCandidate(data);
+  const {isProblem} = compatibilityPredicates();
+  assertCompatible(data, isProblem);
   return data;
 }
 
 export interface SolveTrackerListeners {
-  reified(summary: api.Schema<'SolveSummary'>): void;
+  reified(summary: api.Schema<'ProblemSummary'>): void;
 
   solving(progress: api.Schema<'SolveProgress'>): void;
 
@@ -61,10 +62,3 @@ export interface SolveTrackerListeners {
 }
 
 export type SolveTracker = EventConsumer<SolveTrackerListeners>;
-
-function assertCandidate(
-  arg: unknown
-): asserts arg is api.Schema<'SolveCandidate'> {
-  const validators = schemaEnforcer().validators({names: ['SolveCandidate']});
-  assertValue(validators.isSolveCandidate, arg);
-}

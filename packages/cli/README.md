@@ -31,14 +31,14 @@ profiles](#configuration-profiles) section below.
 
 ### Solve a problem
 
-The first step is to represent the problem as a
-[`SolveCandidate`](https://api.cloud.opvious.io/schema.json?name=SolveCandidate)
+The first step is to represent the problem as an optimization
+[`Problem`](https://api.cloud.opvious.io/schema.json?name=Problem)
 and save it as JSON or YAML. In general you wouldn't write it manually but it's
 simple enough to do for small problems. For example a set-cover instance looks
 like:
 
 ```yaml
-# candidate.yaml
+# problem.yaml
 formulation:
   sources:
     - | # Set cover formulation
@@ -58,12 +58,12 @@ inputs:
         - {key: [s3, v2]}
 ```
 
-With the candidate saved, we're ready to start solving. The solve's status (e.g.
+With the problem saved, we're ready to start solving. The solve's status (e.g.
 number of LP iterations, relative gap, ...) will be shown in real time in the
 terminal.
 
 ```sh
-opvious solve run candidate.yaml -o outputs.yaml
+opvious solve run problem.yaml -o outputs.yaml
 ```
 
 [![asciicast](https://asciinema.org/a/n4AiNKhUY22i1A9VhPF06c1wp.svg)](https://asciinema.org/a/n4AiNKhUY22i1A9VhPF06c1wp)

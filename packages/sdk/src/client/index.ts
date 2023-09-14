@@ -17,7 +17,7 @@
 
 import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api';
-import {absurd, assert, assertCause, check} from '@opvious/stl-errors';
+import {assert, assertCause, check} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import {withEmitter, withTypedEmitter} from '@opvious/stl-utils/events';
 import {ifPresent} from '@opvious/stl-utils/functions';
@@ -33,23 +33,17 @@ import {packageInfo, strippingTrailingSlashes} from '../common.js';
 import {SolveTracker, SolveTrackerListeners} from '../solves.js';
 import {
   assertHasCode,
-  AttemptTracker,
-  AttemptTrackerListeners,
   clientErrors,
-  FeasibleOutcomeFragment,
   jsonBrotliEncoder,
   okData,
   okResultData,
   Paginated,
+  QueuedSolveListeners,
+  QueuedSolveTracker,
   Uuid,
 } from './common.js';
 
-export {
-  AttemptTracker,
-  AttemptTrackerListeners,
-  FeasibleOutcomeFragment,
-  Paginated,
-} from './common.js';
+export {Paginated, QueuedSolveListeners, QueuedSolveTracker} from './common.js';
 
 /** Opvious API client. */
 export class OpviousClient {
@@ -81,12 +75,13 @@ export class OpviousClient {
         : `Bearer ${auth}`;
     }
 
-    const endpoint = strippingTrailingSlashes(
+    const address = strippingTrailingSlashes(
       (opts?.endpoint ?? process.env.OPVIOUS_ENDPOINT) || DEFAULT_ENDPOINT
     );
 
     const retryCutoff = Date.now() + (opts?.maxRetryDelayMillis ?? 2_500);
-    const sdk = api.createSdk<typeof fetch>(endpoint, {
+    const sdk = api.createSdk<typeof fetch>({
+      address,
       headers,
       fetch: async (url, init): Promise<Response> => {
         otel.propagation.inject(otel.context.active(), init.headers);
@@ -133,19 +128,17 @@ export class OpviousClient {
     const graphqlSdk = api.createGraphqlSdk(sdk);
 
     logger.debug('Created new client.');
-    return new OpviousClient(tel, !!auth, endpoint, sdk, graphqlSdk);
+    return new OpviousClient(tel, !!auth, address, sdk, graphqlSdk);
   }
 
   // Solving
 
   /** Solves an optimization model. */
-  runSolve(args: {
-    readonly candidate: api.Schema<'SolveCandidate'>;
-  }): SolveTracker {
-    const {candidate} = args;
+  runSolve(args: {readonly problem: api.Schema<'Problem'>}): SolveTracker {
+    const {problem} = args;
     return withTypedEmitter<SolveTrackerListeners>(async (ee) => {
-      const res = await this.sdk.runSolve({
-        body: {candidate},
+      const res = await this.sdk.solve({
+        body: {problem},
         headers: {accept: 'application/json-seq, text/*'},
       });
       const iter = okData(res);
@@ -170,12 +163,12 @@ export class OpviousClient {
 
   /** Returns an optimization model's underlying instructions. */
   inspectSolveInstructions(args: {
-    readonly candidate: api.Schema<'SolveCandidate'>;
+    readonly problem: api.Schema<'Problem'>;
   }): stream.Readable {
-    const {candidate} = args;
+    const {problem} = args;
     return withEmitter(new stream.PassThrough(), async (pt) => {
-      const res = await this.sdk.inspectSolveInstructions({
-        body: {candidate},
+      const res = await this.sdk.formatProblem({
+        body: {problem},
         headers: {accept: 'text/plain'},
         decoder: (res) => {
           if (res.status !== 200) {
@@ -228,7 +221,7 @@ export class OpviousClient {
     readonly includeOutline?: boolean;
   }): Promise<api.ResponseData<'parseSources', 200>> {
     const res = await this.sdk.parseSources({
-      body: {sources: args.sources, outline: args.includeOutline},
+      body: {sources: args.sources, outline: !!args.includeOutline},
     });
     return okData(res);
   }
@@ -349,70 +342,43 @@ export class OpviousClient {
    * UUID to wait for its outcome (via `waitForOutcome`), fetch its inputs and
    * outputs, etc.
    */
-  async startAttempt(args: {
-    readonly candidate: api.Schema<'SolveCandidate'>;
-  }): Promise<api.ResponseData<'startAttempt', 200>> {
-    const {candidate} = args;
-    const res = await this.sdk.startAttempt({body: {candidate}});
+  async queueSolve(args: {
+    readonly problem: api.Schema<'Problem'>;
+  }): Promise<api.ResponseData<'queueSolve', 200>> {
+    const {problem} = args;
+    const res = await this.sdk.queueSolve({body: {problem}});
     return okData(res);
   }
 
   /**
-   * Tracks an attempt until its outcome is decided, emitting it as `'outcome'`.
-   * `'notification'` events will periodically be emitted containing the
-   * attempt's latest progress. If the attempt failed (error, infeasible,
-   * unbounded), the event emitter will emit an error.
+   * Tracks a queued solve until its outcome is decided, emitting it as
+   * `'outcome'`. `'notification'` events will periodically be emitted
+   * containing the attempt's latest progress. If the attempt faile , the event
+   * emitter will emit an error.
    */
-  trackAttempt(uuid: Uuid): AttemptTracker {
-    return withTypedEmitter<AttemptTrackerListeners>((ee) => {
+  trackSolve(uuid: Uuid): QueuedSolveTracker {
+    return withTypedEmitter<QueuedSolveListeners>((ee) => {
       const xb = backoff.exponential();
       xb.on('ready', () => {
         this.graphqlSdk
-          .PollAttempt({uuid})
+          .PollQueuedSolve({uuid})
           .then((res) => {
-            const {attempt} = okResultData(res);
-            assert(attempt, 'Unknown attempt');
-            switch (attempt.status) {
-              case 'PENDING': {
-                const notif = attempt.notifications.edges[0]?.node;
-                if (notif) {
-                  ee.emit('notification', notif);
-                }
-                xb.backoff();
-                return;
-              }
-              case 'CANCELLED':
-                throw clientErrors.attemptCancelled(uuid);
-              case 'ERRORED': {
-                assert(
-                  attempt.outcome?.__typename === 'FailedOutcome',
-                  'Unexpected outcome %j',
-                  attempt.outcome
-                );
-                throw clientErrors.attemptErrored(
-                  uuid,
-                  attempt.outcome.failure
-                );
-              }
-              case 'INFEASIBLE':
-                ee.emit('infeasible');
-                return;
-              case 'UNBOUNDED':
-                ee.emit('unbounded');
-                return;
-              case 'FEASIBLE':
-              case 'OPTIMAL': {
-                assert(
-                  attempt.outcome?.__typename === 'FeasibleOutcome',
-                  'Unexpected outcome %j',
-                  attempt.outcome
-                );
-                ee.emit('feasible', attempt.outcome);
-                return;
-              }
-              default:
-                absurd(attempt.status);
+            const {queuedSolve} = okResultData(res);
+            assert(queuedSolve, 'Unknown solve');
+            const {failure, outcome} = queuedSolve;
+            if (failure != null) {
+              ee.emit('failure', failure);
+              return;
             }
+            if (outcome == null) {
+              const notif = queuedSolve.notifications.edges[0]?.node;
+              if (notif) {
+                ee.emit('notification', notif);
+              }
+              xb.backoff();
+              return;
+            }
+            ee.emit('outcome', outcome);
           })
           .catch((err) => {
             ee.emit('error', err);
@@ -423,47 +389,37 @@ export class OpviousClient {
 
   /**
    * Convenience method which resolves when the attempt is solved. Consider
-   * using `trackAttempt` to get access to progress notifications and other
+   * using `trackSolve` to get access to progress notifications and other
    * statuses.
    */
-  async waitForFeasibleOutcome(uuid: Uuid): Promise<FeasibleOutcomeFragment> {
+  async waitForOutcome(uuid: Uuid): Promise<api.Schema<'SolveOutcome'>> {
     return new Promise((ok, fail) => {
-      this.trackAttempt(uuid)
-        .on('error', fail)
-        .on('feasible', ok)
-        .on('infeasible', () => {
-          fail(new Error('Infeasible problem'));
-        })
-        .on('unbounded', () => {
-          fail(new Error('Unbounded problem'));
-        });
+      this.trackSolve(uuid).on('error', fail).on('outcome', ok);
     });
   }
 
-  /** Cancels a pending attempt. */
-  async cancelAttempt(
-    uuid: Uuid
-  ): Promise<api.graphqlTypes.CancelledAttemptFragment> {
-    const res = await this.graphqlSdk.CancelAttempt({uuid});
-    return okResultData(res).cancelAttempt;
+  /** Cancels a pending queued solve. */
+  async cancelSolve(uuid: Uuid): Promise<boolean> {
+    const res = await this.graphqlSdk.CancelQueuedSolve({uuid});
+    return okResultData(res).cancelQueuedSolve;
   }
 
-  /** Fetches an attempt from its UUID. */
-  async fetchAttempt(
+  /** Fetches a queued solve from its UUID. */
+  async fetchSolve(
     uuid: Uuid
-  ): Promise<api.graphqlTypes.FetchedAttemptFragment | undefined> {
-    const res = await this.graphqlSdk.FetchAttempt({uuid});
-    return okResultData(res).attempt;
+  ): Promise<api.graphqlTypes.FetchedQueuedSolveFragment | undefined> {
+    const res = await this.graphqlSdk.FetchQueuedSolve({uuid});
+    return okResultData(res).queuedSolve;
   }
 
-  /** Paginates an attempt's notifications. */
-  async paginateAttemptNotifications(
-    vars: api.graphqlTypes.PaginateAttemptNotificationsQueryVariables
-  ): Promise<Paginated<api.graphqlTypes.FullAttemptNotificationFragment>> {
-    const res = await this.graphqlSdk.PaginateAttemptNotifications(vars);
-    const notifs = okResultData(res).attempt?.notifications;
+  /** Paginates a queued solve's notifications. */
+  async paginateSolveNotifications(
+    vars: api.graphqlTypes.PaginateQueuedSolveNotificationsQueryVariables
+  ): Promise<Paginated<api.graphqlTypes.FullSolveNotificationFragment>> {
+    const res = await this.graphqlSdk.PaginateQueuedSolveNotifications(vars);
+    const notifs = okResultData(res).queuedSolve?.notifications;
     if (!notifs) {
-      throw clientErrors.unknownAttempt(vars.uuid);
+      throw clientErrors.unknownSolve(vars.uuid);
     }
     return {
       info: notifs.pageInfo,
@@ -473,57 +429,31 @@ export class OpviousClient {
   }
 
   /** Fetches an attempt's inputs from its UUID. */
-  async fetchAttemptInputs(uuid: Uuid): Promise<api.Schema<'SolveInputs'>> {
-    const res = await this.sdk.getAttemptInputs({
-      parameters: {attemptUuid: uuid},
-    });
+  async fetchSolveInputs(uuid: Uuid): Promise<api.Schema<'SolveInputs'>> {
+    const res = await this.sdk.getQueuedSolveInputs({params: {uuid}});
     switch (res.code) {
       case 200:
         return res.data;
       case 404:
-        throw clientErrors.unknownAttempt(uuid);
+        throw clientErrors.unknownSolve(uuid);
       default:
         throw clientErrors.unexpectedResponseStatus(res.raw, res.data);
     }
-  }
-
-  /** Fetches an attempt's instructions from its UUID. */
-  fetchAttemptInstructions(uuid: Uuid): stream.Readable {
-    return withEmitter(new stream.PassThrough(), async (pt) => {
-      const res = await this.sdk.getAttemptInstructions({
-        parameters: {attemptUuid: uuid},
-        headers: {accept: 'text/plain'},
-        decoder: (res) => {
-          if (res.status !== 200) {
-            return res.text();
-          }
-          return ''; // Do not consume the body.
-        },
-      });
-      if (res.code === 404) {
-        throw clientErrors.unknownAttempt(uuid);
-      }
-      assertHasCode(res, 200);
-      assert(res.raw.body, 'Missing body');
-      await streamPipeline(res.raw.body, pt);
-    });
   }
 
   /**
    * Fetches an attempt's outputs from its UUID. This method will returned
    * `undefined` if the attempt was not feasible.
    * */
-  async fetchAttemptOutputs(
+  async fetchSolveOutputs(
     uuid: Uuid
   ): Promise<api.Schema<'SolveOutputs'> | undefined> {
-    const res = await this.sdk.getAttemptOutputs({
-      parameters: {attemptUuid: uuid},
-    });
+    const res = await this.sdk.getQueuedSolveOutputs({params: {uuid}});
     switch (res.code) {
       case 200:
         return res.data;
       case 404:
-        throw clientErrors.unknownAttempt(uuid);
+        throw clientErrors.unknownSolve(uuid);
       case 409:
         return undefined;
       default:
