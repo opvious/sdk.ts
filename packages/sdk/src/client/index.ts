@@ -162,7 +162,7 @@ export class OpviousClient {
   }
 
   /** Returns an optimization model's underlying instructions. */
-  inspectSolveInstructions(args: {
+  formatProblem(args: {
     readonly problem: api.Schema<'Problem'>;
   }): stream.Readable {
     const {problem} = args;

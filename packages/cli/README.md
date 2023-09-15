@@ -14,8 +14,8 @@ environment variable accordingly (see also
 [Starting an API server](#starting-an-api-server) below).
 
 In both cases, most commands require a valid API token to be set as
-`OPVIOUS_TOKEN` environment variable. Cloud API tokens can be generated
-[here][authorizations]; refer to the API server documentation to learn how to
+`OPVIOUS_TOKEN` environment variable (API tokens can be generated
+[here][authorizations]); refer to the API server documentation to learn how to
 authenticate in the self-hosted case. You can check that your CLI is
 authenticated by running the following command:
 
@@ -32,10 +32,10 @@ profiles](#configuration-profiles) section below.
 ### Solve a problem
 
 The first step is to represent the problem as an optimization
-[`Problem`](https://api.cloud.opvious.io/schema.json?name=Problem)
-and save it as JSON or YAML. In general you wouldn't write it manually but it's
-simple enough to do for small problems. For example a set-cover instance looks
-like:
+[`Problem`](https://api.cloud.opvious.io/schema.json?name=Problem) and save it
+as JSON or YAML. In general you would generate it using our [modeling
+SDK][modeling] but it's simple enough to write manually for small problems. For
+example a set-cover instance looks like:
 
 ```yaml
 # problem.yaml
@@ -85,16 +85,15 @@ variables:
       - {key: [s3], value: 1}
 ```
 
-Note that solves are subject to size and time limits which depend on your
-account's tier. For large problems, consider also using `queue` instead of `run`
-to benefit from longer timeouts. This command will queue an asynchronous solve
-attempt which will run as soon as capacity is available.
+Note that solves are subject to size and time limits. For large problems,
+consider also using the `queueSolve` method instead of `solve` to benefit from
+longer timeouts. It will queue an solve attempt to run as soon as capacity is
+available.
 
 
 ### Managing API tokens
 
-You can list, create, and revoke your API tokens using the `account`
-subcommands:
+You can list, create, and revoke API tokens using the `account` subcommands:
 
 ```sh
 opvious account authorizations # List all tokens
@@ -105,8 +104,8 @@ opvious account revoke-authorization # Revoke an existing API token
 
 ### Managing formulations
 
-You can create formulations directly from local specification files (typically
-in Markdown or LaTeX):
+You can create formulations from local specification files (typically in
+Markdown or LaTeX):
 
 ```sh
 opvious formulation register -f "$NAME" sources/*
@@ -189,5 +188,6 @@ flag when running any command, this will take precedence over `OPVIOUS_TOKEN`.
 
 [Node.js]: https://nodejs.org
 [Opvious]: https://www.opvious.io
-[authorizations]: https://hub.cloud.opvious.io/authorizations.
+[authorizations]: https://hub.cloud.opvious.io/authorizations
 [API server]: https://hub.docker.com/r/opvious/api-server
+[modeling]: https://opvious.readthedocs.io/en/stable/modeling.html
