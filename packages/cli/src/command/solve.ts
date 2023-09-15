@@ -36,18 +36,18 @@ export function solveCommand(): Command {
     .command('solve')
     .description('problem solving commands')
     .addCommand(runCommand())
+    .addCommand(formatCommand())
     .addCommand(queueCommand())
     .addCommand(cancelCommand())
     .addCommand(listCommand())
     .addCommand(outputsCommand())
-    .addCommand(instructionsCommand())
     .addCommand(listNotificationsCommand());
 }
 
 function runCommand(): Command {
   return newCommand()
     .command('run')
-    .description('run a solve')
+    .description('solve an optimization problem')
     .argument('<path>', 'path to problem data')
     .option('-j, --json-path <path>', 'JSONPath to nested problem data')
     .option('-o, --output <path>', 'output path (default: stdout)')
@@ -107,7 +107,7 @@ function formatGap(gap: api.Schema<'ExtendedFloat'> | undefined): string {
 function queueCommand(): Command {
   return newCommand()
     .command('queue')
-    .description('queue a solve attempt')
+    .description('queue an optimization attempt')
     .argument('<path>', 'path to problem data')
     .option('-j, --json-path <path>', 'JSONPath to nested problem data')
     .action(
@@ -152,10 +152,10 @@ function outputsCommand(): Command {
     );
 }
 
-function instructionsCommand(): Command {
+function formatCommand(): Command {
   return newCommand()
-    .command('instructions')
-    .description('view a solve\'s underlying instructions')
+    .command('format')
+    .description('print a problem\'s MPS representation')
     .argument('<path>', 'path to problem data or queued solve UUID')
     .option(
       '-j, --json-path <path>',
@@ -171,13 +171,13 @@ function instructionsCommand(): Command {
         spinner.start('Parsing problem...');
         const prob = await loadProblem(arg, {jsonPath: opts.jsonPath});
         spinner.succeed('Parsed problem.').start('Formatting problem...');
-        const readable = client.inspectSolveInstructions({problem: prob});
+        const readable = client.formatProblem({problem: prob});
         if (!opts.output) {
           spinner.stop().clear();
         }
         await streamPipeline(readable, out);
         if (opts.output) {
-          spinner.succeed('Downloaded instructions.');
+          spinner.succeed('Formatted problem.');
         }
       })
     );

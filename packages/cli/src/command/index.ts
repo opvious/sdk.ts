@@ -26,8 +26,8 @@ import readline from 'readline';
 
 import {COMMAND_NAME, logPath, packageInfo} from '../common.js';
 import {display} from '../io.js';
-import {accountCommand} from './account.js';
 import {apiCommand} from './api.js';
+import {authorizationCommand} from './authorization.js';
 import {contextualAction, newCommand} from './common.js';
 import {formulationCommand} from './formulation.js';
 import {solveCommand} from './solve.js';
@@ -40,7 +40,7 @@ export function mainCommand(): Command {
     .option('-Q, --quiet', 'suppress spinner output')
     .addCommand(solveCommand())
     .addCommand(formulationCommand())
-    .addCommand(accountCommand())
+    .addCommand(authorizationCommand())
     .addCommand(apiCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())
@@ -71,7 +71,6 @@ function showCredentialsCommand(): Command {
           'registered',
           DateTime.fromISO(member.registeredAt).toRelative()
         );
-        table.cell('tier', member.productTier);
         table.newRow();
         display(table.printTransposed());
       })
