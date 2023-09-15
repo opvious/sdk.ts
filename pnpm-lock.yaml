@@ -60,20 +60,20 @@ importers:
         specifier: ~1.4.1
         version: 1.4.1
       '@opvious/api':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.8
+        version: 0.17.8
       '@opvious/stl-bootstrap':
-        specifier: ^0.22.4
-        version: 0.22.4(@opentelemetry/api@1.4.1)
+        specifier: ^0.22.6
+        version: 0.22.6(@opentelemetry/api@1.4.1)
       '@opvious/stl-errors':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.6
+        version: 0.22.6
       '@opvious/stl-telemetry':
-        specifier: ^0.22.4
-        version: 0.22.4(@opentelemetry/api@1.4.1)
+        specifier: ^0.22.6
+        version: 0.22.6(@opentelemetry/api@1.4.1)
       '@opvious/stl-utils':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.6
+        version: 0.22.6
       ajv:
         specifier: ^8.11.0
         version: 8.11.0
@@ -139,17 +139,17 @@ importers:
         specifier: ~1.4.1
         version: 1.4.1
       '@opvious/api':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.8
+        version: 0.17.8
       '@opvious/stl-errors':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.6
+        version: 0.22.6
       '@opvious/stl-telemetry':
-        specifier: ^0.22.4
-        version: 0.22.4(@opentelemetry/api@1.4.1)
+        specifier: ^0.22.6
+        version: 0.22.6(@opentelemetry/api@1.4.1)
       '@opvious/stl-utils':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.6
+        version: 0.22.6
       abaca-openapi:
         specifier: ^0.10.10
         version: 0.10.10(@opentelemetry/api@1.4.1)
@@ -188,14 +188,14 @@ importers:
   packages/sheets:
     dependencies:
       '@opvious/api':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.8
+        version: 0.17.8
       '@opvious/stl-errors':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.6
+        version: 0.22.6
       '@opvious/stl-utils':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.6
+        version: 0.22.6
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -770,11 +770,11 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@opvious/api@0.17.0:
-    resolution: {integrity: sha512-d0Ts5SVr/3tqakkH0zlf76EG2NeWtWoilgWDG7hqWnnfPY6rZh4/4l5zrHXegBTGX5bklJ0OWuMnJSAuDjzw9A==, tarball: https://npm.pkg.github.com/download/@opvious/api/0.17.0/f61dd3612cb897e83d52884959d10fc87816c9b7}
+  /@opvious/api@0.17.8:
+    resolution: {integrity: sha512-fWi+9Z8jOLkH6UTIyZ/1fU3aMrqrzUh79GK+aqnGSMAh+fsvAUTfQVFcgODrDO4g4ywyX9qtd38d8IStBXbY0g==, tarball: https://npm.pkg.github.com/download/@opvious/api/0.17.8/8cd62bde12ea38a428f7456e635c17e1a2723a97}
     dependencies:
-      '@opvious/stl-errors': 0.22.4
-      '@opvious/stl-graphql': 0.22.4
+      '@opvious/stl-errors': 0.22.6
+      '@opvious/stl-graphql': 0.22.6
       graphql: 16.8.0
       inlinable-runtime: 0.2.7
     dev: false
@@ -798,8 +798,8 @@ packages:
     resolution: {integrity: sha512-iKEBPui5CvU3aIRtlyEgHvBGH7fNjtzB3KlxqMFHtTWpBY5q134Y6nYydZBcNcFMGRTXbMgKBrQgC6TqwuLJGg==, tarball: https://npm.pkg.github.com/download/@opvious/prettier-typescript/0.1.26/b39067d9dc25de3d3d84fd543e0367f315211277}
     dev: true
 
-  /@opvious/stl-bootstrap@0.22.4(@opentelemetry/api@1.4.1):
-    resolution: {integrity: sha512-MYTjEv8dVblEqWlwjm6EYZhfsUCNmJwTg+cBpKA7puHQt5Jk8lm+xh0crgqb3xYRkMjqS1HK/yDNyw0TN1H4Jw==, tarball: https://npm.pkg.github.com/download/@opvious/stl-bootstrap/0.22.4/daf14dc40753f140860a80d38f199a22adc4b0d8}
+  /@opvious/stl-bootstrap@0.22.6(@opentelemetry/api@1.4.1):
+    resolution: {integrity: sha512-U2pF/GF2d2xhdt6/MieJ26PR+umalwwjTBjPD9FW3Dq+sqK8ICLdsQ4H8lsuquvmCogcyuctlMBA9vMdM96YZQ==, tarball: https://npm.pkg.github.com/download/@opvious/stl-bootstrap/0.22.6/cf25f71fd9e1f686103f1f673588b5559c008754}
     peerDependencies:
       '@opentelemetry/api': ~1.4.1
     dependencies:
@@ -813,43 +813,43 @@ packages:
       '@opentelemetry/sdk-metrics': 1.17.0(@opentelemetry/api@1.4.1)
       '@opentelemetry/sdk-trace-base': 1.17.0(@opentelemetry/api@1.4.1)
       '@opentelemetry/sdk-trace-node': 1.17.0(@opentelemetry/api@1.4.1)
-      '@opvious/stl-errors': 0.22.4
-      '@opvious/stl-telemetry': 0.22.4(@opentelemetry/api@1.4.1)
-      '@opvious/stl-utils': 0.22.4
+      '@opvious/stl-errors': 0.22.6
+      '@opvious/stl-telemetry': 0.22.6(@opentelemetry/api@1.4.1)
+      '@opvious/stl-utils': 0.22.6
     dev: false
 
-  /@opvious/stl-errors@0.22.4:
-    resolution: {integrity: sha512-aUePXX5ncFALra8s6SGhaUMeF6uECsfvF5jXUJ/JiSUwE/OPlFlK96DbltIE/szAGt7jmhCh+lPVyJnyR8zouA==, tarball: https://npm.pkg.github.com/download/@opvious/stl-errors/0.22.4/9c57458958e363ed6de988d3788900ebbca43642}
+  /@opvious/stl-errors@0.22.6:
+    resolution: {integrity: sha512-l6S11Mv1+DuMEyczpjqpCD/ErDc5YKlL7jF0z8q0tE0yP5IPWpok/ZAYxhnevC29My44f8YX7WfRv44xqyHtbQ==, tarball: https://npm.pkg.github.com/download/@opvious/stl-errors/0.22.6/fbe6545ead8c955fec177de981a121e4ec126727}
     dependencies:
       change-case: 4.1.2
       upper-case-first: 2.0.2
 
-  /@opvious/stl-graphql@0.22.4:
-    resolution: {integrity: sha512-h46u+dIrHW7lPLmL/a8KD3qra/L4DxIUUPO3ToIImfpCCdCJnD2X60dUw0JXQ2QQYVepKvW1iLQ0Kwvz2UraEg==, tarball: https://npm.pkg.github.com/download/@opvious/stl-graphql/0.22.4/76c1d23c2664774306a41b7473415948e8f09d4d}
+  /@opvious/stl-graphql@0.22.6:
+    resolution: {integrity: sha512-1TkvgonPL/uNL72BzjBuQPTzjNGf/9I6q1BDJJ/VGh0zPILYjCFeUlPBjb0yHRbPMMx2LJgANP5JCQp4JsPMew==, tarball: https://npm.pkg.github.com/download/@opvious/stl-graphql/0.22.6/b5314b9d21544cd109407c352f772ebba49c84f4}
     dependencies:
-      '@opvious/stl-errors': 0.22.4
-      '@opvious/stl-utils': 0.22.4
+      '@opvious/stl-errors': 0.22.6
+      '@opvious/stl-utils': 0.22.6
       graphql: 16.8.0
     dev: false
 
-  /@opvious/stl-telemetry@0.22.4(@opentelemetry/api@1.4.1):
-    resolution: {integrity: sha512-cSLVhIyrZ5mx4LRb1mGp6wK3RrxM4/4qNb/dIZyOii1lllXeU2+hOm8xAjJ2EyeMIpYVEXNmGqDJrSrkjo/BvA==, tarball: https://npm.pkg.github.com/download/@opvious/stl-telemetry/0.22.4/9b170149ce6ebaaf34aeb5fa56269fa8b077c8cb}
+  /@opvious/stl-telemetry@0.22.6(@opentelemetry/api@1.4.1):
+    resolution: {integrity: sha512-QX55anMwPzIfhHxXTncZzAeyiUmimG/3FZosscl66B9olP9kfg0OKdZZaL+uLVJWR/aHCTyVVGeaX5fvrutCcw==, tarball: https://npm.pkg.github.com/download/@opvious/stl-telemetry/0.22.6/0b10c4a8bb5d64b62f24aa236bd1061dfd6795d4}
     peerDependencies:
       '@opentelemetry/api': ~1.4.1
     dependencies:
       '@opentelemetry/api': 1.4.1
-      '@opvious/stl-errors': 0.22.4
-      '@opvious/stl-utils': 0.22.4
+      '@opvious/stl-errors': 0.22.6
+      '@opvious/stl-utils': 0.22.6
       inlinable-runtime: 0.2.7
       pino: 8.15.1
       pino-std-serializers: 6.2.2
     dev: false
 
-  /@opvious/stl-utils@0.22.4:
-    resolution: {integrity: sha512-gU1ls1i6KFNXq2S28ZCW3KwcRmS3l9y1ZLxuo0n2rihRWFwFYbUTQLbkxTMVNsRh+1FErvLGlx9cADM4B0pyNA==, tarball: https://npm.pkg.github.com/download/@opvious/stl-utils/0.22.4/f696a988386dbb5557686452d29841af78577319}
+  /@opvious/stl-utils@0.22.6:
+    resolution: {integrity: sha512-6qgUD8jueAU3UHnsGmTlJvu5Go0wcq2q91qTLLLggG388qw0NSlJ7XNkvwshoOEDCbXR3BbrrN/kpqh1hd/Qcw==, tarball: https://npm.pkg.github.com/download/@opvious/stl-utils/0.22.6/5ecbc55ed06da08d2e248d49991c147f98eecdc0}
     dependencies:
       '@avro/types': 1.0.25
-      '@opvious/stl-errors': 0.22.4
+      '@opvious/stl-errors': 0.22.6
       change-case: 4.1.2
       fast-deep-equal: 3.1.3
       inlinable-runtime: 0.2.7
@@ -978,8 +978,8 @@ packages:
     resolution: {integrity: sha512-BYOID+l2Aco2nBik+iYS4SZX0Lf20KPILP5RGmM1IgzdwNdTs0eebiFriOPcej1sX9mLnSoiNte5zcFxssgpGA==}
     dev: true
 
-  /@types/semver@7.5.1:
-    resolution: {integrity: sha512-cJRQXpObxfNKkFAZbJl2yjWtJCqELQIdShsogr1d2MilP8dKD9TE/nEKHkJgUNHdGKCQaf9HbIynuV2csLGVLg==}
+  /@types/semver@7.5.2:
+    resolution: {integrity: sha512-7aqorHYgdNO4DM36stTiGO3DvKoex9TQRwsJU6vMaFGyqpBA1MNZkz+PG3gaNUPpTAOYhT1WR7M1JyA3fbS9Cw==}
     dev: true
 
   /@types/urijs@1.19.20:
@@ -1098,7 +1098,7 @@ packages:
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.17.0)
       '@types/json-schema': 7.0.12
-      '@types/semver': 7.5.1
+      '@types/semver': 7.5.2
       '@typescript-eslint/scope-manager': 6.7.0
       '@typescript-eslint/types': 6.7.0
       '@typescript-eslint/typescript-estree': 6.7.0(typescript@5.0.4)
@@ -1162,9 +1162,9 @@ packages:
   /abaca-openapi@0.10.10(@opentelemetry/api@1.4.1):
     resolution: {integrity: sha512-9cscwvwDIgYigzO9q35v7hc9tZEbvCWkHawShNMjyEPquGqLWcPzlQPzoZlMNCsyCyZleYYp3ZVNuEWucS7nEQ==}
     dependencies:
-      '@opvious/stl-errors': 0.22.4
-      '@opvious/stl-telemetry': 0.22.4(@opentelemetry/api@1.4.1)
-      '@opvious/stl-utils': 0.22.4
+      '@opvious/stl-errors': 0.22.6
+      '@opvious/stl-telemetry': 0.22.6(@opentelemetry/api@1.4.1)
+      '@opvious/stl-utils': 0.22.6
       '@stoplight/json-ref-resolver': 3.1.6
       abaca-runtime: 0.10.10
       ajv: 8.12.0
@@ -1684,10 +1684,20 @@ packages:
     dependencies:
       clone: 1.0.4
 
-  /define-properties@1.2.0:
-    resolution: {integrity: sha512-xvqAVKGfT1+UAvPwKTVw/njhdQ8ZhXK4lI0bCIuCMrp2up9nPnaDftrLtmpTazqd1o+UY4zgzU+avtMbDP+ldA==}
+  /define-data-property@1.1.0:
+    resolution: {integrity: sha512-UzGwzcjyv3OtAvolTj1GoyNYzfFR+iqbGjcnBEENZVCpM4/Ng1yhGNvS3lR/xDS74Tb2wGG9WzNSNIOS9UVb2g==}
     engines: {node: '>= 0.4'}
     dependencies:
+      get-intrinsic: 1.2.1
+      gopd: 1.0.1
+      has-property-descriptors: 1.0.0
+    dev: true
+
+  /define-properties@1.2.1:
+    resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
+    engines: {node: '>= 0.4'}
+    dependencies:
+      define-data-property: 1.1.0
       has-property-descriptors: 1.0.0
       object-keys: 1.1.1
     dev: true
@@ -2322,8 +2332,8 @@ packages:
     resolution: {integrity: sha512-sQSTnfvheOy3i1K2LniYlPCueV9iOMI8G/ul5GFmw0ivT+LunHfMmuQLDjRysD4JQzFOA7YbqPEi3iBKZLseBA==}
     hasBin: true
     dependencies:
-      '@opvious/stl-errors': 0.22.4
-      '@opvious/stl-utils': 0.22.4
+      '@opvious/stl-errors': 0.22.6
+      '@opvious/stl-utils': 0.22.6
       acorn: 8.10.0
       ast-types: 0.14.2
       commander: 10.0.1
@@ -2395,7 +2405,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
     dev: true
 
   /is-number@7.0.0:
@@ -2751,7 +2761,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
     dev: true
 
   /object-keys@1.1.1:
@@ -2764,7 +2774,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       has-symbols: 1.0.3
       object-keys: 1.1.1
     dev: true
