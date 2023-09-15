@@ -23,8 +23,8 @@ to connect to a self-hosted <a href="https://hub.docker.com/r/opvious/api-server
 environment variable accordingly (see also
 <a href="#starting-an-api-server">Starting an API server</a> below).</p>
 <p>In both cases, most commands require a valid API token to be set as
-<code>OPVIOUS_TOKEN</code> environment variable. Cloud API tokens can be generated
-<a href="https://hub.cloud.opvious.io/authorizations.">here</a>; refer to the API server documentation to learn how to
+<code>OPVIOUS_TOKEN</code> environment variable (API tokens can be generated
+<a href="https://hub.cloud.opvious.io/authorizations">here</a>); refer to the API server documentation to learn how to
 authenticate in the self-hosted case. You can check that your CLI is
 authenticated by running the following command:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">me</span><span class="hl-1"> </span><span class="hl-4"># Should show your account&#39;s email</span>
@@ -32,10 +32,10 @@ authenticated by running the following command:</p>
 <p>For more complex setups, check out the <a href="#configuration-profiles">Configuration
 profiles</a> section below.</p>
 <a id="md:sample-commands" class="tsd-anchor"></a><h2><a href="#md:sample-commands">Sample commands</a></h2><a id="md:solve-a-problem" class="tsd-anchor"></a><h3><a href="#md:solve-a-problem">Solve a problem</a></h3><p>The first step is to represent the problem as an optimization
-<a href="https://api.cloud.opvious.io/schema.json?name=Problem"><code>Problem</code></a>
-and save it as JSON or YAML. In general you wouldn&#39;t write it manually but it&#39;s
-simple enough to do for small problems. For example a set-cover instance looks
-like:</p>
+<a href="https://api.cloud.opvious.io/schema.json?name=Problem"><code>Problem</code></a> and save it
+as JSON or YAML. In general you would generate it using our <a href="https://opvious.readthedocs.io/en/stable/modeling.html">modeling
+SDK</a> but it&#39;s simple enough to write manually for small problems. For
+example a set-cover instance looks like:</p>
 <pre><code class="language-yaml"><span class="hl-4"># problem.yaml</span><br/><span class="hl-5">formulation</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-5">sources</span><span class="hl-1">:</span><br/><span class="hl-1">    - </span><span class="hl-6">|</span><span class="hl-1"> </span><span class="hl-4"># Set cover formulation</span><br/><span class="hl-7">      + $\S^d_{vertices}: V$</span><br/><span class="hl-7">      + $\S^d_{sets}: S$</span><br/><span class="hl-7">      + $\S^p_{coverage}: c \in \{0,1\}^{S \times V}$</span><br/><span class="hl-7">      + $\S^v_{usage}: \alpha \in \{0,1\}^S$</span><br/><span class="hl-7">      + $\S^o_{minimizeSetsUsed}: \min \sum_{s \in S} \alpha_s$</span><br/><span class="hl-7">      + $\S^c_{allVerticesCovered}: \forall v \in V, \sum_{s \in S} \alpha_s c_{s, v} \geq 1$</span><br/><span class="hl-5">inputs</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-5">parameters</span><span class="hl-1">:</span><br/><span class="hl-1">    - </span><span class="hl-5">label</span><span class="hl-1">: </span><span class="hl-7">coverage</span><br/><span class="hl-1">      </span><span class="hl-5">entries</span><span class="hl-1">:</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s1</span><span class="hl-1">, </span><span class="hl-7">v1</span><span class="hl-1">]}</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s2</span><span class="hl-1">, </span><span class="hl-7">v2</span><span class="hl-1">]}</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s3</span><span class="hl-1">, </span><span class="hl-7">v1</span><span class="hl-1">]}</span><br/><span class="hl-1">        - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s3</span><span class="hl-1">, </span><span class="hl-7">v2</span><span class="hl-1">]}</span>
 </code><button>Copy</button></pre>
 <p>With the problem saved, we&#39;re ready to start solving. The solve&#39;s status (e.g.
@@ -49,16 +49,15 @@ slack values) will be printed to the terminal unless the <code>-o, --output</cod
 was set.</p>
 <pre><code class="language-yaml"><span class="hl-4"># outputs.yaml</span><br/><span class="hl-5">constraints</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-5">label</span><span class="hl-1">: </span><span class="hl-7">allVerticesCovered</span><br/><span class="hl-1">    </span><span class="hl-5">entries</span><span class="hl-1">:</span><br/><span class="hl-1">      - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">v1</span><span class="hl-1">], </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-8">0</span><span class="hl-1">}</span><br/><span class="hl-1">      - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">v2</span><span class="hl-1">], </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-8">0</span><span class="hl-1">}</span><br/><span class="hl-5">variables</span><span class="hl-1">:</span><br/><span class="hl-1">  - </span><span class="hl-5">label</span><span class="hl-1">: </span><span class="hl-7">usage</span><br/><span class="hl-1">    </span><span class="hl-5">entries</span><span class="hl-1">:</span><br/><span class="hl-1">      - {</span><span class="hl-5">key</span><span class="hl-1">: [</span><span class="hl-7">s3</span><span class="hl-1">], </span><span class="hl-5">value</span><span class="hl-1">: </span><span class="hl-8">1</span><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
-<p>Note that solves are subject to size and time limits which depend on your
-account&#39;s tier. For large problems, consider also using <code>queue</code> instead of <code>run</code>
-to benefit from longer timeouts. This command will queue an asynchronous solve
-attempt which will run as soon as capacity is available.</p>
-<a id="md:managing-api-tokens" class="tsd-anchor"></a><h3><a href="#md:managing-api-tokens">Managing API tokens</a></h3><p>You can list, create, and revoke your API tokens using the <code>account</code>
-subcommands:</p>
+<p>Note that solves are subject to size and time limits. For large problems,
+consider also using the <code>queueSolve</code> method instead of <code>solve</code> to benefit from
+longer timeouts. It will queue an solve attempt to run as soon as capacity is
+available.</p>
+<a id="md:managing-api-tokens" class="tsd-anchor"></a><h3><a href="#md:managing-api-tokens">Managing API tokens</a></h3><p>You can list, create, and revoke API tokens using the <code>account</code> subcommands:</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">account</span><span class="hl-1"> </span><span class="hl-2">authorizations</span><span class="hl-1"> </span><span class="hl-4"># List all tokens</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">account</span><span class="hl-1"> </span><span class="hl-2">generate-authorization</span><span class="hl-1"> </span><span class="hl-4"># Create a new API token</span><br/><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">account</span><span class="hl-1"> </span><span class="hl-2">revoke-authorization</span><span class="hl-1"> </span><span class="hl-4"># Revoke an existing API token</span>
 </code><button>Copy</button></pre>
-<a id="md:managing-formulations" class="tsd-anchor"></a><h3><a href="#md:managing-formulations">Managing formulations</a></h3><p>You can create formulations directly from local specification files (typically
-in Markdown or LaTeX):</p>
+<a id="md:managing-formulations" class="tsd-anchor"></a><h3><a href="#md:managing-formulations">Managing formulations</a></h3><p>You can create formulations from local specification files (typically in
+Markdown or LaTeX):</p>
 <pre><code class="language-sh"><span class="hl-0">opvious</span><span class="hl-1"> </span><span class="hl-2">formulation</span><span class="hl-1"> </span><span class="hl-2">register</span><span class="hl-1"> </span><span class="hl-3">-f</span><span class="hl-1"> </span><span class="hl-2">&quot;</span><span class="hl-9">$NAME</span><span class="hl-2">&quot;</span><span class="hl-1"> </span><span class="hl-2">sources/</span><span class="hl-3">*</span>
 </code><button>Copy</button></pre>
 <p>These can then be used to queue solves. You can also list currently available
