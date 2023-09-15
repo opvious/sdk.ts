@@ -155,7 +155,7 @@ function outputsCommand(): Command {
 function formatCommand(): Command {
   return newCommand()
     .command('format')
-    .description('print a problem\'s MPS representation')
+    .description('print a problem\'s LP representation')
     .argument('<path>', 'path to problem data or queued solve UUID')
     .option(
       '-j, --json-path <path>',
@@ -231,11 +231,14 @@ function listCommand(): Command {
             table.cell('uuid', uuid);
             table.cell('formulation', spec.formulation.displayName);
             table.cell('revno', spec.revno);
-            table.cell('status', attempt.errorStatus);
             table.cell('started', startedAt.toRelative());
             table.cell(
               'runtime',
               endedAt ? humanizeMillis(+endedAt.diff(startedAt)) : ''
+            );
+            table.cell(
+              'status',
+              content.queuedSolveOutcome?.status ?? '<pending>'
             );
             table.newRow();
           }

@@ -93,12 +93,13 @@ available.
 
 ### Managing API tokens
 
-You can list, create, and revoke API tokens using the `account` subcommands:
+You can list, create, and revoke API tokens using the `authorization`
+subcommands:
 
 ```sh
-opvious account authorizations # List all tokens
-opvious account generate-authorization # Create a new API token
-opvious account revoke-authorization # Revoke an existing API token
+opvious authorization list # List all authorizations
+opvious authorization generate # Create a new API token
+opvious authorization revoke # Revoke an existing API token
 ```
 
 
