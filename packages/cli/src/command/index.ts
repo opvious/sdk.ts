@@ -29,8 +29,9 @@ import {display} from '../io.js';
 import {apiCommand} from './api.js';
 import {authorizationCommand} from './authorization.js';
 import {contextualAction, newCommand} from './common.js';
+import {creditCommand} from './credit.js';
 import {formulationCommand} from './formulation.js';
-import {solveCommand} from './solve.js';
+import {problemCommand} from './problem.js';
 
 export function mainCommand(): Command {
   return newCommand()
@@ -38,9 +39,10 @@ export function mainCommand(): Command {
     .description('Opvious CLI')
     .option('-P, --profile <name>', 'config profile')
     .option('-Q, --quiet', 'suppress spinner output')
-    .addCommand(solveCommand())
+    .addCommand(problemCommand())
     .addCommand(formulationCommand())
     .addCommand(authorizationCommand())
+    .addCommand(creditCommand())
     .addCommand(apiCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())
@@ -71,6 +73,7 @@ function showCredentialsCommand(): Command {
           'registered',
           DateTime.fromISO(member.registeredAt).toRelative()
         );
+        table.cell('credit_balance', member.creditBalance);
         table.newRow();
         display(table.printTransposed());
       })

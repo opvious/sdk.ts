@@ -213,6 +213,32 @@ export class OpviousClient {
     return okResultData(res).revokeAuthorization;
   }
 
+  /** Paginates credit charges. */
+  async paginateCreditCharges(
+    vars: api.graphqlTypes.PaginateCreditChargesQueryVariables
+  ): Promise<Paginated<api.graphqlTypes.FullCreditChargeFragment>> {
+    const res = await this.graphqlSdk.PaginateCreditCharges(vars);
+    const charges = okResultData(res).me.creditCharges;
+    return {
+      info: charges.pageInfo,
+      totalCount: charges.totalCount,
+      nodes: charges.edges.map((e) => e.node),
+    };
+  }
+
+  /** Paginates credit grants. */
+  async paginateCreditGrants(
+    vars: api.graphqlTypes.PaginateCreditGrantsQueryVariables
+  ): Promise<Paginated<api.graphqlTypes.FullCreditGrantFragment>> {
+    const res = await this.graphqlSdk.PaginateCreditGrants(vars);
+    const grants = okResultData(res).me.creditGrants;
+    return {
+      info: grants.pageInfo,
+      totalCount: grants.totalCount,
+      nodes: grants.edges.map((e) => e.node),
+    };
+  }
+
   // Formulations
 
   /** Parses and validates a formulation's sources. */
