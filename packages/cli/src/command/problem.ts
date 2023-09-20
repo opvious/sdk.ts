@@ -31,9 +31,9 @@ import {humanizeMillis} from '../common.js';
 import {display} from '../io.js';
 import {contextualAction, newCommand} from './common.js';
 
-export function solveCommand(): Command {
+export function problemCommand(): Command {
   return newCommand()
-    .command('solve')
+    .command('problem')
     .description('problem solving commands')
     .addCommand(runCommand())
     .addCommand(formatCommand())
@@ -46,7 +46,7 @@ export function solveCommand(): Command {
 
 function runCommand(): Command {
   return newCommand()
-    .command('run')
+    .command('solve')
     .description('solve an optimization problem')
     .argument('<path>', 'path to problem data')
     .option('-j, --json-path <path>', 'JSONPath to nested problem data')
