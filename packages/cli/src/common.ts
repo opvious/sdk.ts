@@ -35,7 +35,7 @@ export function isCommanderError(err: unknown): boolean {
 
 export function humanizeMillis(millis: number): string {
   return Math.abs(millis) < 1_000
-    ? 'less than a second'
+    ? '<1 second'
     : humanizeDuration(millis, {largest: 1, round: true});
 }
 
