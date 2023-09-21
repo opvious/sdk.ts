@@ -56,7 +56,12 @@ function listChargesCommand(): Command {
               DateTime.fromISO(node.createdAt).toRelative()
             );
             table.cell('amount', node.amount);
-            table.cell('reason', node.reason);
+            const {product} = node;
+            table.cell(
+              'product',
+              `${product.__typename} [operation=${product.attemptOperation}, ` +
+                `size=${product.problemSize}]`
+            );
             table.newRow();
           }
           const {hasPreviousPage, startCursor} = paginated.info;

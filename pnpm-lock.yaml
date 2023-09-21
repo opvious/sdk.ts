@@ -60,8 +60,8 @@ importers:
         specifier: ~1.4.1
         version: 1.4.1
       '@opvious/api':
-        specifier: ^0.18.3
-        version: 0.18.3
+        specifier: ^0.18.4
+        version: 0.18.4
       '@opvious/stl-bootstrap':
         specifier: ^0.22.8
         version: 0.22.8(@opentelemetry/api@1.4.1)
@@ -139,8 +139,8 @@ importers:
         specifier: ~1.4.1
         version: 1.4.1
       '@opvious/api':
-        specifier: ^0.18.3
-        version: 0.18.3
+        specifier: ^0.18.4
+        version: 0.18.4
       '@opvious/stl-errors':
         specifier: ^0.22.8
         version: 0.22.8
@@ -188,8 +188,8 @@ importers:
   packages/sheets:
     dependencies:
       '@opvious/api':
-        specifier: ^0.18.3
-        version: 0.18.3
+        specifier: ^0.18.4
+        version: 0.18.4
       '@opvious/stl-errors':
         specifier: ^0.22.8
         version: 0.22.8
@@ -770,8 +770,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@opvious/api@0.18.3:
-    resolution: {integrity: sha512-1fT9EWNJ9vGbVfT5qlUcnXofWsAt/0iY8nX4WiIAjddYt9kwX+5af7Bt4HHig+HjRjDg3+3KqUpZbNRW7JbZnw==, tarball: https://npm.pkg.github.com/download/@opvious/api/0.18.3/fc1693d47373faffa1e376cce7493e556709d796}
+  /@opvious/api@0.18.4:
+    resolution: {integrity: sha512-YX9zQbs9pspAtSZnZmcMLztGIrMZczyUz0x0OSpFACjGHn3DSwxmmweAK/eZyzAjkekmnuwcO69EjC2NTjxBJw==, tarball: https://npm.pkg.github.com/download/@opvious/api/0.18.4/7a92276224b359e974c1b4a9fffa1d81c6dfe6a4}
     dependencies:
       '@opvious/stl-errors': 0.22.8
       '@opvious/stl-graphql': 0.22.8
@@ -2153,8 +2153,8 @@ packages:
       is-glob: 4.0.3
     dev: true
 
-  /glob@10.3.4:
-    resolution: {integrity: sha512-6LFElP3A+i/Q8XQKEvZjkEWEOTgAIALR9AO2rwT8bgPhDd1anmqDJDZ6lLddI4ehxxxR1S5RIqKe1uapMQfYaQ==}
+  /glob@10.3.5:
+    resolution: {integrity: sha512-bYUpUD7XDEHI4Q2O5a7PXGvyw4deKR70kHiDxzQbe925wbZknhOzUt2xBgTkYL6RBcVeXYuD9iNYeqoWbBZQnA==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
     dependencies:
@@ -2337,7 +2337,7 @@ packages:
       acorn: 8.10.0
       ast-types: 0.14.2
       commander: 10.0.1
-      glob: 10.3.4
+      glob: 10.3.5
       inlinable-runtime: 0.2.7
       ora: 6.3.0
       recast: 0.23.4
