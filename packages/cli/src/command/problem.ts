@@ -30,37 +30,47 @@ import YAML from 'yaml';
 import {humanizeMillis} from '../common.js';
 import {display} from '../io.js';
 import {contextualAction, newCommand} from './common.js';
+import {queueCommand} from './queue.js';
 
 export function problemCommand(): Command {
   return newCommand()
     .command('problem')
     .description('problem solving commands')
-    .addCommand(runCommand())
+    .addCommand(solveCommand())
     .addCommand(formatCommand())
-    .addCommand(queueCommand())
-    .addCommand(cancelCommand())
-    .addCommand(listCommand())
-    .addCommand(outputsCommand())
-    .addCommand(listNotificationsCommand());
+    .addCommand(attemptsCommand())
+    .addCommand(queueCommand());
 }
 
-function runCommand(): Command {
+function solveCommand(): Command {
   return newCommand()
     .command('solve')
     .description('solve an optimization problem')
     .argument('<path>', 'path to problem data')
     .option('-j, --json-path <path>', 'JSONPath to nested problem data')
-    .option('-o, --output <path>', 'output path (default: stdout)')
+    .option(
+      '-o, --output <path>',
+      'output path, not applicable for queued solves (default: stdout)'
+    )
+    .option('-q, --queue', 'queue the solve')
     .action(
       contextualAction(async function (lp, opts) {
         const {client, spinner} = this;
         spinner.start('Parsing problem...');
+
         const prob = await loadProblem(lp, {jsonPath: opts.jsonPath});
-        spinner
-          .succeed(
-            `Parsed problem. [parameters=${prob.inputs.parameters.length}]`
-          )
-          .start('Solving...');
+        spinner.succeed(
+          `Parsed problem. [parameters=${prob.inputs.parameters.length}]`
+        );
+
+        if (opts.queue) {
+          spinner.start('Queuing solve...');
+          const {uuid} = await client.queueSolve({problem: prob});
+          spinner.succeed(`Queued solve. [uuid=${uuid}]`);
+          return;
+        }
+
+        spinner.start('Solving...');
         const tracker = client.runSolve({problem: prob}).on('solving', (p) => {
           if (p.kind === 'activity') {
             spinner.text =
@@ -104,54 +114,6 @@ function formatGap(gap: api.Schema<'ExtendedFloat'> | undefined): string {
   }
 }
 
-function queueCommand(): Command {
-  return newCommand()
-    .command('queue')
-    .description('queue an optimization attempt')
-    .argument('<path>', 'path to problem data')
-    .option('-j, --json-path <path>', 'JSONPath to nested problem data')
-    .action(
-      contextualAction(async function (lp, opts) {
-        const {client, spinner} = this;
-        spinner.start('Parsing problem...');
-        const prob = await loadProblem(lp, {jsonPath: opts.jsonPath});
-        spinner
-          .succeed(
-            `Parsed problem. [parameters=${prob.inputs.parameters.length}]`
-          )
-          .start('Solving...');
-        const {uuid} = await client.queueSolve({problem: prob});
-        spinner.succeed(`Queued solve attempt. [uuid=${uuid}]`);
-      })
-    );
-}
-function outputsCommand(): Command {
-  return newCommand()
-    .command('outputs')
-    .description('download a feasible queued solve\'s outputs')
-    .argument('<uuid>', 'attempt UUID')
-    .option('-o, --output <path>', 'output path (default: stdout)')
-    .action(
-      contextualAction(async function (arg, opts) {
-        const {client, spinner} = this;
-        spinner.start('Downloading outputs...');
-        const outputs = await client.fetchSolveOutputs(arg);
-        if (outputs == null) {
-          spinner.warn('No outputs found');
-          return;
-        }
-        const data = YAML.stringify(outputs);
-        if (opts.output) {
-          await writeFile(opts.output, data, 'utf8');
-          spinner.succeed('Downloaded outputs.');
-        } else {
-          spinner.stop().clear();
-          display(data);
-        }
-      })
-    );
-}
-
 function formatCommand(): Command {
   return newCommand()
     .command('format')
@@ -183,31 +145,17 @@ function formatCommand(): Command {
     );
 }
 
-function cancelCommand(): Command {
-  return newCommand()
-    .command('cancel <uuid>')
-    .description('cancel a pending solve attempt')
-    .action(
-      contextualAction(async function (uuid) {
-        const {client, spinner} = this;
-        spinner.start('Cancelling attempt...');
-        await client.cancelSolve(uuid);
-        spinner.succeed('Cancelled attempt.');
-      })
-    );
-}
-
 const PAGE_LIMIT = 25;
 
-function listCommand(): Command {
+function attemptsCommand(): Command {
   return newCommand()
-    .command('list')
-    .description('list queued solves')
+    .command('attempts')
+    .description('list attempts')
     .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
     .action(
       contextualAction(async function (opts) {
         const {client, spinner} = this;
-        spinner.start('Fetching queued solves...');
+        spinner.start('Fetching attempts...');
         const table = new Table();
         const limit = +opts.limit;
         let count = 0;
@@ -222,24 +170,17 @@ function listCommand(): Command {
             const endedAt = attempt.endedAt
               ? DateTime.fromISO(attempt.endedAt)
               : undefined;
-            const {content} = attempt;
-            if (content == null) {
-              continue;
-            }
-            const {queuedSolveUuid: uuid, queuedSolveSpecification: spec} =
-              content;
-            table.cell('uuid', uuid);
-            table.cell('formulation', spec.formulation.displayName);
-            table.cell('revno', spec.revno);
             table.cell('started', startedAt.toRelative());
             table.cell(
               'runtime',
               endedAt ? humanizeMillis(+endedAt.diff(startedAt)) : ''
             );
+            table.cell('operation', attempt.operation);
             table.cell(
               'status',
-              content.queuedSolveOutcome?.status ?? '<pending>'
+              attempt.errorStatus ?? (endedAt ? 'OK' : '...')
             );
+            table.cell('credits', attempt.chargeAmount);
             table.newRow();
           }
           const {hasPreviousPage, startCursor} = paginated.info;
@@ -254,52 +195,4 @@ function listCommand(): Command {
         }
       })
     );
-}
-
-function listNotificationsCommand(): Command {
-  return newCommand()
-    .command('notifications <uuid>')
-    .description('list a queued solve\'s notificationss')
-    .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
-    .action(
-      contextualAction(async function (uuid, opts) {
-        const {client, spinner} = this;
-        spinner.start('Fetching notifications...');
-        const table = new Table();
-        const limit = +opts.limit;
-        let count = 0;
-        let cursor: string | undefined;
-        do {
-          const paginated = await client.paginateSolveNotifications({
-            uuid,
-            last: Math.min(PAGE_LIMIT, limit - count),
-            before: cursor,
-          });
-          for (const attempt of [...paginated.nodes].reverse()) {
-            const effectiveAt = DateTime.fromISO(attempt.effectiveAt);
-            table.cell('effective', effectiveAt.toRelative());
-            table.cell('gap', percent(attempt.relativeGap ?? Infinity));
-            table.cell('cuts', attempt.cutCount ?? '-');
-            table.cell('lp_iterations', attempt.lpIterationCount ?? '-');
-            table.newRow();
-          }
-          const {hasPreviousPage, startCursor} = paginated.info;
-          cursor = hasPreviousPage ? startCursor : undefined;
-          count += paginated.nodes.length;
-          spinner.text =
-            `Fetched ${count} of ${paginated.totalCount} ` + 'notifications...';
-        } while (cursor && count < limit);
-        spinner.succeed(`Fetched ${count} notification(s).\n`);
-        if (count) {
-          display('' + table);
-        }
-      })
-    );
-}
-
-function percent(arg: number | string | undefined): string {
-  if (typeof arg != 'number' || !isFinite(arg)) {
-    return 'inf';
-  }
-  return ((10_000 * arg) | 0) / 100 + '%';
 }
