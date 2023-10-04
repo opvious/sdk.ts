@@ -25,14 +25,10 @@ import {resourceLoader} from '../common.js';
 import {contextualAction, newCommand, runShell} from './common.js';
 
 export function notebookCommand(): Command {
-  return (
-    newCommand()
-      .command('notebook')
-      // TODO: Allow passing in Jupyter notebook options.
-      // TODO: Add option to install additional libraries
-      .description('Jupyter notebook commands')
-      .addCommand(serveCommand())
-  );
+  return newCommand()
+    .command('notebook')
+    .description('Jupyter notebook commands')
+    .addCommand(serveCommand());
 }
 
 const defaultNotebookPath = path.join(
@@ -46,35 +42,38 @@ const defaultNotebookPath = path.join(
 const cachePath = path.join(os.homedir(), '.cache', 'opvious', 'notebooks');
 
 function serveCommand(): Command {
-  return newCommand()
-    .command('serve [args...]')
-    .description('start a local Jupyter server')
-    .option(
-      '-f, --folder <path>',
-      'local path where notebooks are stored. the folder will be created ' +
-        'if it does not already exist.',
-      defaultNotebookPath
-    )
-    .action(
-      contextualAction(async function (args, opts) {
-        const {client, config, spinner} = this;
-        const folderPath = path.resolve(opts.folder);
-        await Promise.all([
-          mkdir(cachePath, {recursive: true}),
-          mkdir(folderPath, {recursive: true}),
-        ]);
+  return (
+    newCommand()
+      .command('serve [args...]')
+      .description('start a local Jupyter server')
+      .option(
+        '-f, --folder <path>',
+        'local path where notebooks are stored. the folder will be created ' +
+          'if it does not already exist.',
+        defaultNotebookPath
+      )
+      // TODO: Add option to install additional libraries.
+      .action(
+        contextualAction(async function (args, opts) {
+          const {client, config, spinner} = this;
+          const folderPath = path.resolve(opts.folder);
+          await Promise.all([
+            mkdir(cachePath, {recursive: true}),
+            mkdir(folderPath, {recursive: true}),
+          ]);
 
-        spinner.info('Starting Jupyter server...');
-        const scriptUrl = resourceLoader.localUrl('jupyter/serve.sh');
-        console.log(localPath(scriptUrl));
-        await runShell(localPath(scriptUrl), [folderPath, '-y', ...args], {
-          cwd: cachePath,
-          env: {
-            ...process.env,
-            OPVIOUS_ENDPOINT: client.apiEndpoint,
-            OPVIOUS_TOKEN: config.token,
-          },
-        });
-      })
-    );
+          spinner.info('Starting Jupyter server...');
+          const scriptUrl = resourceLoader.localUrl('jupyter/serve.sh');
+          console.log(localPath(scriptUrl));
+          await runShell(localPath(scriptUrl), [folderPath, '-y', ...args], {
+            cwd: cachePath,
+            env: {
+              ...process.env,
+              OPVIOUS_ENDPOINT: client.apiEndpoint,
+              OPVIOUS_TOKEN: config.token,
+            },
+          });
+        })
+      )
+  );
 }
