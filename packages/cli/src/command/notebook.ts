@@ -31,7 +31,7 @@ export function notebookCommand(): Command {
       // TODO: Allow passing in Jupyter notebook options.
       // TODO: Add option to install additional libraries
       .description('Jupyter notebook commands')
-      .addCommand(serverCommand())
+      .addCommand(serveCommand())
   );
 }
 
@@ -45,9 +45,9 @@ const defaultNotebookPath = path.join(
 
 const cachePath = path.join(os.homedir(), '.cache', 'opvious', 'notebooks');
 
-function serverCommand(): Command {
+function serveCommand(): Command {
   return newCommand()
-    .command('serve')
+    .command('serve [args...]')
     .description('start a local Jupyter server')
     .option(
       '-f, --folder <path>',
@@ -56,7 +56,7 @@ function serverCommand(): Command {
       defaultNotebookPath
     )
     .action(
-      contextualAction(async function (opts) {
+      contextualAction(async function (args, opts) {
         const {client, config, spinner} = this;
         const folderPath = path.resolve(opts.folder);
         await Promise.all([
@@ -67,7 +67,7 @@ function serverCommand(): Command {
         spinner.info('Starting Jupyter server...');
         const scriptUrl = resourceLoader.localUrl('jupyter/serve.sh');
         console.log(localPath(scriptUrl));
-        await runShell(localPath(scriptUrl), [folderPath], {
+        await runShell(localPath(scriptUrl), [folderPath, ...args], {
           cwd: cachePath,
           env: {
             ...process.env,
