@@ -42,9 +42,6 @@ const [errors] = errorFactories({
         `No command available at \`${lp}\`. Please make sure docker is ` +
         'installed',
     }),
-    nonZeroExitCode: (code: number) => ({
-      message: `Command exited with code ${code}`,
-    }),
   },
   prefix: 'ERR_DOCKER_COMPOSE_',
 });
