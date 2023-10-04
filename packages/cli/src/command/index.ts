@@ -29,8 +29,8 @@ import {display} from '../io.js';
 import {apiCommand} from './api.js';
 import {authorizationCommand} from './authorization.js';
 import {contextualAction, newCommand} from './common.js';
-import {notebookCommand} from './notebook.js';
 import {formulationCommand} from './formulation.js';
+import {notebookCommand} from './notebook.js';
 import {problemCommand} from './problem.js';
 import {usageCommand} from './usage.js';
 

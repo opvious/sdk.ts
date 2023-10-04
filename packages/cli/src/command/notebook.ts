@@ -24,7 +24,6 @@ import events from 'events';
 import {mkdir} from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import {AsyncOrSync} from 'ts-essentials';
 
 import {resourceLoader} from '../common.js';
 import {contextualAction, newCommand} from './common.js';
@@ -38,12 +37,14 @@ const [errors] = errorFactories({
 });
 
 export function notebookCommand(): Command {
-  return newCommand()
-    .command('notebook')
-    // TODO: Allow passing in Jupyter notebook options.
-    // TODO: Add option to install additional libraries
-    .description('Jupyter notebook commands')
-    .addCommand(serverCommand());
+  return (
+    newCommand()
+      .command('notebook')
+      // TODO: Allow passing in Jupyter notebook options.
+      // TODO: Add option to install additional libraries
+      .description('Jupyter notebook commands')
+      .addCommand(serverCommand())
+  );
 }
 
 const defaultNotebookPath = path.join(
@@ -86,20 +87,13 @@ function serverCommand(): Command {
     );
 }
 
-async function runShell(
-  lp: LocalPath,
-  env?: ProcessEnv
-): Promise<void> {
+async function runShell(lp: LocalPath, env?: ProcessEnv): Promise<void> {
   const child = spawn(lp, [], {
     cwd: cachePath,
     stdio: 'inherit',
     env: {...process.env, ...env},
   });
-  let code;
-  try {
-    [code] = await events.once(child, 'exit');
-  } catch (err: any) {
-  }
+  const [code] = await events.once(child, 'exit');
   if (code) {
     throw errors.nonZeroExitCode(code);
   }
