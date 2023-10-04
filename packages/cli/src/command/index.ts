@@ -29,9 +29,10 @@ import {display} from '../io.js';
 import {apiCommand} from './api.js';
 import {authorizationCommand} from './authorization.js';
 import {contextualAction, newCommand} from './common.js';
-import {creditCommand} from './credit.js';
 import {formulationCommand} from './formulation.js';
+import {notebookCommand} from './notebook.js';
 import {problemCommand} from './problem.js';
+import {usageCommand} from './usage.js';
 
 export function mainCommand(): Command {
   return newCommand()
@@ -41,8 +42,9 @@ export function mainCommand(): Command {
     .option('-Q, --quiet', 'suppress spinner output')
     .addCommand(problemCommand())
     .addCommand(formulationCommand())
+    .addCommand(notebookCommand())
     .addCommand(authorizationCommand())
-    .addCommand(creditCommand())
+    .addCommand(usageCommand())
     .addCommand(apiCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())

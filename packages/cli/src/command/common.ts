@@ -17,7 +17,10 @@
 
 import {errorFactories, errorMessage} from '@opvious/stl-errors';
 import {WithActiveSpanParams} from '@opvious/stl-telemetry';
+import {LocalPath} from '@opvious/stl-utils/files';
+import {spawn, SpawnOptions} from 'child_process';
 import {Command, CommanderError} from 'commander';
+import events from 'events';
 import {OpviousClient} from 'opvious';
 import ora, {Ora} from 'ora';
 import {AsyncOrSync} from 'ts-essentials';
@@ -33,6 +36,15 @@ const [errors, codes] = errorFactories({
       message: 'Command aborted',
       cause,
       tags: {exitCode: cause.exitCode},
+    }),
+    // Shell commands
+    spawnFailed: (cause: unknown) => ({
+      message: 'Unable to run command',
+      tags: {code: (cause as any)?.code},
+      cause,
+    }),
+    nonZeroExitCode: (code: number) => ({
+      message: `Command exited with code ${code}`,
     }),
   },
 });
@@ -94,4 +106,21 @@ export interface ActionContext {
   readonly spinner: Ora;
   readonly config: Config;
   readonly client: OpviousClient;
+}
+
+export async function runShell(
+  lp: LocalPath,
+  args: ReadonlyArray<string>,
+  opts?: SpawnOptions
+): Promise<void> {
+  const child = spawn(lp, args, {stdio: 'inherit', ...opts});
+  let code;
+  try {
+    [code] = await events.once(child, 'exit');
+  } catch (err) {
+    throw errors.spawnFailed(err);
+  }
+  if (code) {
+    throw errors.nonZeroExitCode(code);
+  }
 }
