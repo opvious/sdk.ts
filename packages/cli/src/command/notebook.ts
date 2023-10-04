@@ -67,7 +67,7 @@ function serveCommand(): Command {
         spinner.info('Starting Jupyter server...');
         const scriptUrl = resourceLoader.localUrl('jupyter/serve.sh');
         console.log(localPath(scriptUrl));
-        await runShell(localPath(scriptUrl), [folderPath, ...args], {
+        await runShell(localPath(scriptUrl), [folderPath, '-y', ...args], {
           cwd: cachePath,
           env: {
             ...process.env,
