@@ -19,19 +19,21 @@ import {
   API_IMAGE_EULA_EVAR,
   assertApiImageEulaAccepted,
 } from '@opvious/api/eulas';
-import {errorFactories} from '@opvious/stl-errors';
+import {
+  errorFactories,
+  isStandardError,
+  rethrowUnless,
+} from '@opvious/stl-errors';
 import {ProcessEnv} from '@opvious/stl-utils/environment';
 import {LocalPath, localPath} from '@opvious/stl-utils/files';
-import {spawn} from 'child_process';
 import {Command} from 'commander';
-import events from 'events';
 import {mkdir} from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import {AsyncOrSync} from 'ts-essentials';
 
 import {resourceLoader} from '../common.js';
-import {contextualAction, newCommand} from './common.js';
+import {contextualAction, errorCodes, newCommand, runShell} from './common.js';
 
 const [errors] = errorFactories({
   definitions: {
@@ -39,10 +41,6 @@ const [errors] = errorFactories({
       message:
         `No command available at \`${lp}\`. Please make sure docker is ` +
         'installed',
-    }),
-    spawnFailed: (cause: unknown) => ({
-      message: 'Unable to run command',
-      cause,
     }),
     nonZeroExitCode: (code: number) => ({
       message: `Command exited with code ${code}`,
@@ -191,33 +189,29 @@ async function runDocker(
   args: ReadonlyArray<string>,
   env?: ProcessEnv
 ): Promise<void> {
-  const child = spawn(lp, args, {
-    cwd: localPath(resourceLoader.localUrl('docker')),
-    stdio: 'inherit',
-    env: {
-      [API_IMAGE_EULA_EVAR]: '',
-      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: '',
-      OTEL_TRACES_SAMPLER_ARG: '1',
-      ...process.env,
-      BUCKET_PATH: '/unused',
-      IMAGE_TAG: DEFAULT_IMAGE_TAG,
-      STATIC_TOKENS: '',
-      LOG_LEVEL: '',
-      PORT: DEFAULT_PORT,
-      SECRET: DEFAULT_SECRET,
-      ...env,
-    },
-  });
-  let code;
   try {
-    [code] = await events.once(child, 'exit');
-  } catch (err: any) {
-    if (err.code === 'ENOENT') {
-      throw errors.commandMissing(lp);
-    }
-    throw errors.spawnFailed(err);
-  }
-  if (code) {
-    throw errors.nonZeroExitCode(code);
+    await runShell(lp, args, {
+      cwd: localPath(resourceLoader.localUrl('docker')),
+      env: {
+        [API_IMAGE_EULA_EVAR]: '',
+        OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: '',
+        OTEL_TRACES_SAMPLER_ARG: '1',
+        ...process.env,
+        BUCKET_PATH: '/unused',
+        IMAGE_TAG: DEFAULT_IMAGE_TAG,
+        STATIC_TOKENS: '',
+        LOG_LEVEL: '',
+        PORT: DEFAULT_PORT,
+        SECRET: DEFAULT_SECRET,
+        ...env,
+      },
+    });
+  } catch (err) {
+    rethrowUnless(
+      isStandardError(err, errorCodes.SpawnFailed) &&
+        err.tags.code === 'ENOENT',
+      err
+    );
+    throw errors.commandMissing(lp);
   }
 }

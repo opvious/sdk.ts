@@ -15,26 +15,14 @@
  * the License.
  */
 
-import {errorFactories} from '@opvious/stl-errors';
-import {ProcessEnv} from '@opvious/stl-utils/environment';
-import {LocalPath, localPath} from '@opvious/stl-utils/files';
-import {spawn} from 'child_process';
+import {localPath} from '@opvious/stl-utils/files';
 import {Command} from 'commander';
-import events from 'events';
 import {mkdir} from 'fs/promises';
 import os from 'os';
 import path from 'path';
 
 import {resourceLoader} from '../common.js';
-import {contextualAction, newCommand} from './common.js';
-
-const [errors] = errorFactories({
-  definitions: {
-    nonZeroExitCode: (code: number) => ({
-      message: `Command exited with code ${code}`,
-    }),
-  },
-});
+import {contextualAction, newCommand, runShell} from './common.js';
 
 export function notebookCommand(): Command {
   return (
@@ -79,22 +67,14 @@ function serverCommand(): Command {
         spinner.info('Starting Jupyter server...');
         const scriptUrl = resourceLoader.localUrl('jupyter/serve.sh');
         console.log(localPath(scriptUrl));
-        await runShell(localPath(scriptUrl), {
-          OPVIOUS_ENDPOINT: client.apiEndpoint,
-          OPVIOUS_TOKEN: config.token,
+        await runShell(localPath(scriptUrl), [folderPath], {
+          cwd: cachePath,
+          env: {
+            ...process.env,
+            OPVIOUS_ENDPOINT: client.apiEndpoint,
+            OPVIOUS_TOKEN: config.token,
+          },
         });
       })
     );
-}
-
-async function runShell(lp: LocalPath, env?: ProcessEnv): Promise<void> {
-  const child = spawn(lp, [], {
-    cwd: cachePath,
-    stdio: 'inherit',
-    env: {...process.env, ...env},
-  });
-  const [code] = await events.once(child, 'exit');
-  if (code) {
-    throw errors.nonZeroExitCode(code);
-  }
 }
