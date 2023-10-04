@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 # Convenience script to start a Jupyter notebook server in a self-contained
-# virtualenv. Additional `jupyter notebook` options may be passed when running
-# the command, for example `./scripts/start-server.sh --ip xx.local` to expose
-# the server on the local network.
+# virtualenv. Additional `jupyter notebook` options may be passed in.
 
 set -o nounset
 set -o errexit
