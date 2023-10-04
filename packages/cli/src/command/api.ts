@@ -173,7 +173,7 @@ function dockerAction(
 ): (...args: any[]) => Promise<void> {
   return contextualAction(async function (...args) {
     const {config, spinner} = this;
-    const lp = config.dockerPath ?? 'docker';
+    const lp = config.dockerCommand ?? 'docker';
     spinner.info(`Running docker command... [path=${lp}]`);
     return fn.call({run: (args, env) => runDocker(lp, args, env)}, ...args);
   });
