@@ -44,7 +44,7 @@ export function mainCommand(): Command {
     .addCommand(formulationCommand())
     .addCommand(notebookCommand())
     .addCommand(authorizationCommand())
-    .addCommand(usageCommand())
+    .addCommand(usageCommand(), {hidden: true})
     .addCommand(apiCommand())
     .addCommand(showCredentialsCommand())
     .addCommand(showLogPathCommand())
@@ -75,7 +75,7 @@ function showCredentialsCommand(): Command {
           'registered',
           DateTime.fromISO(member.registeredAt).toRelative()
         );
-        table.cell('credit_balance', member.creditBalance);
+        // table.cell('credit_balance', member.creditBalance);
         table.newRow();
         display(table.printTransposed());
       })
