@@ -15,6 +15,7 @@
  * the License.
  */
 
+import {ifPresent} from '@opvious/stl-utils/functions';
 import {Command} from 'commander';
 import Table from 'easy-table';
 import {writeFile} from 'fs/promises';
@@ -42,6 +43,7 @@ function solvesCommand(): Command {
     .command('solves')
     .description('list queued solves')
     .option('-l, --limit <limit>', 'maximum number of results', '' + PAGE_LIMIT)
+    .option('-v, --verbose', 'include outcome details')
     .action(
       contextualAction(async function (opts) {
         const {client, spinner} = this;
@@ -57,6 +59,16 @@ function solvesCommand(): Command {
             before: cursor,
           });
           for (const attempt of [...paginated.nodes].reverse()) {
+            const {content} = attempt;
+            if (!content) {
+              continue;
+            }
+            table.cell('uuid', content.queuedSolveUuid);
+            table.cell(
+              'formulation',
+              content.queuedSolveSpecification.formulation.name
+            );
+
             const startedAt = DateTime.fromISO(attempt.startedAt);
             const endedAt = attempt.endedAt
               ? DateTime.fromISO(attempt.endedAt)
@@ -67,23 +79,27 @@ function solvesCommand(): Command {
               endedAt ? humanizeMillis(+endedAt.diff(startedAt)) : ''
             );
 
-            const {content} = attempt;
             table.cell(
               'status',
-              attempt?.errorStatus ?? (endedAt ? 'OK' : '...')
+              attempt?.errorStatus ??
+                content?.queuedSolveOutcome?.status ??
+                '...'
             );
-            table.cell('outcome', content?.queuedSolveOutcome?.status ?? '');
 
-            let uuid, formulation;
-            if (content) {
-              uuid = content.queuedSolveUuid;
-              formulation = content.queuedSolveSpecification.formulation.name;
-            } else {
-              uuid = '';
-              formulation = '';
+            if (opts.verbose) {
+              table.cell(
+                'details',
+                ifPresent(
+                  content.queuedSolveFailure?.error,
+                  (e) => e.message
+                ) ??
+                  ifPresent(
+                    content.queuedSolveOutcome,
+                    (o) => `objective=${o.objectiveValue}`
+                  ) ??
+                  ''
+              );
             }
-            table.cell('uuid', uuid);
-            table.cell('formulation', formulation);
 
             table.newRow();
           }
