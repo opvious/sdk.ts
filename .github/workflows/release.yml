@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: pnpm
           registry-url: https://npm.pkg.github.com
@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "PACKAGE_VERSION=${GITHUB_REF#refs/tags/v}" >>"$GITHUB_OUTPUT"
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: pnpm
           registry-url: https://registry.npmjs.org
