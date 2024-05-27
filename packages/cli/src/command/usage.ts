@@ -22,10 +22,10 @@ import {DateTime} from 'luxon';
 import {display} from '../io.js';
 import {contextualAction, newCommand} from './common.js';
 
-export function creditCommand(): Command {
+export function usageCommand(): Command {
   return newCommand()
-    .command('credit')
-    .description('credit tracking commands')
+    .command('usage')
+    .description('usage tracking commands')
     .addCommand(listChargesCommand())
     .addCommand(listGrantsCommand());
 }

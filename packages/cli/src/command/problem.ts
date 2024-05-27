@@ -180,7 +180,7 @@ function attemptsCommand(): Command {
               'status',
               attempt.errorStatus ?? (endedAt ? 'OK' : '...')
             );
-            table.cell('credits', attempt.chargeAmount);
+            // table.cell('credits', attempt.chargeAmount);
             table.newRow();
           }
           const {hasPreviousPage, startCursor} = paginated.info;
