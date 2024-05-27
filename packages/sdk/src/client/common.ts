@@ -24,9 +24,9 @@ import * as gql from 'graphql';
 import fetch, {FetchError, Response} from 'node-fetch';
 import zlib from 'zlib';
 
-export type Label = graphqlTypes.Scalars['Label']['input'];
+export type Label = graphqlTypes.Scalars['Label']['output'];
 
-export type Uuid = graphqlTypes.Scalars['Uuid']['input'];
+export type Uuid = graphqlTypes.Scalars['Uuid']['output'];
 
 const TRACE_HEADER = 'opvious-trace';
 

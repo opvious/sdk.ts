@@ -1,6 +1,6 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.10.4",
+  "version": "0.10.5",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
@@ -14,20 +14,20 @@
     "test": "pnpm -r run test run --coverage && rm -rf out/coverage && mkdir -p out/coverage && for p in packages/*; do if [ -d \"$p/out/coverage\" ]; then cp -r \"$p/out/coverage\" out/coverage/\"${p#*/}\"; fi; done"
   },
   "devDependencies": {
-    "@opentelemetry/api": "~1.4.1",
+    "@opentelemetry/api": "~1.8.0",
     "@opvious/eslint-plugin": "^0.1.28",
     "@opvious/prettier-typescript": "^0.1.28",
     "@opvious/tsconfig": "^0.1.28",
     "@types/node": "^18.11.7",
-    "@vitest/coverage-c8": "^0.29.2",
+    "@vitest/coverage-v8": "^1.6.0",
     "eslint": "^8.12.0",
-    "husky": "^7.0.4",
-    "lint-staged": "^12.1.4",
-    "prettier": "^2.6.1",
-    "ts-essentials": "^9.3.0",
-    "typedoc": "^0.24.7",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.5",
+    "prettier": "^3.2.5",
+    "ts-essentials": "^10.0.0",
+    "typedoc": "^0.25.13",
     "typescript": "^5.0.4",
-    "vitest": "^0.29.8"
+    "vitest": "^1.6.0"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

@@ -110,7 +110,7 @@ function formatGap(gap: api.Schema<'ExtendedFloat'> | undefined): string {
     case 0:
       return '0';
     default:
-      return `${((1_000 * +gap) | 0) / 10}%`;
+      return `${((1000 * +gap) | 0) / 10}%`;
   }
 }
 
