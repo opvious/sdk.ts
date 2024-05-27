@@ -23,17 +23,17 @@
     "build": "tsc -b src test",
     "clean": "rm -rf lib node_modules out",
     "fix": "prettier --write",
-    "prepare": "pnpm run build && inlinable e",
+    "prepare": "pnpm run build && inlinable r",
     "test": "vitest",
     "watch": "tsc -b -w src"
   },
   "dependencies": {
-    "@opentelemetry/api": "~1.4.1",
-    "@opvious/api": "^0.18.5",
-    "@opvious/stl-errors": "^0.22.8",
-    "@opvious/stl-telemetry": "^0.22.8",
-    "@opvious/stl-utils": "^0.22.8",
-    "abaca-openapi": "^0.10.10",
+    "@opentelemetry/api": "~1.8.0",
+    "@opvious/api": "^0.18.23",
+    "@opvious/stl-errors": "^0.22.30",
+    "@opvious/stl-telemetry": "^0.22.30",
+    "@opvious/stl-utils": "^0.22.30",
+    "abaca-openapi": "^0.10.13",
     "backoff": "^2.5.0",
     "graphql": "^16.6.0",
     "json-text-sequence": "^1.0.1",
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@types/backoff": "^2.5.2",
     "@types/jsonpath": "^0.2.0",
-    "abaca-runtime": "^0.10.10",
-    "inlinable": "^0.2.7"
+    "abaca-runtime": "^0.10.13",
+    "inlinable": "^0.3.3"
   }
 }
