@@ -74,6 +74,10 @@ export class OpviousClient {
           ? `Basic ${Buffer.from(auth).toString('base64')}`
           : `Bearer ${auth}`;
     }
+    const imp = opts?.impersonation;
+    if (imp) {
+      headers['opvious-as'] = imp;
+    }
 
     const address = strippingTrailingSlashes(
       (opts?.endpoint ?? process.env.OPVIOUS_ENDPOINT) || DEFAULT_ENDPOINT
@@ -483,6 +487,9 @@ export interface OpviousClientOptions {
    * requests. Defaults to 2_500.
    */
   readonly maxRetryDelayMillis?: number;
+
+  /** Impersonation information (only available to administrators). */
+  readonly impersonation?: string;
 }
 
 const DEFAULT_ENDPOINT = 'https://api.cloud.opvious.io';

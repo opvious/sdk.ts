@@ -17,7 +17,7 @@
 
 import {assert, check} from '@opvious/stl-errors';
 import {resolvable} from '@opvious/stl-utils/functions';
-import {Command} from 'commander';
+import {Command, Option} from 'commander';
 import Table from 'easy-table';
 import Fifo from 'fast-fifo';
 import fs from 'fs';
@@ -38,6 +38,7 @@ export function mainCommand(): Command {
   return newCommand()
     .name(COMMAND_NAME)
     .description('Opvious CLI')
+    .addOption(new Option('-I, --impersonate <email>').hideHelp())
     .option('-P, --profile <name>', 'config profile')
     .option('-Q, --quiet', 'suppress spinner output')
     .addCommand(problemCommand())
