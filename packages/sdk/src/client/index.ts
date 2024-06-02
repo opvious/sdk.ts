@@ -17,7 +17,7 @@
 
 import * as otel from '@opentelemetry/api';
 import * as api from '@opvious/api';
-import {assert, assertCause, check} from '@opvious/stl-errors';
+import {assert, assertCause} from '@opvious/stl-errors';
 import {noopTelemetry, Telemetry} from '@opvious/stl-telemetry';
 import {withEmitter, withTypedEmitter} from '@opvious/stl-utils/events';
 import {ifPresent} from '@opvious/stl-utils/functions';
@@ -71,8 +71,8 @@ export class OpviousClient {
       headers.authorization = auth.includes(' ')
         ? auth
         : auth.includes(':')
-        ? `Basic ${Buffer.from(auth).toString('base64')}`
-        : `Bearer ${auth}`;
+          ? `Basic ${Buffer.from(auth).toString('base64')}`
+          : `Bearer ${auth}`;
     }
 
     const address = strippingTrailingSlashes(
@@ -319,33 +319,6 @@ export class OpviousClient {
   async deleteFormulation(name: string): Promise<boolean> {
     const res = await this.graphqlSdk.DeleteFormulation({name});
     return okResultData(res).deleteFormulation.specificationCount > 0;
-  }
-
-  // Formulation sharing
-
-  /**
-   * Makes a formulation's tag publicly accessible via a unique URL. This can be
-   * disabled via `unshareFormulation`.
-   */
-  async shareFormulation(
-    input: api.graphqlTypes.StartSharingFormulationInput
-  ): Promise<
-    MarkPresent<api.graphqlTypes.SharedSpecificationTagFragment, 'sharedVia'>
-  > {
-    const res = await this.graphqlSdk.StartSharingFormulation({input});
-    const tag = okResultData(res).startSharingFormulation;
-    return {...tag, sharedVia: check.isPresent(tag.sharedVia)};
-  }
-
-  /**
-   * Makes a formulation's tag(s) private. If not tags are specified, all the
-   * formulations tags will be set to private.
-   */
-  async unshareFormulation(
-    input: api.graphqlTypes.StopSharingFormulationInput
-  ): Promise<api.graphqlTypes.UnsharedFormulationFragment> {
-    const res = await this.graphqlSdk.StopSharingFormulation({input});
-    return okResultData(res).stopSharingFormulation;
   }
 
   // Attempts
