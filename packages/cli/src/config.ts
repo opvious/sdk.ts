@@ -22,6 +22,7 @@ export interface Config {
 
 export async function loadConfig(args: {
   readonly profile?: string;
+  readonly impersonation?: string;
   readonly env?: {readonly [evar: string]: string};
 }): Promise<Config> {
   logger.debug({data: {profile: args.profile}}, 'Loading config...');
@@ -54,6 +55,7 @@ export async function loadConfig(args: {
       token,
       endpoint: profile ? profile.endpoint ?? false : undefined,
       telemetry,
+      impersonation: args.impersonation,
     }),
     token,
     dockerCommand: cfgFile?.dockerCommand,

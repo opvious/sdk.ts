@@ -80,7 +80,10 @@ export function contextualAction(
 
       let cfg;
       try {
-        cfg = await loadConfig({profile: opts.profile});
+        cfg = await loadConfig({
+          profile: opts.profile,
+          impersonation: parseImpersonation(opts.impersonate),
+        });
         let msg = 'Loaded client.';
         if (cfg.profileName) {
           msg += ` [profile=${cfg.profileName}]`;
@@ -123,4 +126,22 @@ export async function runShell(
   if (code) {
     throw errors.nonZeroExitCode(code);
   }
+}
+
+const impersonatePattern = /^([^!?]+)([!?]*)/;
+
+function parseImpersonation(opt: string | undefined): string | undefined {
+  const match = opt ? impersonatePattern.exec(opt) : undefined;
+  if (!match) {
+    return undefined;
+  }
+  const parts = [match[1]];
+  const suffix = match[2] ?? '';
+  if (suffix.includes('?')) {
+    parts.push('create-if-unknown');
+  }
+  if (suffix.includes('!')) {
+    parts.push('forward-privileges');
+  }
+  return parts.join('; ');
 }
