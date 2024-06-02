@@ -37,6 +37,7 @@ jobs:
         image: opvious/api-server
         env:
           DB_URL: postgres://default_user:default_pass@postgres/default_db
+          NODE_ENV: test
           OPVIOUS_API_IMAGE_EULA: accepted
           REDIS_URL: redis://redis
           STATIC_TOKENS: test@opvious.io=testing
