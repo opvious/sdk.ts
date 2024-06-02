@@ -1,6 +1,6 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.10.6",
+  "version": "0.0.0",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",

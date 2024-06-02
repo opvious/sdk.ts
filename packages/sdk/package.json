@@ -1,6 +1,6 @@
 {
   "name": "opvious",
-  "version": "0.10.6",
+  "version": "0.0.0",
   "repository": "github:opvious/sdk.ts",
   "description": "Opvious SDK",
   "homepage": "https://www.opvious.io/sdk.ts/modules/opvious.html",
@@ -29,10 +29,10 @@
   },
   "dependencies": {
     "@opentelemetry/api": "~1.8.0",
-    "@opvious/api": "^0.18.23",
-    "@opvious/stl-errors": "^0.22.30",
-    "@opvious/stl-telemetry": "^0.22.30",
-    "@opvious/stl-utils": "^0.22.30",
+    "@opvious/api": "^0.20.0",
+    "@opvious/stl-errors": "^0.23.1",
+    "@opvious/stl-telemetry": "^0.23.1",
+    "@opvious/stl-utils": "^0.23.1",
     "abaca-openapi": "^0.10.13",
     "backoff": "^2.5.0",
     "graphql": "^16.6.0",

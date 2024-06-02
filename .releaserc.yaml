@@ -1,0 +1,9 @@
+plugins:
+  - - '@semantic-release/commit-analyzer' # https://go.mtth.io/29ffpCjb
+    - preset: conventionalcommits
+      parserOpts:
+        # These options are used to override the parser's defaults
+        # (https://go.mtth.io/4FpRkfmP) to disable major version changes from
+        # breaking changes in the commit title.
+        breakingHeaderPattern: ''
+        headerPattern: '/^(\w*)(?:\\((.*)\\))?!?: (.*)$/'
