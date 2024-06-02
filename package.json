@@ -1,12 +1,11 @@
 {
   "name": "@opvious/sdk-ts-packages",
-  "version": "0.10.6",
+  "version": "0.0.0",
   "private": true,
   "repository": "github:opvious/sdk.ts",
   "author": "Opvious Engineering <oss@opvious.io>",
   "license": "Apache-2.0",
   "scripts": {
-    "bump": "pnpm -r --include-workspace-root exec npm version ${BUMP:-patch}",
     "clean": "pnpm -r -F !. run clean && rm -rf docs node_modules out",
     "docs": "pnpm exec typedoc",
     "fix": "prettier --write 'packages/*/{src,test}/**/*.{ts,tsx}' && pnpm run lint --fix",
