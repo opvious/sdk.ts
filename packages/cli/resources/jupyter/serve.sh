@@ -16,8 +16,9 @@ main() { # <folder> [...]
 	else
 		python3 -m venv venv
 		. venv/bin/activate
+		python3 -m ensurepip
 	fi
-	pip install -r "$__dirname/requirements.txt"
+	python3 -m pip install -r "$__dirname/requirements.txt"
 	jupyter notebook "$@"
 }
 

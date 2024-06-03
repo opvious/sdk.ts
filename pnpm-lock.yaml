@@ -95,12 +95,18 @@ importers:
       humanize-duration:
         specifier: ^3.27.3
         version: 3.32.1
+      inlinable-runtime:
+        specifier: ^0.3.3
+        version: 0.3.3
       luxon:
         specifier: ^3.0.4
         version: 3.4.4
       node-fetch:
         specifier: ^3.3.1
         version: 3.3.2
+      node-machine-id:
+        specifier: ^1.1.12
+        version: 1.1.12
       opvious:
         specifier: workspace:*
         version: link:../sdk
@@ -1626,6 +1632,9 @@ packages:
   node-fetch@3.3.2:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  node-machine-id@1.1.12:
+    resolution: {integrity: sha512-QNABxbrPa3qEIfrE6GOJ7BYIuignnJw7iQ2YPbc3Nla1HzRJjXzZOiikfF8m7eAMfichLt3M4VgLOetqgDmgGQ==}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -3667,6 +3676,8 @@ snapshots:
       data-uri-to-buffer: 4.0.1
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
+
+  node-machine-id@1.1.12: {}
 
   normalize-path@3.0.0: {}
 

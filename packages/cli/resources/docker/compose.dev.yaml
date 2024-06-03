@@ -1,0 +1,15 @@
+name: opvious-api-dev
+services:
+  server:
+    image: opvious/api-server:$IMAGE_TAG
+    environment:
+      - BUCKET_URL=file:///mnt/bucket
+      - LOG_LEVEL
+      - OPVIOUS_API_IMAGE_EULA
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+      - OTEL_TRACES_SAMPLER=traceidratio
+      - OTEL_TRACES_SAMPLER_ARG
+    ports:
+      - $PORT:8080
+    volumes:
+      - $BUCKET_PATH:/mnt/bucket:rw

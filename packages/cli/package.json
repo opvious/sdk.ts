@@ -42,8 +42,10 @@
     "easy-table": "^1.2.0",
     "fast-fifo": "^1.1.0",
     "humanize-duration": "^3.27.3",
+    "inlinable-runtime": "^0.3.3",
     "luxon": "^3.0.4",
     "node-fetch": "^3.3.1",
+    "node-machine-id": "^1.1.12",
     "opvious": "workspace:*",
     "ora": "^8.0.1",
     "yaml": "^2.2.2"
