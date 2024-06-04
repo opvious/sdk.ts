@@ -31,14 +31,13 @@ import {ifPresent} from '@opvious/stl-utils/functions';
 import {Command} from 'commander';
 import crypto from 'crypto';
 import {mkdir} from 'fs/promises';
-import __inline from 'inlinable';
 import fetch from 'node-fetch';
 import nodeMachineId from 'node-machine-id';
 import os from 'os';
 import path from 'path';
 import {AsyncOrSync} from 'ts-essentials';
 
-import {resourceLoader} from '../common.js';
+import {KEYGEN_ACCOUNT_ID, resourceLoader} from '../common.js';
 import {
   ActionContext,
   contextualAction,
@@ -107,7 +106,7 @@ function startCommand(): Command {
     .option(
       '--password <password>',
       'password used to connect to the database and cache. the default is ' +
-        'derived from the machine\'s ID. the same value should be used ' +
+        'derived from this machine\'s ID. the same value should be used ' +
         'across restarts'
     )
     .action(
@@ -153,11 +152,6 @@ function startCommand(): Command {
       })
     );
 }
-
-const KEYGEN_ACCOUNT_ID = __inline(
-  'obfuscate',
-  () => '503b6545-cc50-4511-b547-4dcd9b4f9078'
-);
 
 async function fetchLicensee(key: string): Promise<string> {
   const res = await fetch(
