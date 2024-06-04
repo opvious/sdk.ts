@@ -45,7 +45,6 @@ jobs:
           NODE_ENV: development
           OPVIOUS_API_IMAGE_EULA: accepted
           REDIS_URL: redis://redis
-          STATIC_TOKENS: test@opvious.io=testing
         ports:
           - 8080:8080
     steps:
@@ -70,7 +69,7 @@ jobs:
         run: pnpm t
         env:
           OPVIOUS_ENDPOINT: http://localhost:8080
-          OPVIOUS_TOKEN: static:testing
+          OPVIOUS_TOKEN: license:${{ secrets.OPVIOUS_LICENSE_KEY }}
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:

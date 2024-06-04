@@ -31,7 +31,7 @@ export function notebookCommand(): Command {
     .addCommand(serveCommand());
 }
 
-const defaultNotebookPath = path.join(
+const defaultDataPath = path.join(
   os.homedir(),
   '.local',
   'share',
@@ -39,7 +39,12 @@ const defaultNotebookPath = path.join(
   'notebooks'
 );
 
-const cachePath = path.join(os.homedir(), '.cache', 'opvious', 'notebooks');
+const defaultCachePath = path.join(
+  os.homedir(),
+  '.cache',
+  'opvious',
+  'notebooks'
+);
 
 function serveCommand(): Command {
   return (
@@ -47,25 +52,30 @@ function serveCommand(): Command {
       .command('serve [args...]')
       .description('start a local Jupyter server')
       .option(
-        '-f, --folder <path>',
-        'local path where notebooks are stored. the folder will be created ' +
-          'if it does not already exist.',
-        defaultNotebookPath
+        '-c --cache-folder <path>',
+        'local path where the virtual environment will be created',
+        defaultCachePath
+      )
+      .option(
+        '-d, --data-folder <path>',
+        'local path where notebooks are stored',
+        defaultDataPath
       )
       // TODO: Add option to install additional libraries.
       .action(
         contextualAction(async function (args, opts) {
           const {client, config, spinner} = this;
-          const folderPath = path.resolve(opts.folder);
+          const cachePath = path.resolve(opts.cacheFolder);
+          const dataPath = path.resolve(opts.dataFolder);
           await Promise.all([
             mkdir(cachePath, {recursive: true}),
-            mkdir(folderPath, {recursive: true}),
+            mkdir(dataPath, {recursive: true}),
           ]);
 
           spinner.info('Starting Jupyter server...');
           const scriptUrl = resourceLoader.localUrl('jupyter/serve.sh');
           console.log(localPath(scriptUrl));
-          await runShell(localPath(scriptUrl), [folderPath, '-y', ...args], {
+          await runShell(localPath(scriptUrl), [dataPath, '-y', ...args], {
             cwd: cachePath,
             env: {
               ...process.env,

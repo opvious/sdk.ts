@@ -1,4 +1,4 @@
-name: opvious-api
+name: opvious-api-std
 services:
   server:
     image: opvious/api-server:$IMAGE_TAG
@@ -8,19 +8,15 @@ services:
       redis:
         condition: service_healthy
     environment:
-      # License check
-      - OPVIOUS_API_IMAGE_EULA
-      # Authentication
-      - STATIC_TOKENS
-      # URLs
+      - ADMIN_EMAILS
       - BUCKET_URL=file:///mnt/bucket
-      - DB_URL=postgres://postgres:$SECRET@db/opvious
-      - REDIS_URL=redis://:$SECRET@redis
-      # Telemetry
+      - DB_URL
       - LOG_LEVEL
+      - OPVIOUS_API_IMAGE_EULA
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
       - OTEL_TRACES_SAMPLER=traceidratio
       - OTEL_TRACES_SAMPLER_ARG
+      - REDIS_URL
     ports:
       - $PORT:8080
     volumes:
@@ -34,10 +30,10 @@ services:
       retries: 10
     environment:
       POSTGRES_DB: opvious
-      POSTGRES_PASSWORD: $SECRET
+      POSTGRES_PASSWORD: $PASSWORD
   redis:
     image: redis:7-alpine
-    command: redis-server --requirepass $SECRET
+    command: redis-server --requirepass $PASSWORD
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 2s

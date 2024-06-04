@@ -39,9 +39,8 @@ jobs:
           BUCKET_URL: file:///mnt/bucket
           DB_URL: postgres://default_user:default_pass@postgres/default_db
           NODE_ENV: development
-          OPVIOUS_API_IMAGE_EULA: accepted
+          OPVIOUS_API_IMAGE_EULA: accept
           REDIS_URL: redis://redis
-          STATIC_TOKENS: test@opvious.io=testing
         ports:
           - 8080:8080
     steps:
@@ -66,9 +65,9 @@ jobs:
         run: pnpm t
         env:
           OPVIOUS_ENDPOINT: http://localhost:8080
-          OPVIOUS_TOKEN: static:testing
+          OPVIOUS_TOKEN: license:${{ secrets.OPVIOUS_LICENSE_KEY }}
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: out/coverage

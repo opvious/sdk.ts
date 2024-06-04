@@ -24,6 +24,8 @@ import path from 'path';
 
 export const COMMAND_NAME = 'opvious';
 
+export const KEYGEN_ACCOUNT_ID = '503b6545-cc50-4511-b547-4dcd9b4f9078';
+
 export const packageInfo = __inlinable((ctx) =>
   ctx.enclosing(import.meta.url).metadata()
 );
