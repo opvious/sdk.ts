@@ -12,7 +12,6 @@ services:
       - BUCKET_URL=file:///mnt/bucket
       - DB_URL
       - LOG_LEVEL
-      - OPVIOUS_API_IMAGE_EULA
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
       - OTEL_TRACES_SAMPLER=traceidratio
       - OTEL_TRACES_SAMPLER_ARG
