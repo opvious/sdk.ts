@@ -16,10 +16,6 @@
  */
 
 import {
-  API_IMAGE_EULA_EVAR,
-  assertApiImageEulaAccepted,
-} from '@opvious/api/eulas';
-import {
   check,
   errorFactories,
   isStandardError,
@@ -111,8 +107,6 @@ function startCommand(): Command {
     )
     .action(
       dockerAction(async function (opts) {
-        assertApiImageEulaAccepted();
-
         const args = ['up', '--detach'];
         if (opts.forceRecreate) {
           args.push('--force-recreate');
@@ -252,7 +246,6 @@ async function runDocker(
     await runShell(lp, args, {
       cwd: localPath(resourceLoader.localUrl('docker')),
       env: {
-        [API_IMAGE_EULA_EVAR]: '',
         OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: '',
         OTEL_TRACES_SAMPLER_ARG: '1',
         ...process.env,

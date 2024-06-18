@@ -81,7 +81,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false
-          custom_release_rules: build:patch
+          custom_release_rules: build:patch,deps:patch
   publish-docs:
     name: Publish documentation
     timeout-minutes: 3
